@@ -1,118 +1,118 @@
 ---
 name: Serene Editorial Travel
 colors:
-  surface: '#faf9fb'
-  surface-dim: '#dbd9dc'
-  surface-bright: '#faf9fb'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f5f3f5'
-  surface-container: '#efedf0'
-  surface-container-high: '#e9e8ea'
-  surface-container-highest: '#e3e2e4'
-  on-surface: '#1b1c1e'
-  on-surface-variant: '#424844'
-  inverse-surface: '#2f3032'
-  inverse-on-surface: '#f2f0f3'
-  outline: '#727974'
-  outline-variant: '#c2c8c2'
-  surface-tint: '#4a6457'
-  primary: '#183126'
-  on-primary: '#ffffff'
-  primary-container: '#2e473b'
-  on-primary-container: '#99b5a5'
-  inverse-primary: '#b1cdbd'
-  secondary: '#5b5e66'
-  on-secondary: '#ffffff'
-  secondary-container: '#dddfe8'
-  on-secondary-container: '#5f636a'
-  tertiary: '#402424'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#593939'
-  on-tertiary-container: '#cfa3a3'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#cce9d9'
-  primary-fixed-dim: '#b1cdbd'
-  on-primary-fixed: '#062016'
-  on-primary-fixed-variant: '#334c40'
-  secondary-fixed: '#e0e2eb'
-  secondary-fixed-dim: '#c4c6cf'
-  on-secondary-fixed: '#181c22'
-  on-secondary-fixed-variant: '#43474e'
-  tertiary-fixed: '#ffdad9'
-  tertiary-fixed-dim: '#e9bbbb'
-  on-tertiary-fixed: '#2e1414'
-  on-tertiary-fixed-variant: '#5f3e3e'
-  background: '#faf9fb'
-  on-background: '#1b1c1e'
-  surface-variant: '#e3e2e4'
+  surface: "#faf9fb"
+  surface-dim: "#dbd9dc"
+  surface-bright: "#faf9fb"
+  surface-container-lowest: "#ffffff"
+  surface-container-low: "#f5f3f5"
+  surface-container: "#efedf0"
+  surface-container-high: "#e9e8ea"
+  surface-container-highest: "#e3e2e4"
+  on-surface: "#1b1c1e"
+  on-surface-variant: "#424844"
+  inverse-surface: "#2f3032"
+  inverse-on-surface: "#f2f0f3"
+  outline: "#727974"
+  outline-variant: "#c2c8c2"
+  surface-tint: "#4a6457"
+  primary: "#183126"
+  on-primary: "#ffffff"
+  primary-container: "#2e473b"
+  on-primary-container: "#99b5a5"
+  inverse-primary: "#b1cdbd"
+  secondary: "#5b5e66"
+  on-secondary: "#ffffff"
+  secondary-container: "#dddfe8"
+  on-secondary-container: "#5f636a"
+  tertiary: "#402424"
+  on-tertiary: "#ffffff"
+  tertiary-container: "#593939"
+  on-tertiary-container: "#cfa3a3"
+  error: "#ba1a1a"
+  on-error: "#ffffff"
+  error-container: "#ffdad6"
+  on-error-container: "#93000a"
+  primary-fixed: "#cce9d9"
+  primary-fixed-dim: "#b1cdbd"
+  on-primary-fixed: "#062016"
+  on-primary-fixed-variant: "#334c40"
+  secondary-fixed: "#e0e2eb"
+  secondary-fixed-dim: "#c4c6cf"
+  on-secondary-fixed: "#181c22"
+  on-secondary-fixed-variant: "#43474e"
+  tertiary-fixed: "#ffdad9"
+  tertiary-fixed-dim: "#e9bbbb"
+  on-tertiary-fixed: "#2e1414"
+  on-tertiary-fixed-variant: "#5f3e3e"
+  background: "#faf9fb"
+  on-background: "#1b1c1e"
+  surface-variant: "#e3e2e4"
 typography:
   display:
     fontFamily: Inter
     fontSize: 48px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 56px
     letterSpacing: -0.03em
   display-mobile:
     fontFamily: Inter
     fontSize: 34px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 42px
     letterSpacing: -0.025em
   headline-lg:
     fontFamily: Inter
     fontSize: 32px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 40px
     letterSpacing: -0.02em
   headline-lg-mobile:
     fontFamily: Inter
     fontSize: 26px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 34px
     letterSpacing: -0.015em
   headline-md:
     fontFamily: Inter
     fontSize: 22px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 30px
     letterSpacing: -0.015em
   headline-sm:
     fontFamily: Inter
     fontSize: 18px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 26px
     letterSpacing: -0.01em
   body-lg:
     fontFamily: Inter
     fontSize: 17px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 28px
     letterSpacing: -0.005em
   body-md:
     fontFamily: Inter
     fontSize: 15px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 24px
     letterSpacing: 0em
   body-sm:
     fontFamily: Inter
     fontSize: 13px
-    fontWeight: '400'
+    fontWeight: "400"
     lineHeight: 20px
     letterSpacing: 0em
   label-md:
     fontFamily: Inter
     fontSize: 12px
-    fontWeight: '500'
+    fontWeight: "500"
     lineHeight: 16px
     letterSpacing: 0.04em
   label-sm:
     fontFamily: Inter
     fontSize: 11px
-    fontWeight: '600'
+    fontWeight: "600"
     lineHeight: 14px
     letterSpacing: 0.06em
 rounded:
@@ -137,7 +137,7 @@ spacing:
 
 ## Brand & Style
 
-The design system embodies an editorial, contemplative approach to personal travel discovery and documentation. Rooted in the quiet visual balance of print journals like *Kinfolk* and *Cereal*, alongside the precision and reduction of high-end consumer hardware interfaces, the UI steps back completely to let travel imagery, typography, and personal narratives take precedence.
+The design system embodies an editorial, contemplative approach to personal travel discovery and documentation. Rooted in the quiet visual balance of print journals like _Kinfolk_ and _Cereal_, alongside the precision and reduction of high-end consumer hardware interfaces, the UI steps back completely to let travel imagery, typography, and personal narratives take precedence.
 
 The emotional signature is unhurried, grounded, and discerning. The interface avoids aggressive gamification, saturated visual badges, and clutter. It behaves as an understated digital archive: expansive whitespace, strict alignment grids, delicate hairline divisions, and subtle transitions create an atmosphere of stillness, clarity, and timeless elegance.
 
@@ -225,6 +225,7 @@ The geometric signature uses refined, consistent curvatures that soften modern d
 ## Components
 
 ### Buttons
+
 - **Primary Action**: Solid `primary-container` (`#2E473B`) background with
   `#FFFFFF` text, subtle pill shape (`rounded-full`), height `40px`, padding
   `0 20px`. Hover darkens toward `primary` (`#183126`) with no scale effect.
@@ -235,12 +236,14 @@ The geometric signature uses refined, consistent curvatures that soften modern d
   text, transitioning to `on-surface` (`#1B1C1E`) on hover.
 
 ### Cards & Discovery Tiles
+
 - Constructed with `surface` (`#FAF9FB`) or `surface-container-low`
   (`#F5F3F5`) fill, bounded by a 1px `outline-variant` (`#C2C8C2`) border.
 - Border radius strictly `rounded-xl` (12px).
 - Card imagery uses clean `aspect-[4/3]` or `aspect-[16/10]` framing with `overflow-hidden`. Hover interactions feature an imperceptible image zoom (`scale-102`, transition duration `500ms ease-out`).
 
 ### Chips & Tags
+
 - Used for destination tags, seasons, and mood labels.
 - Compact height (`28px`), `rounded-full`, 1px `outline-variant` border, and
   `label-md` typography.
@@ -248,6 +251,7 @@ The geometric signature uses refined, consistent curvatures that soften modern d
   (`#2E473B`) with white text.
 
 ### Input Fields & Controls
+
 - **Inputs**: Minimal single-line and multiline fields set against `surface`,
   outlined with a 1px `outline-variant` border. Focus uses a clearly visible
   2px `primary` outline or equivalent inset treatment; avoid diffuse glow, but
@@ -257,6 +261,7 @@ The geometric signature uses refined, consistent curvatures that soften modern d
   indicator.
 
 ### Modals & Sliding Side Sheets
+
 - **Slide-out Sheet (Discovery Drawer / Place Details)**: Docked to the right edge
   on desktop, spanning `480px`. Use an `outline-variant` left border and a smooth
   cubic-bezier entrance (`transform 300ms ease-out`).
@@ -265,5 +270,6 @@ The geometric signature uses refined, consistent curvatures that soften modern d
   `space-xl` interior padding.
 
 ### Lists & Timelines
+
 - Clean vertical lists separated by 1px `surface-container-highest` dividers.
 - Items feature left-aligned typographic details (`headline-sm` with stacked `body-sm` date and metadata) and generous vertical spacing (`padding: 16px 0`).

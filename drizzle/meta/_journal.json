@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794067200000,
+      "tag": "0000_phase_1_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794067200001,
+      "tag": "0001_phase_1_snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794067200002,
+      "tag": "0002_phase_2_domain_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794067200003,
+      "tag": "0003_relax_deleted_audit_actor",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794067200004,
+      "tag": "0004_shorten_capability_foreign_key",
+      "breakpoints": true
+    }
+  ]
+}

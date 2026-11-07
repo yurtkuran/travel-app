@@ -28,25 +28,25 @@ email provider for invitations.
 
 ## Permission matrix
 
-| Capability | Guest | User | Admin |
-|---|:---:|:---:|:---:|
-| Browse published places | Yes | Yes | Yes |
-| Read public reviews | Yes | Yes | Yes |
-| Sign in to a provisioned account | No | Yes | Yes |
-| Manage own profile and session | No | Yes | Yes |
-| Record, edit, and delete own visits | No | Yes | Yes |
-| Read own visit history | No | Yes | Yes |
-| Write, edit, and delete own reviews | No | Yes | Yes |
-| Submit a new place for review | No | Yes | Yes |
-| Edit own draft place submission | No | Yes | Yes |
-| Propose changes to a published place | No | Yes | Yes |
-| Publish or unpublish a place | No | No | Yes |
-| Approve or reject place submissions | No | No | Yes |
-| Edit any place | No | No | Yes |
-| Manage cities and categories | No | No | Yes |
-| Moderate public reviews | No | No | Yes |
-| Manage accounts and roles | No | No | Yes |
-| Access operational administration | No | No | Yes |
+| Capability                           | Guest | User | Admin |
+| ------------------------------------ | :---: | :--: | :---: |
+| Browse published places              |  Yes  | Yes  |  Yes  |
+| Read public reviews                  |  Yes  | Yes  |  Yes  |
+| Sign in to a provisioned account     |  No   | Yes  |  Yes  |
+| Manage own profile and session       |  No   | Yes  |  Yes  |
+| Record, edit, and delete own visits  |  No   | Yes  |  Yes  |
+| Read own visit history               |  No   | Yes  |  Yes  |
+| Write, edit, and delete own reviews  |  No   | Yes  |  Yes  |
+| Submit a new place for review        |  No   | Yes  |  Yes  |
+| Edit own draft place submission      |  No   | Yes  |  Yes  |
+| Propose changes to a published place |  No   | Yes  |  Yes  |
+| Publish or unpublish a place         |  No   |  No  |  Yes  |
+| Approve or reject place submissions  |  No   |  No  |  Yes  |
+| Edit any place                       |  No   |  No  |  Yes  |
+| Manage cities and categories         |  No   |  No  |  Yes  |
+| Moderate public reviews              |  No   |  No  |  Yes  |
+| Manage accounts and roles            |  No   |  No  |  Yes  |
+| Access operational administration    |  No   |  No  |  Yes  |
 
 “Own” must be checked using the authenticated user ID on the server. A record ID
 provided by the browser is never sufficient proof of ownership.
@@ -213,4 +213,3 @@ The following rules are confirmed for version one.
 - Suspension and deletion follow the confirmed retention rules above.
 - Additional admins are created only by promoting an activated user after recent
   admin re-authentication.
-

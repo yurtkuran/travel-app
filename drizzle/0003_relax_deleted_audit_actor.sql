@@ -1,0 +1,2 @@
+ALTER TABLE "audit_events" DROP CONSTRAINT "audit_events_actor_check";--> statement-breakpoint
+ALTER TABLE "audit_events" ADD CONSTRAINT "audit_events_actor_check" CHECK (("audit_events"."actor_type" = 'system' and "audit_events"."actor_user_id" is null) or "audit_events"."actor_type" = 'user');

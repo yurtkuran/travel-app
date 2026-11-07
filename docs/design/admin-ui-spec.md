@@ -88,14 +88,14 @@ validation and system states, authorization cues, or all agreed version-one data
 
 The approved columns are:
 
-| Column | Required content |
-|---|---|
-| Place Name | Thumbnail, place name, and short address/locality |
-| City | City and country |
-| Category | Category icon and name |
-| Source / Recommended By | Recommender/source plus source type |
-| Visits | Visit count or **Unvisited** |
-| Actions | Direct **Edit** action and an overflow menu |
+| Column                  | Required content                                  |
+| ----------------------- | ------------------------------------------------- |
+| Place Name              | Thumbnail, place name, and short address/locality |
+| City                    | City and country                                  |
+| Category                | Category icon and name                            |
+| Source / Recommended By | Recommender/source plus source type               |
+| Visits                  | Visit count or **Unvisited**                      |
+| Actions                 | Direct **Edit** action and an overflow menu       |
 
 Rows use hairline separators rather than individual elevated cards. The example
 shows five rows and the summary **Showing 5 of 28 places**, followed by Previous
@@ -130,13 +130,13 @@ The approved edit state opens a right-docked sheet over a dimmed, blurred page.
 
 The artifact contains these groups and fields:
 
-| Group | Fields and actions shown |
-|---|---|
-| Basic Information | Place name; city; add city; category; add category; address; phone number |
-| Curated Imagery | Ordered image thumbnails; remove image; image count; add image |
-| Links & Coordinates | Website; Google Maps; directory/Yelp; Instagram; reservation URL |
+| Group                  | Fields and actions shown                                                        |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| Basic Information      | Place name; city; add city; category; add category; address; phone number       |
+| Curated Imagery        | Ordered image thumbnails; remove image; image count; add image                  |
+| Links & Coordinates    | Website; Google Maps; directory/Yelp; Instagram; reservation URL                |
 | Recommendation Details | Recommended by; date recommended; source type; source URL; recommendation notes |
-| Personal Field Notes | Multiline personal notes |
+| Personal Field Notes   | Multiline personal notes                                                        |
 
 The product meaning, ownership, and visibility of these fields are governed by
 [`../product/place-model.md`](../product/place-model.md). The screen must not
@@ -222,17 +222,17 @@ tokens during implementation.
 The production component system should support these reusable primitives rather
 than reproduce the generated page as a single component:
 
-| Area | Components |
-|---|---|
-| Application shell | `AppHeader`, `PrimaryNav`, `AccountMenu`, `PageContainer` |
-| Page heading | `PageHeader`, `RepositorySummary`, `PrimaryAction` |
-| Query controls | `SearchField`, `SelectFilter`, `SortMenu`, `ActiveFilters` |
-| Data display | `DataTable`, `PlaceRow`, `PlaceThumbnail`, `CategoryLabel`, `Pagination` |
-| Overlays | `Dialog`, `SideSheet`, `AlertDialog`, `Backdrop` |
-| Forms | `FormField`, `TextInput`, `Select`, `DateInput`, `Textarea`, `FormErrorSummary` |
-| Place editor | `PlaceForm`, `PlaceBasics`, `PlaceLinks`, `RecommendationFields`, `PersonalNotes` |
-| Media | `ImageList`, `ImageItem`, `ImageUploader`, `UploadProgress` |
-| Feedback | `InlineError`, `Toast`, `LoadingState`, `EmptyState`, `NoResultsState` |
+| Area              | Components                                                                        |
+| ----------------- | --------------------------------------------------------------------------------- |
+| Application shell | `AppHeader`, `PrimaryNav`, `AccountMenu`, `PageContainer`                         |
+| Page heading      | `PageHeader`, `RepositorySummary`, `PrimaryAction`                                |
+| Query controls    | `SearchField`, `SelectFilter`, `SortMenu`, `ActiveFilters`                        |
+| Data display      | `DataTable`, `PlaceRow`, `PlaceThumbnail`, `CategoryLabel`, `Pagination`          |
+| Overlays          | `Dialog`, `SideSheet`, `AlertDialog`, `Backdrop`                                  |
+| Forms             | `FormField`, `TextInput`, `Select`, `DateInput`, `Textarea`, `FormErrorSummary`   |
+| Place editor      | `PlaceForm`, `PlaceBasics`, `PlaceLinks`, `RecommendationFields`, `PersonalNotes` |
+| Media             | `ImageList`, `ImageItem`, `ImageUploader`, `UploadProgress`                       |
+| Feedback          | `InlineError`, `Toast`, `LoadingState`, `EmptyState`, `NoResultsState`            |
 
 Names describe responsibilities rather than prescribing a particular component
 library. Accessible headless primitives may provide the overlay, menu, and select
@@ -379,4 +379,3 @@ Remaining decisions:
 - Keyboard-only and screen-reader workflows pass manual testing, and automated
   accessibility checks have no serious or critical findings.
 - Reduced motion and 200-percent zoom are usable without loss of functionality.
-

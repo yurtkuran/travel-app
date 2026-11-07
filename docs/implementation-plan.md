@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-07  
-> **Current phase:** Phase 1 — Establish the technical foundation
-> **Project status:** Ready for implementation
+> **Current phase:** Phase 4 — Build the application shell and navigation
+> **Project status:** Implementation in progress
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -20,19 +20,19 @@ made, or a phase advances.
 
 ## Phase status
 
-| Phase | Name | Status |
-|---|---|---|
-| 0 | Define version one | In progress |
-| 1 | Establish the technical foundation | Not started |
-| 2 | Design the database | Not started |
-| 3 | Implement authentication and authorization | Not started |
-| 4 | Build the application shell and navigation | Not started |
-| 5 | Implement the core vertical slice | Not started |
-| 6 | Add media handling | Not started |
-| 7 | Complete public and administrative UX | Not started |
-| 8 | Security and quality hardening | Not started |
-| 9 | Deploy to DigitalOcean | Not started |
-| 10 | Stabilize before adding features | Not started |
+| Phase | Name                                       | Status      |
+| ----- | ------------------------------------------ | ----------- |
+| 0     | Define version one                         | Complete    |
+| 1     | Establish the technical foundation         | Complete    |
+| 2     | Design the database                        | Complete    |
+| 3     | Implement authentication and authorization | Complete    |
+| 4     | Build the application shell and navigation | Not started |
+| 5     | Implement the core vertical slice          | Not started |
+| 6     | Add media handling                         | Not started |
+| 7     | Complete public and administrative UX      | Not started |
+| 8     | Security and quality hardening             | Not started |
+| 9     | Deploy to DigitalOcean                     | Not started |
+| 10    | Stabilize before adding features           | Not started |
 
 ## Confirmed project decisions
 
@@ -74,6 +74,13 @@ made, or a phase advances.
   interface. An S3-compatible service such as SeaweedFS may be adopted later.
 - The production target is Docker Compose on a DigitalOcean Droplet.
 - Caddy is the planned production reverse proxy and TLS terminator.
+- Node.js 24 LTS is the supported runtime for the initial implementation.
+- pnpm 12 is the package manager and is pinned through Corepack metadata.
+- Tailwind CSS 4 provides the styling foundation; shared accessible primitives
+  will be introduced as application features require them.
+- Initial categories are Restaurant, Bar, Hotel, Shop, Arts & Culture, and
+  Attraction. Categories remain admin-managed data; Event is deferred until its
+  version-one behavior is defined.
 
 ## Confirmed design sources
 
@@ -232,7 +239,7 @@ described without relying on the legacy PHP implementation.
 
 ## Phase 1 — Establish the technical foundation
 
-**Status:** Ready to start
+**Status:** Complete
 
 Create the new application foundation independently of the legacy project.
 
@@ -289,11 +296,29 @@ src/
 A clean checkout can start the application and PostgreSQL through documented
 commands, run migrations, and pass the continuous-integration checks.
 
+### Implementation notes
+
+- The repository pins Node.js 24 and pnpm 12 and includes native and Docker
+  development paths.
+- The initial Next.js shell, strict TypeScript configuration, environment
+  validation, structured JSON logger, and health endpoints are in place.
+- PostgreSQL 18 runs through Docker Compose. Drizzle migration `0000` adds only
+  framework-owned application metadata; version-one domain modeling remains in
+  Phase 2.
+- Unit, database integration, and desktop Chromium browser test lanes are
+  configured, along with CI checks for formatting, linting, types, tests, and a
+  production build.
+- The dependency lockfile is committed, the documented Compose stack starts the
+  application and PostgreSQL successfully, migrations apply, and liveness and
+  readiness checks pass.
+- Formatting, linting, strict type-checking, unit tests, database integration
+  tests, production builds, and the desktop Chromium smoke test pass.
+
 ---
 
 ## Phase 2 — Design the database
 
-**Status:** Not started
+**Status:** Complete
 
 Create a clean schema based on the new product rather than reproducing the
 legacy `ey_travel` table.
@@ -373,11 +398,27 @@ legacy `ey_travel` table.
 Versioned migrations can create an empty database from scratch, and automated
 database tests prove the intended relationships and constraints.
 
+### Implementation notes
+
+- The normalized schema and privacy/delete boundaries are documented in
+  [`docs/architecture/database-schema.md`](architecture/database-schema.md).
+- Better Auth core and admin-plugin fields, account-setup tokens, audit events,
+  taxonomy, places, private provenance, links, media, proposals, reviews, visits,
+  and normalized rating dimensions are represented in Drizzle.
+- PostgreSQL enforces rating ranges, one review per user/place, publishable place
+  requirements, coordinate pairing, URL schemes, setup-token cardinality, and
+  category-enabled optional rating dimensions.
+- Deterministic seeds create Restaurant, Bar, Hotel, Shop, Arts & Culture, and
+  Attraction categories plus Food, Atmosphere, and Service capabilities.
+- The full migration chain was verified against a new empty PostgreSQL database;
+  ten integration tests prove representative relationships, constraints,
+  capability checks, aggregates, and deletion behavior.
+
 ---
 
 ## Phase 3 — Implement authentication and authorization
 
-**Status:** Not started
+**Status:** Complete
 
 Integrate Better Auth before implementing authenticated user or administrative
 features.
@@ -422,6 +463,30 @@ features.
 The initial admin can sign in and reach an empty protected dashboard, an ordinary
 user can reach only user-authorized features, and all unauthorized requests fail
 on the server.
+
+### Implementation notes
+
+- Better Auth provides invitation-only email/password authentication with
+  PostgreSQL-backed sessions; public registration is disabled.
+- Server-side bootstrap, user-provisioning, and account-recovery commands support
+  the initial administrator and version-one account lifecycle.
+- Account setup links use 256-bit random, expiring, revocable, single-use tokens.
+  Only SHA-256 token hashes are stored. The token remains in the no-referrer,
+  no-index setup URL until transactional consumption, avoiding unreliable
+  redirect-cookie handoffs while preventing third-party referrer disclosure.
+- Production enables trusted-origin enforcement, secure cookies, and sign-in rate
+  limiting. Development leaves the in-memory rate limiter disabled so repeated
+  local browser suites do not share a stale attempt bucket.
+- Centralized capability and ownership checks distinguish guests, users, and
+  admins without allowing the admin role to bypass private-visit ownership.
+- Account suspension revokes sessions, and database-backed administrative
+  services protect the final active administrator from suspension, demotion, or
+  deletion.
+- Ten unit tests cover capability and return-path rules. Fifteen database
+  integration tests cover signup rejection, account setup, Better Auth sign-in,
+  PostgreSQL sessions, suspension, and last-admin protection alongside schema
+  constraints. Five desktop Chromium journeys verify guest redirects, user and
+  admin boundaries, the protected dashboard, and single-use account setup.
 
 ---
 
@@ -706,7 +771,6 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ## Open decisions
 
-- Initial category seed values
 - Final media size and format limits
 - Supported browser policy
 - Staging environment topology
@@ -716,6 +780,35 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-07
 
+- Completed Phase 3 after verifying ten unit tests, fifteen integration tests,
+  and five desktop Chromium journeys. Invitation-only setup, sign-in, session,
+  recovery, suspension, role/ownership authorization, and final-active-admin
+  safeguards are operational. Advanced the roadmap to Phase 4.
+- Started Phase 3 with Better Auth email/password and PostgreSQL session
+  configuration, disabled public signup, trusted-origin and rate-limit controls,
+  single-use setup/recovery tokens, bootstrap/provision/recovery commands,
+  protected account/admin routes, centralized capabilities and ownership checks,
+  account-retention services, and final-active-admin safeguards.
+- Completed Phase 2 after applying the full migration chain to an empty
+  PostgreSQL database without warnings and passing ten database integration
+  tests covering relationships, lifecycle constraints, rating capabilities,
+  aggregates, setup tokens, and deletion behavior. Advanced the roadmap to
+  Phase 3.
+- Started Phase 2 with Better Auth-compatible identity tables, normalized
+  taxonomy, place/submission/proposal, media, review, visit, rating-capability,
+  account-setup-token, and audit schemas; documented identifiers, privacy and
+  retention boundaries, delete behavior, seeds, and query/index strategy.
+- Completed Phase 1 after verifying the locked Node.js 24 and pnpm 12 toolchain,
+  full Docker Compose startup, PostgreSQL 18 migration path, liveness and
+  readiness endpoints, formatting, linting, strict type-checking, unit and
+  integration tests, Turbopack production build, and desktop Chromium smoke
+  test. Advanced the roadmap to Phase 2.
+- Started Phase 1 with the Next.js application shell, strict TypeScript and
+  tooling configuration, environment validation, structured logging, liveness
+  and readiness endpoints, PostgreSQL Compose service, initial Drizzle migration,
+  test lanes, CI workflow, and local-development documentation. The phase remains
+  in progress pending lockfile generation and executable verification under the
+  pinned Node.js 24 environment.
 - Confirmed **TravelTrove** with the restrained text wordmark as the version-one
   application identity.
 - Marked Phase 0 complete and advanced the roadmap to Phase 1, ready to start.
@@ -898,4 +991,3 @@ tested, and the next set of features has been prioritized from actual needs.
 - Recorded the initial `owner` and `editor` role model.
 - Recorded filesystem-first media storage and DigitalOcean deployment targets.
 - Marked Phase 0 as in progress and Phases 1–10 as not started.
-

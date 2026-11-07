@@ -23,11 +23,11 @@ wireframes; it does not replace visual approval.
 
 Every visual template should be evaluated at these representative widths:
 
-| Frame | Width | Structural intent |
-|---|---:|---|
-| Minimum supported | 1024 px | Large-tablet/computer viewport; compact navigation and wrapped controls |
-| Desktop | 1440 px | Full navigation, editorial grid, tables where appropriate |
-| Wide desktop | 1920 px | Preserve the 1440-pixel content maximum and intentional outer whitespace |
+| Frame             |   Width | Structural intent                                                        |
+| ----------------- | ------: | ------------------------------------------------------------------------ |
+| Minimum supported | 1024 px | Large-tablet/computer viewport; compact navigation and wrapped controls  |
+| Desktop           | 1440 px | Full navigation, editorial grid, tables where appropriate                |
+| Wide desktop      | 1920 px | Preserve the 1440-pixel content maximum and intentional outer whitespace |
 
 These are design frames, not hard-coded device breakpoints. The implementation
 should change layout when content needs it and remain usable between frames.
@@ -74,23 +74,23 @@ separately.
 Routes sharing the same layout and interaction model should use one visual
 template with state variants rather than independent designs.
 
-| Template | Primary routes | Required roles | Design status |
-|---|---|---|---|
-| Home and explore | `/`, `/places` | Everyone | 1024/1440 user frames and guest/admin headers approved |
-| City/category browse | `/cities/[citySlug]`, `/categories/[categorySlug]` | Everyone | 1024/1440 pattern board approved |
-| Place detail | `/places/[placeId]/[slug]` | Everyone | Active-sheet and closed frames approved |
-| Authentication | `/sign-in`, `/account/setup` | Guest/token holder | 1024/1440 forms and lifecycle-state board approved |
-| Account | `/account`, `/account/security` | User/admin | 1024/1440 profile/security pattern board approved |
-| My activity | `/my`, `/my/visits`, `/my/reviews` | User/admin owner | Overview and 1024/1440 visit/review management patterns approved |
-| Submission workspace | `/my/submissions/*`, `/my/proposals/*` | User/admin owner | Core screens and 1024/1440 lifecycle-state pattern approved |
-| Place contributions | `*/review`, `*/visits`, `*/suggest-edit` | User/admin owner | Core tasks and place-specific visit history/edit/delete pattern approved |
-| Admin dashboard | `/admin` | Admin | 1024/1440 frames approved |
-| Admin places | `/admin/places*` | Admin | Desktop reference plus 1024/direct-create/standalone-editor completion board approved |
-| Moderation queue | `/admin/submissions*`, `/admin/proposals*` | Admin | Proposal comparison plus queue/new-submission comparison board approved |
-| Taxonomy management | `/admin/cities`, `/admin/categories` | Admin | Shared list, action, and state patterns approved at 1024/1440 |
-| Review moderation | `/admin/reviews` | Admin | Shared list, action, and state patterns approved at 1024/1440 |
-| User management | `/admin/users*` | Admin | Shared list, action, and state patterns approved at 1024/1440 |
-| Audit | `/admin/audit` | Admin | Shared list, detail, and state patterns approved at 1024/1440 |
+| Template             | Primary routes                                     | Required roles     | Design status                                                                         |
+| -------------------- | -------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------- |
+| Home and explore     | `/`, `/places`                                     | Everyone           | 1024/1440 user frames and guest/admin headers approved                                |
+| City/category browse | `/cities/[citySlug]`, `/categories/[categorySlug]` | Everyone           | 1024/1440 pattern board approved                                                      |
+| Place detail         | `/places/[placeId]/[slug]`                         | Everyone           | Active-sheet and closed frames approved                                               |
+| Authentication       | `/sign-in`, `/account/setup`                       | Guest/token holder | 1024/1440 forms and lifecycle-state board approved                                    |
+| Account              | `/account`, `/account/security`                    | User/admin         | 1024/1440 profile/security pattern board approved                                     |
+| My activity          | `/my`, `/my/visits`, `/my/reviews`                 | User/admin owner   | Overview and 1024/1440 visit/review management patterns approved                      |
+| Submission workspace | `/my/submissions/*`, `/my/proposals/*`             | User/admin owner   | Core screens and 1024/1440 lifecycle-state pattern approved                           |
+| Place contributions  | `*/review`, `*/visits`, `*/suggest-edit`           | User/admin owner   | Core tasks and place-specific visit history/edit/delete pattern approved              |
+| Admin dashboard      | `/admin`                                           | Admin              | 1024/1440 frames approved                                                             |
+| Admin places         | `/admin/places*`                                   | Admin              | Desktop reference plus 1024/direct-create/standalone-editor completion board approved |
+| Moderation queue     | `/admin/submissions*`, `/admin/proposals*`         | Admin              | Proposal comparison plus queue/new-submission comparison board approved               |
+| Taxonomy management  | `/admin/cities`, `/admin/categories`               | Admin              | Shared list, action, and state patterns approved at 1024/1440                         |
+| Review moderation    | `/admin/reviews`                                   | Admin              | Shared list, action, and state patterns approved at 1024/1440                         |
+| User management      | `/admin/users*`                                    | Admin              | Shared list, action, and state patterns approved at 1024/1440                         |
+| Audit                | `/admin/audit`                                     | Admin              | Shared list, detail, and state patterns approved at 1024/1440                         |
 
 The public-system-state reference board is approved; it
 covers loading, empty, no-results, recoverable error, missing data, validation,
@@ -319,4 +319,3 @@ Audit is read-only in version one.
 7. Apply the management-list pattern to cities, categories, reviews, users, and
    audit.
 8. Run a coverage review against [`../product/routes.md`](../product/routes.md).
-

@@ -34,14 +34,14 @@ pending, expired-session, forbidden, and destructive-action behaviors.
 
 Key contrast checks for the canonical palette:
 
-| Pair | Contrast ratio | Intended use |
-|---|---:|---|
-| `on-surface` on `surface` | 16.25:1 | Primary text |
-| `on-surface-variant` on `surface` | 8.92:1 | Secondary text |
-| `outline` on `surface` | 4.25:1 | Non-text boundaries and controls |
-| `on-primary` on `primary` | 13.94:1 | Dark primary actions |
-| White on `primary-container` | 10.09:1 | Approved sage action buttons |
-| `on-error` on `error` | 6.46:1 | Destructive/error actions |
+| Pair                              | Contrast ratio | Intended use                     |
+| --------------------------------- | -------------: | -------------------------------- |
+| `on-surface` on `surface`         |        16.25:1 | Primary text                     |
+| `on-surface-variant` on `surface` |         8.92:1 | Secondary text                   |
+| `outline` on `surface`            |         4.25:1 | Non-text boundaries and controls |
+| `on-primary` on `primary`         |        13.94:1 | Dark primary actions             |
+| White on `primary-container`      |        10.09:1 | Approved sage action buttons     |
+| `on-error` on `error`             |         6.46:1 | Destructive/error actions        |
 
 Final component-level contrast still requires automated and manual testing in
 Phase 1 because opacity, imagery, disabled states, and browser rendering can

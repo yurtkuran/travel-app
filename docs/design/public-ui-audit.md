@@ -206,16 +206,16 @@ unbounded page with unclear navigation state.
 
 ## Component inventory
 
-| Area | Components |
-|---|---|
-| Shell | `PublicHeader`, `RoleNavigation`, `AccountMenu`, `PublicFooter` |
-| Hero | `EditorialHero`, `ArchiveCaption`, `RepositorySummary` |
-| Search | `PlaceSearch`, `ExploreFilters`, `ActiveFilterChips`, `SortMenu` |
-| Discovery | `RecentPlacesRail`, `CarouselControls`, `PlaceCard` |
-| Results | `PlaceGrid`, `ResultsSummary`, `Pagination`, `NoResultsState` |
-| Place detail | `PlaceGallery`, `PlaceIdentity`, `PublicLinks`, `PublicAttribution`, `RatingSummary`, `ReviewList` |
-| Personalization | `MyVisitBadge`, `PrivateVisitList`, `PersonalRatingTrend`, `VisitForm`, `ReviewForm` |
-| Overlays | `ResponsiveSheet`, `Dialog`, `Toast`, `ConfirmationDialog` |
+| Area            | Components                                                                                         |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| Shell           | `PublicHeader`, `RoleNavigation`, `AccountMenu`, `PublicFooter`                                    |
+| Hero            | `EditorialHero`, `ArchiveCaption`, `RepositorySummary`                                             |
+| Search          | `PlaceSearch`, `ExploreFilters`, `ActiveFilterChips`, `SortMenu`                                   |
+| Discovery       | `RecentPlacesRail`, `CarouselControls`, `PlaceCard`                                                |
+| Results         | `PlaceGrid`, `ResultsSummary`, `Pagination`, `NoResultsState`                                      |
+| Place detail    | `PlaceGallery`, `PlaceIdentity`, `PublicLinks`, `PublicAttribution`, `RatingSummary`, `ReviewList` |
+| Personalization | `MyVisitBadge`, `PrivateVisitList`, `PersonalRatingTrend`, `VisitForm`, `ReviewForm`               |
+| Overlays        | `ResponsiveSheet`, `Dialog`, `Toast`, `ConfirmationDialog`                                         |
 
 Public and personalized components may share a card, but private data fetching
 must remain explicitly separated from public place queries.
@@ -286,12 +286,12 @@ The visual direction is approved. Revised frames are complete when:
 
 The following revised screens were generated from this audit on 2026-11-05:
 
-| Screen | Stitch screen ID | Review status |
-|---|---|---|
-| Home / Explore — Minimum 1024 | `901de6a2dac54ccb91af0e447620d676` | Approved 2026-11-05 |
+| Screen                                  | Stitch screen ID                   | Review status       |
+| --------------------------------------- | ---------------------------------- | ------------------- |
+| Home / Explore — Minimum 1024           | `901de6a2dac54ccb91af0e447620d676` | Approved 2026-11-05 |
 | Home / Explore — Desktop 1440 (Refined) | `75609dfb04d44c3fa4fe6ecdbccef114` | Approved 2026-11-05 |
-| Place Detail — Minimum 1024 (Refined) | `5709722c08f64fe19b67a269d9d63e87` | Approved 2026-11-05 |
-| Place Detail — Desktop 1440 (Refined) | `a591f51a1aae455bb58b855679d24686` | Approved 2026-11-05 |
+| Place Detail — Minimum 1024 (Refined)   | `5709722c08f64fe19b67a269d9d63e87` | Approved 2026-11-05 |
+| Place Detail — Desktop 1440 (Refined)   | `a591f51a1aae455bb58b855679d24686` | Approved 2026-11-05 |
 
 Generated-content QA confirmed that none of the four final frames contains
 Wishlist, Manage Places, Verified Visit, browse-grid/map toggle, or notification
@@ -305,13 +305,13 @@ the follow-up closed, role-navigation, and system-state frames are approved.
 
 ### Follow-up coverage set
 
-| Screen | Stitch screen ID | Review status |
-|---|---|---|
-| Place Detail — Minimum 1024 — Closed | `ed75407b15414b12a3da89c4b4893c49` | Approved |
-| Place Detail — Desktop 1440 — Closed | `1631e7e314044ac2927f14857613098d` | Approved |
-| Home / Explore — Guest Header 1440 | `5208af76e9564e338d0f82f93ff28fa1` | Approved |
-| Home / Explore — Admin Header 1440 | `2663a65bb6434262ae0f580ad1ed8ff8` | Approved |
-| Public UI System States — 1440 (WCAG 2.2 AA) | `b092fe6136244b00a9bcf0bd9d54326f` | Approved |
+| Screen                                       | Stitch screen ID                   | Review status |
+| -------------------------------------------- | ---------------------------------- | ------------- |
+| Place Detail — Minimum 1024 — Closed         | `ed75407b15414b12a3da89c4b4893c49` | Approved      |
+| Place Detail — Desktop 1440 — Closed         | `1631e7e314044ac2927f14857613098d` | Approved      |
+| Home / Explore — Guest Header 1440           | `5208af76e9564e338d0f82f93ff28fa1` | Approved      |
+| Home / Explore — Admin Header 1440           | `2663a65bb6434262ae0f580ad1ed8ff8` | Approved      |
+| Public UI System States — 1440 (WCAG 2.2 AA) | `b092fe6136244b00a9bcf0bd9d54326f` | Approved      |
 
 Generated-content QA confirmed that the closed states retain private whole-star
 visit snapshots and public decimal aggregates without the active sheet or empty
@@ -321,4 +321,3 @@ admin's own **Your visits** markers. The final system-state board covers loading
 empty repository, no results, recoverable error, missing card data, private visit
 validation, public review validation, success feedback, and expired-session draft
 preservation, with the project target corrected to WCAG 2.2 AA.
-

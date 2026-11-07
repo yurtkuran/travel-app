@@ -27,13 +27,13 @@ internal component tree or data-access implementation.
 
 ## Public routes
 
-| Route | Access | Purpose |
-|---|---|---|
-| `/` | Everyone | Home, discovery entry point, recent or featured places |
-| `/places` | Everyone | Searchable, filterable, paginated place browse |
-| `/places/[placeId]/[slug]` | Everyone | Canonical published place detail |
-| `/cities/[citySlug]` | Everyone | City landing page and places in that city |
-| `/categories/[categorySlug]` | Everyone | Category landing page and places in that category |
+| Route                        | Access   | Purpose                                                |
+| ---------------------------- | -------- | ------------------------------------------------------ |
+| `/`                          | Everyone | Home, discovery entry point, recent or featured places |
+| `/places`                    | Everyone | Searchable, filterable, paginated place browse         |
+| `/places/[placeId]/[slug]`   | Everyone | Canonical published place detail                       |
+| `/cities/[citySlug]`         | Everyone | City landing page and places in that city              |
+| `/categories/[categorySlug]` | Everyone | Category landing page and places in that category      |
 
 Only published canonical places appear on public routes. Reviews hidden by
 moderation do not appear on place pages or in rating aggregates.
@@ -49,15 +49,15 @@ should not be exposed as the public identifier.
 
 `/places`, city pages, and category pages support an allowlisted subset of:
 
-| Parameter | Meaning |
-|---|---|
-| `q` | Public full-text search term |
-| `city` | City slug or stable public identifier |
-| `category` | Category slug or stable public identifier |
-| `type` | Optional type/cuisine label search/filter when supported |
-| `rating` | Minimum public overall-star aggregate |
-| `sort` | Allowlisted order such as `recent`, `name`, or `rating` |
-| `page` | Positive page number |
+| Parameter  | Meaning                                                  |
+| ---------- | -------------------------------------------------------- |
+| `q`        | Public full-text search term                             |
+| `city`     | City slug or stable public identifier                    |
+| `category` | Category slug or stable public identifier                |
+| `type`     | Optional type/cuisine label search/filter when supported |
+| `rating`   | Minimum public overall-star aggregate                    |
+| `sort`     | Allowlisted order such as `recent`, `name`, or `rating`  |
+| `page`     | Positive page number                                     |
 
 Unknown or invalid values fall back safely or produce a validation response; they
 never become raw database column or SQL expressions. Canonical metadata should
@@ -65,12 +65,12 @@ avoid indexing a large number of near-duplicate filter URLs.
 
 ## Authentication and account routes
 
-| Route | Access | Purpose |
-|---|---|---|
-| `/sign-in` | Guest | Sign in to a provisioned account |
-| `/account/setup` | Holder of valid token | Consume a single-use setup link and choose the initial password |
-| `/account` | Authenticated | View and edit one's profile |
-| `/account/security` | Authenticated | Change password and review/revoke own sessions |
+| Route               | Access                | Purpose                                                         |
+| ------------------- | --------------------- | --------------------------------------------------------------- |
+| `/sign-in`          | Guest                 | Sign in to a provisioned account                                |
+| `/account/setup`    | Holder of valid token | Consume a single-use setup link and choose the initial password |
+| `/account`          | Authenticated         | View and edit one's profile                                     |
+| `/account/security` | Authenticated         | Change password and review/revoke own sessions                  |
 
 There is no public registration route in version one. Sign-out is an authenticated
 mutation initiated from the account menu, not a GET page.
@@ -89,24 +89,24 @@ must not be valid for any other account or purpose.
 These routes require authentication. An admin accessing them acts as an ordinary
 user and sees only their own records.
 
-| Route | Purpose |
-|---|---|
-| `/my` | Personal dashboard summarizing visits, reviews, and submissions |
-| `/my/visits` | Private visit history |
-| `/my/reviews` | User's public and moderated reviews |
-| `/my/submissions` | Draft, pending, rejected, withdrawn, and published submissions |
-| `/my/submissions/new` | Create a new-place draft |
-| `/my/submissions/[submissionId]` | View/edit an owned draft or inspect its moderation status |
-| `/my/proposals` | Change proposals for published places |
-| `/my/proposals/[proposalId]` | View an owned proposal and its moderation status |
+| Route                            | Purpose                                                         |
+| -------------------------------- | --------------------------------------------------------------- |
+| `/my`                            | Personal dashboard summarizing visits, reviews, and submissions |
+| `/my/visits`                     | Private visit history                                           |
+| `/my/reviews`                    | User's public and moderated reviews                             |
+| `/my/submissions`                | Draft, pending, rejected, withdrawn, and published submissions  |
+| `/my/submissions/new`            | Create a new-place draft                                        |
+| `/my/submissions/[submissionId]` | View/edit an owned draft or inspect its moderation status       |
+| `/my/proposals`                  | Change proposals for published places                           |
+| `/my/proposals/[proposalId]`     | View an owned proposal and its moderation status                |
 
 Place-specific authenticated actions begin in the place context:
 
-| Route | Purpose |
-|---|---|
-| `/places/[placeId]/[slug]/review` | Create or edit the signed-in user's single review |
-| `/places/[placeId]/[slug]/visits` | View and manage the signed-in user's visits to the place |
-| `/places/[placeId]/[slug]/suggest-edit` | Create a change proposal from current public data |
+| Route                                   | Purpose                                                  |
+| --------------------------------------- | -------------------------------------------------------- |
+| `/places/[placeId]/[slug]/review`       | Create or edit the signed-in user's single review        |
+| `/places/[placeId]/[slug]/visits`       | View and manage the signed-in user's visits to the place |
+| `/places/[placeId]/[slug]/suggest-edit` | Create a change proposal from current public data        |
 
 These may render as dialogs or sheets on wide screens, but each has a real URL so
 refresh, back/forward navigation, minimum-width layouts, validation recovery, and
@@ -117,23 +117,23 @@ accessibility do not depend on ephemeral client state.
 All routes in this section require an authenticated `admin` role. Admin pages must
 not include or query other users' private visit history.
 
-| Route | Purpose |
-|---|---|
-| `/admin` | Moderation and operational dashboard |
-| `/admin/places` | Search, filter, and manage canonical places |
-| `/admin/places/new` | Create a place directly as an admin |
-| `/admin/places/[placeId]` | Edit, publish, unpublish, or archive a canonical place |
-| `/admin/submissions` | New-place moderation queue |
-| `/admin/submissions/[submissionId]` | Compare, approve, or reject a submission |
-| `/admin/proposals` | Published-place change-proposal queue |
-| `/admin/proposals/[proposalId]` | Review a field-level comparison and decide a proposal |
-| `/admin/cities` | Create, edit, activate, and deactivate cities |
-| `/admin/categories` | Manage categories and rating capabilities |
-| `/admin/reviews` | Find, hide, restore, or remove public reviews |
-| `/admin/users` | Search and manage provisioned accounts |
-| `/admin/users/new` | Provision a user and generate the initial setup link |
-| `/admin/users/[userId]` | Suspend, restore, delete, or promote/demote an account |
-| `/admin/audit` | Review security-relevant administrative actions |
+| Route                               | Purpose                                                |
+| ----------------------------------- | ------------------------------------------------------ |
+| `/admin`                            | Moderation and operational dashboard                   |
+| `/admin/places`                     | Search, filter, and manage canonical places            |
+| `/admin/places/new`                 | Create a place directly as an admin                    |
+| `/admin/places/[placeId]`           | Edit, publish, unpublish, or archive a canonical place |
+| `/admin/submissions`                | New-place moderation queue                             |
+| `/admin/submissions/[submissionId]` | Compare, approve, or reject a submission               |
+| `/admin/proposals`                  | Published-place change-proposal queue                  |
+| `/admin/proposals/[proposalId]`     | Review a field-level comparison and decide a proposal  |
+| `/admin/cities`                     | Create, edit, activate, and deactivate cities          |
+| `/admin/categories`                 | Manage categories and rating capabilities              |
+| `/admin/reviews`                    | Find, hide, restore, or remove public reviews          |
+| `/admin/users`                      | Search and manage provisioned accounts                 |
+| `/admin/users/new`                  | Provision a user and generate the initial setup link   |
+| `/admin/users/[userId]`             | Suspend, restore, delete, or promote/demote an account |
+| `/admin/audit`                      | Review security-relevant administrative actions        |
 
 The approved **Manage Places** desktop design maps to `/admin/places`; its editor
 sheet maps to `/admin/places/[placeId]`. Intercepted/parallel routing may preserve
@@ -144,12 +144,12 @@ complete standalone page.
 
 These routes are not normal application navigation.
 
-| Route | Access | Purpose |
-|---|---|---|
-| `/api/auth/[...all]` | Better Auth protocol | Authentication/session endpoints |
-| `/api/media/upload` | Authorized user/admin | Validated media upload transport when a Route Handler is required |
-| `/health/live` | Infrastructure | Process liveness without dependency details |
-| `/health/ready` | Infrastructure/private | Readiness for the app and required services |
+| Route                | Access                 | Purpose                                                           |
+| -------------------- | ---------------------- | ----------------------------------------------------------------- |
+| `/api/auth/[...all]` | Better Auth protocol   | Authentication/session endpoints                                  |
+| `/api/media/upload`  | Authorized user/admin  | Validated media upload transport when a Route Handler is required |
+| `/health/live`       | Infrastructure         | Process liveness without dependency details                       |
+| `/health/ready`      | Infrastructure/private | Readiness for the app and required services                       |
 
 Do not create a broad CRUD API merely to mirror the database. Server-rendered
 reads and Server Actions are preferred for the web application; Route Handlers
@@ -256,4 +256,3 @@ contain raw database authorization logic.
 - Personal activity uses `/my/*`; administration uses `/admin/*`.
 - Version one includes a simple read-only `/admin/audit` page. Advanced audit
   filtering, analytics, and export may be deferred.
-

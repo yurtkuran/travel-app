@@ -173,4 +173,3 @@ moderation.
 - Enabled category-specific ratings are optional; the product may require some or
   all enabled dimensions later.
 - Average display precision and minimum-count presentation remain UI decisions.
-

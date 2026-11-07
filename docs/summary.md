@@ -90,13 +90,13 @@ Image deletion appears incomplete: the confirmation page does not actually perfo
 
 There is no database dump in the repository, so the schema has to be inferred from the queries.
 
-| Legacy table | Responsibility | Important fields |
-|---|---|---|
-| ey_travel | Main recommendation/place record | travelid, city, category, name, address, contact details, notes, ratings |
-| ey_images | Images attached to a recommendation | imageid, travelid, original filename, stored filename |
-| ey_cities | City navigation and selection | cityid, city |
-| ey_category | Available recommendation categories | category |
-| ey_authorized | Administrator accounts | username, password hash |
+| Legacy table  | Responsibility                      | Important fields                                                         |
+| ------------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| ey_travel     | Main recommendation/place record    | travelid, city, category, name, address, contact details, notes, ratings |
+| ey_images     | Images attached to a recommendation | imageid, travelid, original filename, stored filename                    |
+| ey_cities     | City navigation and selection       | cityid, city                                                             |
+| ey_category   | Available recommendation categories | category                                                                 |
+| ey_authorized | Administrator accounts              | username, password hash                                                  |
 
 Cities and categories appear to be stored both as text on the main record and in lookup tables. This means the lookup tables assist the interface but likely do not provide relational integrity.
 

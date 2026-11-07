@@ -1,0 +1,7 @@
+.next
+coverage
+drizzle/meta/*_snapshot.json
+node_modules
+playwright-report
+pnpm-lock.yaml
+test-results

@@ -55,15 +55,15 @@ not be inferred merely because “Event” is a possible category label.
 
 ### Identity and classification
 
-| Field | Required to submit | Required to publish | Visibility | Rule |
-|---|:---:|:---:|---|---|
-| Name | Yes | Yes | Public | Trimmed, 1–160 characters |
-| City | Yes | Yes | Public | Valid city reference |
-| Primary category | Yes | Yes | Public | Valid active category reference |
-| Slug | Generated | Yes | Public | Stable URL value; not entered by users |
-| Short summary | No | No | Public | Plain text, up to 500 characters |
-| Description | No | No | Public | Plain text, up to 5,000 characters |
-| Type/cuisine label | No | No | Public | Free-form descriptor, up to 120 characters |
+| Field              | Required to submit | Required to publish | Visibility | Rule                                       |
+| ------------------ | :----------------: | :-----------------: | ---------- | ------------------------------------------ |
+| Name               |        Yes         |         Yes         | Public     | Trimmed, 1–160 characters                  |
+| City               |        Yes         |         Yes         | Public     | Valid city reference                       |
+| Primary category   |        Yes         |         Yes         | Public     | Valid active category reference            |
+| Slug               |     Generated      |         Yes         | Public     | Stable URL value; not entered by users     |
+| Short summary      |         No         |         No          | Public     | Plain text, up to 500 characters           |
+| Description        |         No         |         No          | Public     | Plain text, up to 5,000 characters         |
+| Type/cuisine label |         No         |         No          | Public     | Free-form descriptor, up to 120 characters |
 
 The slug should not be the sole permanent identifier. Public URLs should remain
 resolvable if a name or slug changes. Phase 1 should choose an opaque ID/slug URL
@@ -76,13 +76,13 @@ or supplement it without changing the primary category.
 
 ### Address and coordinates
 
-| Field | Required | Visibility | Rule |
-|---|:---:|---|---|
-| Street address | No | Public | Up to 200 characters |
-| Address line 2 | No | Public | Suite, floor, unit, or neighborhood; up to 120 characters |
-| Postal code | No | Public | Text, not numeric; up to 32 characters |
-| Latitude | No | Public through maps | Valid decimal latitude when supplied |
-| Longitude | No | Public through maps | Valid decimal longitude when supplied |
+| Field          | Required | Visibility          | Rule                                                      |
+| -------------- | :------: | ------------------- | --------------------------------------------------------- |
+| Street address |    No    | Public              | Up to 200 characters                                      |
+| Address line 2 |    No    | Public              | Suite, floor, unit, or neighborhood; up to 120 characters |
+| Postal code    |    No    | Public              | Text, not numeric; up to 32 characters                    |
+| Latitude       |    No    | Public through maps | Valid decimal latitude when supplied                      |
+| Longitude      |    No    | Public through maps | Valid decimal longitude when supplied                     |
 
 City, region/state, and country come from the city record and are not duplicated
 on the place. Coordinates must be supplied as a valid pair. A “show map” Boolean
@@ -91,9 +91,9 @@ when coordinates or a suitable map URL exist.
 
 ### Contact
 
-| Field | Required | Visibility | Rule |
-|---|:---:|---|---|
-| Phone number | No | Public | Preserve international display form; up to 50 characters |
+| Field        | Required | Visibility | Rule                                                     |
+| ------------ | :------: | ---------- | -------------------------------------------------------- |
+| Phone number |    No    | Public     | Preserve international display form; up to 50 characters |
 
 Email is not included initially because neither the approved screen nor legacy
 field inventory establishes it as a place requirement. It can be added later
@@ -125,17 +125,17 @@ every future link service.
 
 The following data belongs to a related entity:
 
-| Information | Owner entity | Visibility |
-|---|---|---|
-| User's overall and category ratings | Review | Public when review is visible |
-| User's review text | Review | Public when review is visible |
-| User's visit dates, rating snapshots, and notes | Visit | Owning user only |
-| “My visits” count | Derived from visits | Owning user only |
-| Public star averages | Derived from visible reviews | Public |
-| Submission explanation | Place submission/change proposal | Submitter and admins |
-| Admin rejection/approval notes | Moderation decision | Submitter and admins |
-| Internal operational notes | Admin metadata | Admin only |
-| Images and captions | Media | Public when attached to a published place |
+| Information                                     | Owner entity                     | Visibility                                |
+| ----------------------------------------------- | -------------------------------- | ----------------------------------------- |
+| User's overall and category ratings             | Review                           | Public when review is visible             |
+| User's review text                              | Review                           | Public when review is visible             |
+| User's visit dates, rating snapshots, and notes | Visit                            | Owning user only                          |
+| “My visits” count                               | Derived from visits              | Owning user only                          |
+| Public star averages                            | Derived from visible reviews     | Public                                    |
+| Submission explanation                          | Place submission/change proposal | Submitter and admins                      |
+| Admin rejection/approval notes                  | Moderation decision              | Submitter and admins                      |
+| Internal operational notes                      | Admin metadata                   | Admin only                                |
+| Images and captions                             | Media                            | Public when attached to a published place |
 
 This separation prevents a user's private activity or personal review from being
 mistaken for objective place information.
@@ -282,4 +282,3 @@ value.
 - A searchable, free-form type/cuisine label is optional.
 - Each visit may include optional notes private to its owner.
 - Images are optional for submission and publication.
-
