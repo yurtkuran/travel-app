@@ -1,14 +1,17 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-07  
-> **Current phase:** Phase 4 — Build the application shell and navigation
-> **Project status:** Implementation in progress
+> **Last updated:** 2026-11-08
+> **Current phase:** Phase 5 — Implement the core vertical slice
+> **Project status:** Ready to begin Phase 5
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
 It must be updated whenever scope changes, an architectural decision is
 made, or a phase advances.
+
+Longer-term product and presentation ideas that are not committed phase scope are
+tracked in [`roadmap.md`](roadmap.md).
 
 ## Status key
 
@@ -26,7 +29,7 @@ made, or a phase advances.
 | 1     | Establish the technical foundation         | Complete    |
 | 2     | Design the database                        | Complete    |
 | 3     | Implement authentication and authorization | Complete    |
-| 4     | Build the application shell and navigation | Not started |
+| 4     | Build the application shell and navigation | Complete    |
 | 5     | Implement the core vertical slice          | Not started |
 | 6     | Add media handling                         | Not started |
 | 7     | Complete public and administrative UX      | Not started |
@@ -471,9 +474,10 @@ on the server.
 - Server-side bootstrap, user-provisioning, and account-recovery commands support
   the initial administrator and version-one account lifecycle.
 - Account setup links use 256-bit random, expiring, revocable, single-use tokens.
-  Only SHA-256 token hashes are stored. The token remains in the no-referrer,
-  no-index setup URL until transactional consumption, avoiding unreliable
-  redirect-cookie handoffs while preventing third-party referrer disclosure.
+  Only SHA-256 token hashes are stored. Raw tokens travel in URL fragments, which
+  are never sent in HTTP requests, and are removed from browser history before
+  transactional form submission. This prevents tokens from entering Next.js or
+  reverse-proxy access logs without relying on redirect-cookie timing.
 - Production enables trusted-origin enforcement, secure cookies, and sign-in rate
   limiting. Development leaves the in-memory rate limiter disabled so repeated
   local browser suites do not share a stale attempt bucket.
@@ -492,7 +496,7 @@ on the server.
 
 ## Phase 4 — Build the application shell and navigation
 
-**Status:** Not started
+**Status:** Complete
 
 Establish the modern interface shared by subsequent features.
 
@@ -529,6 +533,21 @@ Establish the modern interface shared by subsequent features.
 
 All primary version-one routes exist as adaptive, accessible shells for the
 supported web viewports, with consistent navigation and visual language.
+
+### Completion evidence
+
+- All version-one public, personal, account, authentication, and administration
+  routes have an implemented shell.
+- Shared design primitives now cover cards, semantic data tables, status badges,
+  empty states, feedback banners, and native modal confirmation dialogs.
+- Administration subroutes expose semantic breadcrumbs; the shared header,
+  owner-only personal navigation, account menu, and role-aware navigation are
+  consistent across route families.
+- TypeScript, ESLint, unit tests, formatting, and a production Webpack build pass.
+- Ten Playwright journeys pass across Chromium at the minimum supported
+  1024-by-768 viewport and the 1440-by-900 desktop viewport, covering public,
+  authentication, personal, administration, authorization-boundary, breadcrumb,
+  and one-time setup-link behavior.
 
 ---
 
@@ -778,8 +797,32 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ## Change log
 
+### 2026-11-08
+
+- Completed Phase 4 after ten Playwright journeys passed at both the minimum
+  1024-pixel and desktop 1440-pixel widths. All version-one route shells, shared
+  navigation, system states, design primitives, role-aware boundaries, and
+  administration breadcrumbs now satisfy the phase completion gate. Advanced
+  the project marker to Phase 5.
+- Completed the Phase 4 implementation pass for shared design primitives and
+  administration breadcrumbs. Added accessible card, table, status, feedback,
+  empty-state, and confirmation-dialog foundations and verified the production
+  route manifest with a Webpack build. Browser verification remains before the
+  phase is marked complete.
+- Added the pinned official Adminer standalone image to local Docker Compose,
+  bound only to the loopback interface, with documented development credentials.
+- Approved the first Phase 4 visual shell review. Unified public and
+  administration top navigation, renamed the admin entry point to
+  **Administration**, and started a separate roadmap for deferred imagery and
+  rotating-quote enhancements.
+
 ### 2026-11-07
 
+- Started Phase 4 with the approved Serene Editorial Travel tokens, role-aware
+  public navigation, owner-only personal navigation, the protected administration
+  workspace, shared authentication and system states, and explicit shells for the
+  complete version-one route inventory. Moved setup secrets into URL fragments so
+  Next.js and reverse-proxy request logs never receive raw setup tokens.
 - Completed Phase 3 after verifying ten unit tests, fifteen integration tests,
   and five desktop Chromium journeys. Invitation-only setup, sign-in, session,
   recovery, suspension, role/ownership authorization, and final-active-admin

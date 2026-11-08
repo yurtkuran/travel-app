@@ -75,10 +75,12 @@ avoid indexing a large number of near-duplicate filter URLs.
 There is no public registration route in version one. Sign-out is an authenticated
 mutation initiated from the account menu, not a GET page.
 
-Setup tokens may arrive in a query parameter, but the setup page must exchange the
-token promptly, remove it from the visible URL/history, use a restrictive referrer
-policy, and prevent token values from entering logs or analytics. Invalid, used,
-revoked, and expired links receive the same non-sensitive failure response.
+Setup tokens arrive in the URL fragment, which browsers do not send in HTTP
+requests. The setup page reads the token into client memory, removes it from the
+visible URL and history, and submits it only in the password form body for
+transactional server-side consumption. A restrictive referrer policy and
+no-index metadata provide defense in depth. Invalid, used, revoked, and expired
+links receive the same non-sensitive failure response.
 
 Account recovery remains admin-assisted in version one. It may reuse a separately
 scoped single-use reset token and `/account/setup` experience, but a setup token

@@ -69,7 +69,9 @@ describe("authentication lifecycle", () => {
       { email: provisionedEmail, name: "Provisioned User" },
     );
     provisionedUserId = result.userId;
-    const token = new URL(result.setupUrl).searchParams.get("token");
+    const token = new URLSearchParams(
+      new URL(result.setupUrl).hash.slice(1),
+    ).get("token");
     if (!token) throw new Error("Setup URL did not contain a token");
 
     await consumeSetupToken(token, password);

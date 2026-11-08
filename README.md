@@ -24,6 +24,7 @@ outside the initial scope.
 ## Documentation
 
 - [Implementation plan](docs/implementation-plan.md)
+- [Product roadmap](docs/roadmap.md)
 - [Design references](docs/design/README.md)
 - [Access-control model](docs/product/access-control.md)
 - [Place contract](docs/product/place-model.md)
@@ -55,6 +56,11 @@ workstation.
 
 3. Open <http://localhost:3000>. The liveness and database-readiness endpoints
    are available at `/health/live` and `/health/ready`.
+
+Adminer is available locally at <http://localhost:8080>. Sign in with system
+`PostgreSQL`, server `db`, username `traveltrove`, password `traveltrove`, and
+database `traveltrove`. Its port is bound to the local machine only and should
+not be exposed in production.
 
 Stop the services with `docker compose down`. Add `--volumes` only when you
 intentionally want to delete the local PostgreSQL and package-cache volumes.

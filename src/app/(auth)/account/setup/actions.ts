@@ -15,13 +15,13 @@ export async function completeAccountSetup(formData: FormData) {
     password.length < 12 ||
     password.length > 128
   ) {
-    redirect("/account/setup/complete?error=invalid");
+    redirect("/account/setup?error=invalid");
   }
 
   try {
     await consumeSetupToken(token, password);
   } catch {
-    redirect("/account/setup/complete?error=invalid");
+    redirect("/account/setup?error=invalid");
   }
 
   redirect("/sign-in?setup=complete");

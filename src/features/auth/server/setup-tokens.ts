@@ -38,7 +38,7 @@ function createRawToken() {
 
 function setupUrl(token: string): string {
   const url = new URL("/account/setup", getServerEnv().BETTER_AUTH_URL);
-  url.searchParams.set("token", token);
+  url.hash = new URLSearchParams({ token }).toString();
   return url.toString();
 }
 

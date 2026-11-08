@@ -75,6 +75,10 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("heading", { name: /welcome, browser user/i }),
     ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Add a place" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Administration" }),
+    ).toHaveCount(0);
 
     const response = await page.goto("/admin");
     expect(response?.status()).toBe(403);
@@ -91,6 +95,21 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("heading", { name: "Admin dashboard" }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Administration" }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(
+      page.getByRole("navigation", { name: "Administration navigation" }),
+    ).toContainText("Users");
+
+    await page.goto("/admin/places");
+    const breadcrumbs = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(
+      breadcrumbs.getByRole("link", { name: "Administration" }),
+    ).toHaveAttribute("href", "/admin");
+    await expect(
+      breadcrumbs.getByText("Places", { exact: true }),
+    ).toHaveAttribute("aria-current", "page");
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {
@@ -102,17 +121,19 @@ test.describe("authentication boundaries", () => {
       },
     );
     setupUserId = provisioned.userId;
-    const token = new URL(provisioned.setupUrl).searchParams.get("token");
+    const token = new URLSearchParams(
+      new URL(provisioned.setupUrl).hash.slice(1),
+    ).get("token");
     expect(token).toBeTruthy();
     await expect(isSetupTokenUsable(token ?? "")).resolves.toBe(true);
 
-    const exchangeResponsePromise = page.waitForResponse(
-      (response) => response.url() === provisioned.setupUrl,
+    const setupRequestPromise = page.waitForRequest(
+      (request) => new URL(request.url()).pathname === "/account/setup",
     );
     await page.goto(provisioned.setupUrl);
-    const exchangeResponse = await exchangeResponsePromise;
-    expect(exchangeResponse.status()).toBe(307);
-    await expect(page).toHaveURL(/\/account\/setup\/complete\?token=/);
+    const setupRequest = await setupRequestPromise;
+    expect(setupRequest.url()).not.toContain(token ?? "missing-token");
+    await expect(page).toHaveURL(/\/account\/setup$/);
     const passwordInput = page.getByLabel("Password", { exact: true });
     await expect(passwordInput).toBeVisible();
     await passwordInput.fill(password);

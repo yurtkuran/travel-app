@@ -36,6 +36,16 @@ services:
     volumes:
       - postgres_18_data:/var/lib/postgresql
 
+  adminer:
+    image: adminer:6.3.0-standalone
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:8080:8080"
+
 volumes:
   node_modules:
   pnpm_store:

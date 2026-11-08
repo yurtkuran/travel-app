@@ -2,22 +2,20 @@ import Link from "next/link";
 
 export default function ForbiddenPage() {
   return (
-    <main className="mx-auto max-w-3xl px-10 py-24">
-      <p className="text-sm font-semibold tracking-[0.16em] text-[var(--accent)] uppercase">
-        403
-      </p>
-      <h1 className="mt-4 text-4xl font-semibold tracking-tight">
-        Access denied
-      </h1>
-      <p className="mt-5 text-lg text-[var(--muted)]">
-        Your account does not have permission to access this area.
-      </p>
-      <Link
-        className="mt-8 inline-block font-semibold text-[var(--accent)]"
-        href="/"
-      >
-        Return to TravelTrove
-      </Link>
+    <main className="system-state">
+      <div className="system-state__content">
+        <p className="eyebrow">403 · Protected area</p>
+        <h1>Access denied</h1>
+        <p>Your account does not have permission to access this area.</p>
+        <div className="system-state__actions">
+          <Link className="button-primary" href="/my">
+            Open my activity
+          </Link>
+          <Link className="button-secondary" href="/">
+            Return home
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

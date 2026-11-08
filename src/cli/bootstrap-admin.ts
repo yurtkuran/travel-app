@@ -5,10 +5,17 @@ import { logger } from "@/lib/logger";
 import { requireArgument } from "./arguments";
 
 async function main() {
+  const password = process.env.TRAVELTROVE_BOOTSTRAP_PASSWORD;
+  if (!password) {
+    throw new Error(
+      "Missing TRAVELTROVE_BOOTSTRAP_PASSWORD environment variable; read and export it before running this command",
+    );
+  }
+
   const result = await bootstrapFirstAdmin({
     email: requireArgument("email"),
     name: requireArgument("name"),
-    password: process.env.TRAVELTROVE_BOOTSTRAP_PASSWORD ?? "",
+    password,
   });
 
   logger.info("bootstrap_admin_created", result);

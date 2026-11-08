@@ -5,7 +5,11 @@ import { useState } from "react";
 
 import { authClient } from "./auth-client";
 
-export function SignOutButton() {
+export function SignOutButton({
+  variant = "default",
+}: {
+  variant?: "default" | "menu";
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -18,7 +22,7 @@ export function SignOutButton() {
 
   return (
     <button
-      className="rounded-md border border-[var(--border)] bg-white px-4 py-2 font-semibold disabled:opacity-60"
+      className={variant === "menu" ? "nav-link" : "button-secondary"}
       disabled={pending}
       onClick={signOut}
       type="button"
