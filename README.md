@@ -94,9 +94,11 @@ pnpm test:e2e
 pnpm build
 ```
 
-Unit tests do not require services. Integration tests require PostgreSQL and
-the browser suite manages its own Next.js development server. GitHub Actions
-runs the same checks on pushes to `master` and on pull requests.
+Unit tests do not require services. Integration tests require PostgreSQL; the
+test command creates, migrates, and removes a uniquely named disposable database
+without changing the development database. The browser suite manages its own
+Next.js development server. GitHub Actions runs the same checks on pushes to
+`master` and on pull requests.
 
 ## Account bootstrap and provisioning
 

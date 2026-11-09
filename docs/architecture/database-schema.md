@@ -64,6 +64,12 @@ Private discovery details are isolated in `place_submission_provenance`. Public
 queries must never join that table. An approved public attribution is copied to
 the separate label and URL fields on `places`.
 
+An administrator's rejection explanation is stored in `places.moderation_reason`
+and is visible only to the submitting user and administrators. Publication clears
+that field. Moderation decisions lock the pending place row and write an audit
+event in the same transaction so concurrent or repeated decisions cannot both
+succeed.
+
 Published-place edits use `place_change_proposals`. `proposed_values` is a
 validated snapshot of allowlisted public fields; it must never contain audit,
 moderation, provenance, visit, review, or aggregate fields. Approval applies the

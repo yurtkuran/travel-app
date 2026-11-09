@@ -1,5 +1,6 @@
 .git
 .next
+.next-*
 .local-data
 node_modules
 playwright-report

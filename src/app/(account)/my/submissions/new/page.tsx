@@ -1,13 +1,24 @@
-import { ShellPage } from "@/components/ui/shell-page";
+import { PageHeading } from "@/components/ui/page-heading";
+import { requireCurrentSession } from "@/features/auth/server/session";
+import { listSubmissionTaxonomy } from "@/features/places/server/submissions";
 
-export default function NewSubmissionPage() {
+import { SubmissionForm } from "./submission-form";
+
+export default async function NewSubmissionPage() {
+  const session = await requireCurrentSession("/my/submissions/new");
+  const taxonomy = await listSubmissionTaxonomy(session.actor);
+
   return (
-    <ShellPage
-      description="Create a private draft, preserve recommendation provenance, and submit the place when it is ready for administrative review."
-      emptyDescription="The place draft editor will be connected during the core vertical slice."
-      emptyTitle="Draft editor ready for fields"
-      eyebrow="New contribution"
-      title="Add a place"
-    />
+    <>
+      <PageHeading
+        description="Create a private draft, keep recommendation provenance private, and submit the place when it is ready for administrative review."
+        eyebrow="New contribution"
+        title="Add a place"
+      />
+      <SubmissionForm
+        categories={taxonomy.categories}
+        cities={taxonomy.cities}
+      />
+    </>
   );
 }

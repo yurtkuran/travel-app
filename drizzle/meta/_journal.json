@@ -36,6 +36,13 @@
       "when": 1794067200004,
       "tag": "0004_shorten_capability_foreign_key",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794151637102,
+      "tag": "0005_add_place_moderation_reason",
+      "breakpoints": true
     }
   ]
 }

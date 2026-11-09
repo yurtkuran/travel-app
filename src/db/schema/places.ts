@@ -66,6 +66,7 @@ export const places = pgTable(
     moderatedByUserId: text("moderated_by_user_id").references(() => users.id, {
       onDelete: "set null",
     }),
+    moderationReason: text("moderation_reason"),
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     moderatedAt: timestamp("moderated_at", { withTimezone: true }),
@@ -102,6 +103,10 @@ export const places = pgTable(
     check(
       "places_description_length_check",
       sql`${table.description} is null or char_length(${table.description}) <= 5000`,
+    ),
+    check(
+      "places_moderation_reason_length_check",
+      sql`${table.moderationReason} is null or char_length(${table.moderationReason}) <= 2000`,
     ),
     check(
       "places_coordinate_pair_check",

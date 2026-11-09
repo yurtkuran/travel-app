@@ -12,6 +12,9 @@ import type { Role } from "@/features/auth/permissions";
 
 const sql = getSqlClient();
 const password = "A-strong-browser-password-123!";
+const taxonomySuffix = randomUUID();
+const taxonomyCityName = `Browser City ${taxonomySuffix}`;
+const taxonomyCategoryName = `Browser Category ${taxonomySuffix}`;
 
 async function createCredentialUser(role: Role) {
   const id = `e2e-${role}-${randomUUID()}`;
@@ -36,7 +39,23 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
+  const authResponsePromise = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/api/auth/sign-in/email",
+  );
   await page.getByRole("button", { name: "Sign in" }).click();
+  const authResponse = await authResponsePromise;
+  expect(
+    authResponse.status(),
+    `Sign-in response: ${await authResponse.text()}`,
+  ).toBe(200);
+  await expect
+    .poll(async () =>
+      (await page.context().cookies()).some((cookie) =>
+        cookie.name.startsWith("traveltrove.session_token"),
+      ),
+    )
+    .toBe(true);
   await expect(page).toHaveURL(/\/my$/);
 }
 
@@ -44,6 +63,7 @@ test.describe("authentication boundaries", () => {
   test.describe.configure({ mode: "serial" });
 
   let admin: { email: string; id: string };
+  let browserSubmissionId: string | undefined;
   let user: { email: string; id: string };
   let setupUserId: string | undefined;
 
@@ -53,6 +73,12 @@ test.describe("authentication boundaries", () => {
   });
 
   test.afterAll(async () => {
+    if (browserSubmissionId) {
+      await sql`delete from audit_events where target_type = 'place' and target_id = ${browserSubmissionId}`;
+      await sql`delete from visits where place_id = ${browserSubmissionId}`;
+      await sql`delete from reviews where place_id = ${browserSubmissionId}`;
+      await sql`delete from places where id = ${browserSubmissionId}`;
+    }
     const userIds = [admin?.id, user?.id, setupUserId].filter(
       (value): value is string => Boolean(value),
     );
@@ -60,6 +86,16 @@ test.describe("authentication boundaries", () => {
       await sql`delete from "user" where id in ${sql(userIds)}`;
       await sql`delete from audit_events where target_id in ${sql(userIds)}`;
     }
+    await sql`
+      delete from audit_events
+       where target_id in (
+         select id::text from cities where name = ${taxonomyCityName}
+         union all
+         select id::text from categories where name = ${taxonomyCategoryName}
+       )
+    `;
+    await sql`delete from cities where name = ${taxonomyCityName}`;
+    await sql`delete from categories where name = ${taxonomyCategoryName}`;
     await sql.end();
   });
 
@@ -110,6 +146,243 @@ test.describe("authentication boundaries", () => {
     await expect(
       breadcrumbs.getByText("Places", { exact: true }),
     ).toHaveAttribute("aria-current", "page");
+  });
+
+  test("allows an administrator to create city and category taxonomy", async ({
+    page,
+  }) => {
+    await signIn(page, admin.email);
+    await page.goto("/admin/cities");
+    await page.getByLabel("City name").fill(taxonomyCityName);
+    await page.getByLabel("State or region").fill("Browser Region");
+    await page.getByLabel("Country", { exact: true }).fill("United States");
+    await page.getByLabel("Country code", { exact: true }).fill("US");
+    await page.getByRole("button", { name: "Add city" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      `${taxonomyCityName} was created`,
+    );
+    await expect(
+      page.getByRole("cell", { name: taxonomyCityName }),
+    ).toBeVisible();
+
+    await page.goto("/admin/categories");
+    await page.getByLabel("Category name").fill(taxonomyCategoryName);
+    await page
+      .getByLabel("Description")
+      .fill("A category created by the browser workflow.");
+    await page.getByLabel("Atmosphere").check();
+    await page.getByLabel("Service").check();
+    await page.getByRole("button", { name: "Add category" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      `${taxonomyCategoryName} was created`,
+    );
+    await expect(
+      page.getByRole("cell", { name: new RegExp(taxonomyCategoryName) }),
+    ).toBeVisible();
+    const categoryRow = page
+      .getByRole("row")
+      .filter({ hasText: taxonomyCategoryName });
+    await expect(
+      categoryRow.getByRole("cell", {
+        exact: true,
+        name: "Atmosphere, Service",
+      }),
+    ).toBeVisible();
+  });
+
+  test("allows a user to submit a place with private provenance", async ({
+    page,
+  }) => {
+    const placeName = `Browser Place ${taxonomySuffix}`;
+    await signIn(page, user.email);
+    await page.goto("/my/submissions/new");
+    await page.getByLabel("Place name").fill(placeName);
+    await page.getByLabel("City", { exact: true }).selectOption({
+      label: `${taxonomyCityName}, Browser Region, United States`,
+    });
+    await page
+      .getByLabel("Category", { exact: true })
+      .selectOption({ label: taxonomyCategoryName });
+    await page.getByLabel("Type or cuisine").fill("Browser-tested place");
+    await page
+      .getByLabel("Short summary")
+      .fill("A place submitted through the complete browser workflow.");
+    await page.getByLabel("Source type").selectOption("publication");
+    await page.getByLabel("Source name").fill("Browser Travel Journal");
+    await page
+      .getByLabel("Source URL")
+      .fill("https://example.com/browser-travel-journal");
+    await page
+      .getByLabel("Submission notes")
+      .fill("Private provenance for the submitter and administrators.");
+    await page.getByRole("button", { name: "Submit for review" }).click();
+
+    await expect(page).toHaveURL(
+      /\/my\/submissions\/[0-9a-f-]+\?created=submitted$/,
+    );
+    browserSubmissionId = new URL(page.url()).pathname.split("/").at(-1);
+    await expect(page.getByRole("status")).toContainText(
+      "submitted for administrative review",
+    );
+    await expect(page.getByRole("heading", { name: placeName })).toBeVisible();
+    await expect(
+      page.getByText("Pending review", { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText("Browser Travel Journal")).toBeVisible();
+    await expect(
+      page.getByText("Visible only to you and administrators."),
+    ).toBeVisible();
+  });
+
+  test("allows an administrator to publish without exposing provenance", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    await signIn(page, admin.email);
+    await page.goto(`/admin/submissions/${browserSubmissionId}`);
+    await expect(
+      page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
+    ).toBeVisible();
+    await expect(page.getByText("Browser Travel Journal")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Private provenance for the submitter and administrators.",
+      ),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Approve and publish" }).click();
+    await expect(page).toHaveURL(/\/places\/[0-9a-f-]+\/browser-place-/);
+    const publicUrl = new URL(page.url());
+    expect(publicUrl.searchParams.get("published")).toBe("true");
+
+    await page.context().clearCookies();
+    await page.goto(publicUrl.pathname);
+    await expect(
+      page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "A place submitted through the complete browser workflow.",
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("Browser Travel Journal")).toHaveCount(0);
+    await expect(
+      page.getByText(
+        "Private provenance for the submitter and administrators.",
+      ),
+    ).toHaveCount(0);
+  });
+
+  test("keeps a user's visit ratings and notes private", async ({ page }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    await signIn(page, user.email);
+    await page.goto(
+      `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}/visits`,
+    );
+    await page.getByLabel("Visit date").fill("2026-11-01");
+    await page.getByLabel("Overall rating").selectOption("4");
+    await page.getByLabel("Atmosphere rating (optional)").selectOption("5");
+    await page
+      .getByLabel("Private notes (optional)")
+      .fill("A private browser visit snapshot.");
+    await page.getByRole("button", { name: "Record visit" }).click();
+    await expect(page).toHaveURL(/\/visits\?created=true$/);
+    await expect(page.getByRole("status")).toContainText("Visit recorded");
+    await expect(
+      page
+        .getByRole("paragraph")
+        .filter({ hasText: /^A private browser visit snapshot\.$/ }),
+    ).toBeVisible();
+
+    await page.goto("/my/visits");
+    await expect(
+      page.getByRole("cell", { name: `Browser Place ${taxonomySuffix}` }),
+    ).toBeVisible();
+
+    await page.context().clearCookies();
+    await page.goto(
+      `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}`,
+    );
+    await expect(
+      page.getByText("A private browser visit snapshot."),
+    ).toHaveCount(0);
+  });
+
+  test("publishes and moderates a public review without using visit ratings", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    const placePath = `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}`;
+    await signIn(page, user.email);
+    await page.goto(`${placePath}/review`);
+    await page.getByLabel("Overall rating").selectOption("5");
+    await page.getByLabel("Service rating (optional)").selectOption("4");
+    const reviewText = `A public browser review ${taxonomySuffix}.`;
+    await page.getByLabel("Review text (optional)").fill(reviewText);
+    await page.getByRole("button", { name: "Publish review" }).click();
+    await expect(page).toHaveURL(/\/review\?saved=true$/);
+
+    await page.context().clearCookies();
+    await page.goto(placePath);
+    await expect(
+      page.getByRole("heading", { name: "5 out of 5" }),
+    ).toBeVisible();
+    await expect(page.getByText(reviewText)).toBeVisible();
+    await expect(
+      page.getByText("A private browser visit snapshot."),
+    ).toHaveCount(0);
+
+    await signIn(page, admin.email);
+    await page.goto("/admin/reviews");
+    const reviewRow = page.getByRole("row").filter({ hasText: reviewText });
+    await reviewRow.getByRole("button", { name: "Hide" }).click();
+    await expect(reviewRow).toContainText("hidden");
+
+    await page.context().clearCookies();
+    await page.goto(placePath);
+    await expect(
+      page.getByRole("heading", { name: "Not yet rated" }),
+    ).toBeVisible();
+    await expect(page.getByText(reviewText)).toHaveCount(0);
+  });
+
+  test("allows an administrator to edit and safely unpublish a canonical place", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    const publicPath = `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}`;
+    await signIn(page, admin.email);
+    await page.goto(`/admin/places/${browserSubmissionId}`);
+    await page
+      .getByLabel("Short summary")
+      .fill("An administrator-updated public summary.");
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page).toHaveURL(/\?updated=true$/);
+    await page.goto(publicPath);
+    await expect(
+      page.getByText("An administrator-updated public summary."),
+    ).toBeVisible();
+
+    await page.goto(`/admin/places/${browserSubmissionId}`);
+    await page.getByRole("button", { name: "Unpublish" }).click();
+    await expect(page).toHaveURL(/publication=unpublished$/);
+    await page.goto(publicPath);
+    await expect(
+      page.getByRole("heading", {
+        name: "This place is not in the archive.",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
+    ).toHaveCount(0);
+
+    await page.goto(`/admin/places/${browserSubmissionId}`);
+    await page.getByRole("button", { name: "Republish" }).click();
+    await expect(page).toHaveURL(/publication=published$/);
+    await page.goto(publicPath);
+    await expect(
+      page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
+    ).toBeVisible();
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {

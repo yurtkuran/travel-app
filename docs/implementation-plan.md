@@ -1,9 +1,9 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-08
-> **Current phase:** Phase 5 — Implement the core vertical slice
-> **Project status:** Ready to begin Phase 5
+> **Last updated:** 2026-11-09
+> **Current phase:** Phase 6 — Add media handling
+> **Project status:** Ready to begin Phase 6
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -30,7 +30,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 2     | Design the database                        | Complete    |
 | 3     | Implement authentication and authorization | Complete    |
 | 4     | Build the application shell and navigation | Complete    |
-| 5     | Implement the core vertical slice          | Not started |
+| 5     | Implement the core vertical slice          | Complete    |
 | 6     | Add media handling                         | Not started |
 | 7     | Complete public and administrative UX      | Not started |
 | 8     | Security and quality hardening             | Not started |
@@ -553,9 +553,75 @@ supported web viewports, with consistent navigation and visual language.
 
 ## Phase 5 — Implement the core vertical slice
 
-**Status:** Not started
+**Status:** Complete
 
 Build one complete workflow before expanding horizontally.
+
+### Current implementation progress
+
+- Started the database-backed taxonomy slice with admin-only city and category
+  creation, normalized deterministic slugs, duplicate handling, transactional
+  audit events, category rating-capability assignment, allowlisted sorting,
+  search, pagination, and accessible validation feedback.
+- Added integration coverage for authorization, normalization, conflicts,
+  capability assignment, auditing, and listing, plus Playwright coverage for the
+  admin creation workflow at both supported viewport widths.
+- Verified the taxonomy checkpoint with twenty passing integration tests against
+  an automatically created disposable database and twelve passing Playwright
+  journeys across the 1024- and 1440-pixel viewport projects.
+- Implemented user-owned place draft creation and submission, active taxonomy
+  selection, separate private recommendation provenance, owner-scoped submission
+  lists and detail reads, safe public-HTTPS source validation, and explicit draft
+  versus pending-review state.
+- Verified the submission checkpoint with twenty-five passing integration tests
+  and fourteen passing Playwright journeys across both supported viewport
+  projects. Isolated Playwright's Next.js output directory from Docker and
+  production builds to prevent cross-mode cache contamination.
+- Implemented the administrative moderation queue and detail comparison,
+  transactional publish and reject decisions, private rejection feedback,
+  canonical public place detail reads, and stale-slug redirects. Public queries
+  deliberately exclude the private recommendation provenance table.
+- Added integration coverage for moderation authorization, private review data,
+  publication, repeat-decision protection, rejection feedback, and the public
+  privacy boundary. Added a two-viewport browser journey that publishes a user
+  submission and verifies that a signed-out guest cannot see its provenance.
+- Verified the moderation and publication checkpoint after migration with
+  twenty-nine passing disposable-database integration tests, sixteen passing
+  Playwright journeys across both supported viewport projects, and a successful
+  production build covering all forty-one application routes.
+- Implemented private visit capture and history for published places, including
+  required dated overall ratings, optional category-enabled rating dimensions,
+  private notes, correction, deletion, and the consolidated `/my/visits` view.
+  Every read and mutation includes the owning user; the admin role grants no
+  visibility into or control over another user's visits.
+- Added integration coverage for visit ratings, capability enforcement,
+  correction/deletion, and the admin privacy boundary, plus a two-viewport
+  browser journey that records a visit and confirms its notes never appear on
+  the signed-out public place page.
+- Verified the private-visit checkpoint with thirty-three passing integration
+  tests, eighteen passing Playwright journeys across both supported viewport
+  projects, and a successful production build covering all forty-one routes.
+- Implemented the public-review lifecycle: one review per user/place, immediate
+  publication, owner updates and deletion, optional text and category-enabled
+  ratings, derived overall/dimension aggregates, and admin hide, restore, and
+  remove moderation with actor/timestamp audit records. Public calculations
+  include only visible reviews and never query private visit ratings.
+- Added integration coverage for cardinality, rating capabilities, aggregation,
+  visit/review separation, ownership, and moderation, plus a two-viewport browser
+  journey from publication through public display and administrative hiding.
+- Verified the public-review checkpoint with thirty-eight passing integration
+  tests, twenty passing Playwright journeys across both supported viewport
+  projects, and a successful production build covering all forty-one routes.
+- Implemented canonical place administration with searchable repository listing,
+  direct administrator creation and publication, public-field editing, and
+  audited unpublish/republish transitions. Unpublishing removes the place from
+  public reads immediately while preserving its reviews and private visits.
+- Added integration and two-viewport browser coverage for authorization, direct
+  creation, editing, public removal, dependent-data retention, and republication.
+- Verified the complete Phase 5 workflow with forty-two passing disposable-
+  database integration tests, twenty-two passing Playwright journeys across both
+  supported viewport projects, and a successful production build covering all
+  forty-one application routes.
 
 ### First complete workflow
 
@@ -588,6 +654,11 @@ Build one complete workflow before expanding horizontally.
 The application is a usable database-backed place directory with the confirmed
 submission, visit, review, and publication workflow but without image support;
 Playwright covers the complete workflow.
+
+Phase 5 satisfies this gate. The application now completes the database-backed
+taxonomy, submission, moderation, publication, private-visit, public-review,
+rating-aggregation, review-moderation, and canonical-place management lifecycle
+without relying on image support.
 
 ---
 
@@ -797,8 +868,54 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ## Change log
 
+### 2026-11-09
+
+- Completed Phase 5 after the full core workflow passed forty-two integration
+  tests, twenty-two browser journeys at the 1024- and 1440-pixel viewports, and a
+  production build. Advanced the living plan to Phase 6.
+- Completed canonical-place administration with direct publication, searchable
+  repository management, public-field editing, and audited unpublish/republish
+  transitions that preserve reviews and private visits.
+- Completed public reviews and derived rating aggregates, including owner
+  management and audited admin hide/restore/remove moderation, while proving
+  private visit ratings remain excluded.
+- Completed private visit capture, correction, deletion, category-enabled rating
+  snapshots, consolidated personal history, and identical ownership boundaries
+  for users and administrators.
+
 ### 2026-11-08
 
+- Started Phase 5 with the first database-backed workflow: authorized city and
+  category creation and management. Added transactional taxonomy services,
+  validation, deterministic slug generation, audit events, paginated management
+  lists, rating-capability assignment, and integration/browser coverage.
+- Isolated integration tests from development data by creating, migrating, and
+  reliably dropping a uniquely named PostgreSQL database for every run. Verified
+  twenty integration tests and twelve two-viewport browser journeys.
+- Added the user contribution half of the vertical slice: private incomplete
+  drafts, complete submission validation, transactional provenance and audit
+  writes, owner-only reads, submission status presentation, and the full new-place
+  authoring form without media.
+- Added admin submission moderation and public publication: a pending queue,
+  side-by-side public/private review detail, transactional approve/reject
+  decisions, submitter-visible rejection reasons, canonical public place pages,
+  and automated privacy-boundary coverage.
+- Verified the complete taxonomy, submission, moderation, publication, and
+  public-privacy checkpoint with twenty-nine integration tests, sixteen
+  two-viewport browser journeys, and a successful production build.
+- Added the private visit lifecycle and personal history interface, preserving
+  per-visit rating snapshots and enforcing identical ownership boundaries for
+  users and administrators.
+- Verified the private visit lifecycle with thirty-three integration tests,
+  eighteen two-viewport browser journeys, and a successful production build.
+- Added immediate public reviews, derived rating aggregates, owner management,
+  and audited administrative hide/restore/remove moderation while preserving the
+  strict separation from private visit snapshots.
+- Verified the public-review lifecycle with thirty-eight integration tests,
+  twenty two-viewport browser journeys, and a successful production build.
+- Added canonical-place repository management, direct publication, public-field
+  editing, and reversible unpublish/republish transitions that preserve related
+  reviews and visits.
 - Completed Phase 4 after ten Playwright journeys passed at both the minimum
   1024-pixel and desktop 1440-pixel widths. All version-one route shells, shared
   navigation, system states, design primitives, role-aware boundaries, and

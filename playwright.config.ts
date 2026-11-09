@@ -37,6 +37,7 @@ export default defineConfig({
     command: "pnpm dev --hostname 127.0.0.1 --port 3100",
     env: {
       BETTER_AUTH_URL: testBaseUrl,
+      NEXT_DIST_DIR: ".next-playwright",
     },
     url: `${testBaseUrl}/health/live`,
     reuseExistingServer: !process.env.CI,
