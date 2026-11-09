@@ -211,6 +211,10 @@ export async function publishSubmission(actor: Actor, placeId: string) {
        where id = ${placeId}
     `;
     await transaction`
+      update media set status = 'published', updated_at = now()
+       where place_id = ${placeId} and status = 'draft'
+    `;
+    await transaction`
       insert into audit_events (actor_type, actor_user_id, action, target_type, target_id)
       values ('user', ${actor.id}, 'place.published', 'place', ${placeId})
     `;

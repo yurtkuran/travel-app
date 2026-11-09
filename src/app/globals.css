@@ -1521,3 +1521,49 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+.media-manager {
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+  padding-top: 2rem;
+}
+.media-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.5rem 0;
+}
+.media-card {
+  background: var(--surface-low);
+  padding: 1rem;
+}
+.media-card img {
+  aspect-ratio: 1;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+.place-gallery {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 2rem 0 3rem;
+}
+.place-gallery figure {
+  margin: 0;
+}
+.place-gallery img {
+  display: block;
+  height: auto;
+  max-height: 42rem;
+  object-fit: cover;
+  width: 100%;
+}
+.place-gallery__cover {
+  grid-column: 1 / -1;
+}
+.place-gallery figcaption {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}

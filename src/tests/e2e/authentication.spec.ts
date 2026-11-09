@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { rm } from "node:fs/promises";
+import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 import { hashPassword } from "better-auth/crypto";
+import sharp from "sharp";
 
 import { getSqlClient } from "@/db/client";
 import {
@@ -74,6 +77,24 @@ test.describe("authentication boundaries", () => {
 
   test.afterAll(async () => {
     if (browserSubmissionId) {
+      const media = await sql<{ id: string; storageKey: string }[]>`
+        select id, storage_key as "storageKey" from media where place_id = ${browserSubmissionId}
+      `;
+      const mediaRoot = path.resolve(
+        process.env.MEDIA_ROOT ?? ".local-data/media",
+      );
+      await Promise.allSettled(
+        media.flatMap(({ storageKey }) =>
+          [
+            storageKey,
+            storageKey.replace(/\/display\.webp$/, "/thumbnail.webp"),
+          ].map((key) => rm(path.join(mediaRoot, key), { force: true })),
+        ),
+      );
+      await sql`delete from media where place_id = ${browserSubmissionId}`;
+      if (media.length) {
+        await sql`delete from audit_events where target_type = 'media' and target_id in ${sql(media.map(({ id }) => id))}`;
+      }
       await sql`delete from audit_events where target_type = 'place' and target_id = ${browserSubmissionId}`;
       await sql`delete from visits where place_id = ${browserSubmissionId}`;
       await sql`delete from reviews where place_id = ${browserSubmissionId}`;
@@ -383,6 +404,61 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
     ).toBeVisible();
+  });
+
+  test("uploads, publishes, and removes optimized place media", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    const publicPath = `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}`;
+    const source = await sharp({
+      create: {
+        background: { b: 80, g: 120, r: 180 },
+        channels: 3,
+        height: 600,
+        width: 900,
+      },
+    })
+      .png()
+      .toBuffer();
+
+    await signIn(page, admin.email);
+    await page.goto(`/admin/places/${browserSubmissionId}`);
+    await page.getByLabel("Image", { exact: true }).setInputFiles({
+      buffer: source,
+      mimeType: "image/png",
+      name: "browser-place.png",
+    });
+    await page
+      .getByLabel("Alternative text")
+      .fill("A warm abstract travel scene");
+    await page.getByLabel("Caption (optional)").fill("Browser media caption");
+    await page.getByRole("button", { name: "Upload image" }).click();
+    await expect(page).toHaveURL(/media=uploaded$/);
+    await expect(
+      page.getByRole("img", { name: "A warm abstract travel scene" }),
+    ).toBeVisible();
+
+    await page.context().clearCookies();
+    await page.goto(publicPath);
+    await expect(
+      page.getByRole("img", { name: "A warm abstract travel scene" }),
+    ).toBeVisible();
+    await expect(page.getByText("Browser media caption")).toBeVisible();
+
+    await signIn(page, admin.email);
+    await page.goto(`/admin/places/${browserSubmissionId}`);
+    const mediaCard = page
+      .getByRole("article")
+      .filter({ hasText: "Browser media caption" });
+    await mediaCard.getByRole("button", { name: "Remove" }).click();
+    await expect(page).toHaveURL(/media=deleted$/);
+
+    await page.context().clearCookies();
+    await page.goto(publicPath);
+    await expect(
+      page.getByRole("img", { name: "A warm abstract travel scene" }),
+    ).toHaveCount(0);
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {

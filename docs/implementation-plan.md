@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-09
-> **Current phase:** Phase 6 — Add media handling
-> **Project status:** Ready to begin Phase 6
+> **Current phase:** Phase 7 — Complete public and administrative UX
+> **Project status:** Ready to begin Phase 7
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -31,7 +31,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 3     | Implement authentication and authorization | Complete    |
 | 4     | Build the application shell and navigation | Complete    |
 | 5     | Implement the core vertical slice          | Complete    |
-| 6     | Add media handling                         | Not started |
+| 6     | Add media handling                         | Complete    |
 | 7     | Complete public and administrative UX      | Not started |
 | 8     | Security and quality hardening             | Not started |
 | 9     | Deploy to DigitalOcean                     | Not started |
@@ -664,10 +664,26 @@ without relying on image support.
 
 ## Phase 6 — Add media handling
 
-**Status:** Not started
+**Status:** Complete
 
 Introduce replaceable storage without prematurely operating a distributed
 object-storage system.
+
+### Current implementation progress
+
+- Finalized the version-one policy: JPEG/PNG/WebP input, 10 MB and 40-megapixel
+  limits, 12 images per place, 1600-pixel display variants, 480-pixel
+  thumbnails, WebP output, and required alt text unless decorative.
+- Added replaceable filesystem storage, a persistent Compose volume, safe
+  immutable media transport, and a writable production-container media path.
+- Added content-based decoding, orientation correction, metadata stripping,
+  display/thumbnail processing, transactional metadata writes, compensating
+  cleanup, ordering, deletion, admin management, and public ordered galleries.
+- Added initial integration coverage for validation, authorization, processing,
+  ordering, and deletion.
+- Verified the complete media lifecycle with forty-six passing integration
+  tests, twenty-four passing Playwright journeys across both supported viewport
+  projects, and a successful production build covering all forty-two routes.
 
 ### Version-one implementation
 
@@ -697,6 +713,11 @@ S3-compatible service without rewriting the place or media features.
 
 An authorized user can upload, reorder, replace, and delete images, and public
 pages receive responsive optimized images.
+
+Phase 6 satisfies this gate. Canonical-place administrators can complete the
+entire media lifecycle, owned draft media is capability-protected by the same
+service boundary, and public pages receive only published, ordered, responsive
+optimized variants.
 
 ---
 
@@ -861,7 +882,6 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ## Open decisions
 
-- Final media size and format limits
 - Supported browser policy
 - Staging environment topology
 - Independent backup destination
@@ -870,6 +890,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-09
 
+- Started Phase 6 and finalized the media policy. Added replaceable persistent
+  filesystem storage, optimized WebP variants, accessible metadata rules,
+  canonical-place image management, public galleries, and initial tests.
+- Completed Phase 6 after the media lifecycle passed forty-six integration tests,
+  twenty-four browser journeys at both supported viewport widths, and a
+  production build with the immutable media transport route. Advanced the living
+  plan to Phase 7.
 - Completed Phase 5 after the full core workflow passed forty-two integration
   tests, twenty-two browser journeys at the 1024- and 1440-pixel viewports, and a
   production build. Advanced the living plan to Phase 6.

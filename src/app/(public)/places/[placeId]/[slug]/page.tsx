@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 
 import { getPublishedPlace } from "@/features/places/server/moderation";
+import { listPlaceMedia, mediaUrl } from "@/features/media/server/media";
 import {
   getPublicRatingSummary,
   listPublicReviews,
@@ -33,9 +35,10 @@ export default async function PlacePage({
   if (!place) notFound();
   if (slug !== place.slug) redirect(`/places/${place.id}/${place.slug}`);
   const address = publicAddress(place);
-  const [reviews, ratingSummary] = await Promise.all([
+  const [reviews, ratingSummary, media] = await Promise.all([
     listPublicReviews(place.id),
     getPublicRatingSummary(place.id),
+    listPlaceMedia(place.id),
   ]);
 
   return (
@@ -65,6 +68,26 @@ export default async function PlacePage({
           </Link>
         </div>
       </header>
+      {media.length ? (
+        <section aria-label="Place gallery" className="place-gallery">
+          {media.map((item, index) => (
+            <figure
+              className={index === 0 ? "place-gallery__cover" : undefined}
+              key={item.id}
+            >
+              <Image
+                alt={item.altText ?? ""}
+                height={item.height}
+                priority={index === 0}
+                sizes="(max-width: 1100px) 100vw, 90rem"
+                src={mediaUrl(item.storageKey)}
+                width={item.width}
+              />
+              {item.caption ? <figcaption>{item.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </section>
+      ) : null}
       <div className="public-place__body">
         <article>
           <p className="eyebrow">About this place</p>

@@ -8,6 +8,7 @@ export const serverEnvSchema = z.object({
   BETTER_AUTH_URL: z.url(),
   BETTER_AUTH_SECRET: z.string().min(32),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  MEDIA_ROOT: z.string().min(1).default(".local-data/media"),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
     authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: "11mb",
+    },
   },
   output: "standalone",
   reactStrictMode: true,

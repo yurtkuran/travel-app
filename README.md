@@ -62,8 +62,13 @@ Adminer is available locally at <http://localhost:8080>. Sign in with system
 database `traveltrove`. Its port is bound to the local machine only and should
 not be exposed in production.
 
+Uploaded image variants are stored under `MEDIA_ROOT`, which defaults to
+`.local-data/media`. Docker Compose mounts that path from the persistent
+`media_data` volume; the application container filesystem is not durable.
+
 Stop the services with `docker compose down`. Add `--volumes` only when you
-intentionally want to delete the local PostgreSQL and package-cache volumes.
+intentionally want to delete the local PostgreSQL, media, and package-cache
+volumes.
 
 ### Native Node.js workflow
 

@@ -21,6 +21,7 @@ FROM node:24-alpine AS production
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+RUN mkdir -p /app/.local-data/media && chown -R nextjs:nodejs /app/.local-data
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
@@ -28,4 +29,5 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV MEDIA_ROOT=/app/.local-data/media
 CMD ["node", "server.js"]
