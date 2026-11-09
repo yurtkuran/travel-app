@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-09
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Ready to begin Phase 7
+> **Project status:** Phase 7 in progress — public discovery experience underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -32,7 +32,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 4     | Build the application shell and navigation | Complete    |
 | 5     | Implement the core vertical slice          | Complete    |
 | 6     | Add media handling                         | Complete    |
-| 7     | Complete public and administrative UX      | Not started |
+| 7     | Complete public and administrative UX      | In progress |
 | 8     | Security and quality hardening             | Not started |
 | 9     | Deploy to DigitalOcean                     | Not started |
 | 10    | Stabilize before adding features           | Not started |
@@ -723,7 +723,23 @@ optimized variants.
 
 ## Phase 7 — Complete public and administrative UX
 
-**Status:** Not started
+**Status:** In progress
+
+### Current implementation progress
+
+- Replaced the public place, city, and category placeholders with database-backed
+  discovery pages, permanent place-card links, and deliberate empty/no-results
+  states.
+- Added URL-addressable public search, city/category/type/rating filters,
+  allowlisted sorting, pagination, responsive cards, and published cover images.
+- Public rating summaries include visible reviews only. Signed-in cards may show
+  only that viewer's own visit count; guest and administrative views do not gain
+  access to another user's private activity.
+- Added integration coverage for publication boundaries, review aggregation,
+  private visit counts, filter validation, and taxonomy counts, plus a browser
+  journey across the main archive and city/category discovery pages. The
+  checkpoint passes fifty integration tests, twenty-six Playwright journeys at
+  both supported viewport widths, and the production build.
 
 ### Public experience
 
@@ -890,6 +906,9 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-09
 
+- Started Phase 7 with the public discovery slice: live place browsing,
+  URL-addressable filters and sorting, city/category indexes and archives,
+  responsive place cards, privacy-safe summaries, and focused automated tests.
 - Started Phase 6 and finalized the media policy. Added replaceable persistent
   filesystem storage, optimized WebP variants, accessible metadata rules,
   canonical-place image management, public galleries, and initial tests.

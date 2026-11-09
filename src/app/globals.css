@@ -1567,3 +1567,124 @@ textarea {
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+
+.public-filters {
+  display: grid;
+  align-items: end;
+  gap: 1rem;
+  grid-template-columns: minmax(16rem, 2fr) repeat(4, minmax(9rem, 1fr));
+  margin: 0 0 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-lowest);
+}
+
+.public-filters__actions {
+  display: flex;
+  gap: 0.75rem;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.result-summary {
+  margin: 0 0 1rem;
+  color: var(--on-surface-variant);
+}
+
+.place-card-grid,
+.taxonomy-card-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.place-card {
+  overflow: hidden;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-ambient);
+}
+
+.place-card > a {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.place-card > a:hover h2,
+.taxonomy-card:hover h2 {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.place-card__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-container);
+  object-fit: cover;
+}
+
+.place-card__image--empty {
+  display: grid;
+  place-items: center;
+  color: var(--on-surface-variant);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.place-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.place-card__body h2,
+.taxonomy-card h2 {
+  margin: 0.5rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.place-card__body > p:not(.eyebrow),
+.taxonomy-card > p:not(.eyebrow) {
+  color: var(--on-surface-variant);
+}
+
+.place-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.taxonomy-card {
+  min-height: 14rem;
+  padding: 2rem;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-lowest);
+  box-shadow: var(--shadow-ambient);
+}
+
+@media (max-width: 74rem) {
+  .public-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .public-filters__search {
+    grid-column: span 2;
+  }
+
+  .place-card-grid,
+  .taxonomy-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

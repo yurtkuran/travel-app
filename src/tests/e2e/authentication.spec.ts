@@ -461,6 +461,48 @@ test.describe("authentication boundaries", () => {
     ).toHaveCount(0);
   });
 
+  test("discovers published places without exposing private activity", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    const placeName = `Browser Place ${taxonomySuffix}`;
+
+    await page.goto("/places");
+    await page.getByLabel("Search public places").fill(placeName);
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page).toHaveURL(/\/places\?q=Browser\+Place/);
+    const guestCard = page.getByRole("article").filter({ hasText: placeName });
+    await expect(
+      guestCard.getByRole("heading", { name: placeName }),
+    ).toBeVisible();
+    await expect(guestCard).toContainText("Not yet rated");
+    await expect(guestCard).not.toContainText("Your visits");
+
+    await page.goto("/cities");
+    await page
+      .getByRole("link", { name: new RegExp(taxonomyCityName) })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: taxonomyCityName }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: placeName })).toBeVisible();
+
+    await page.goto("/categories");
+    await page
+      .getByRole("link", { name: new RegExp(taxonomyCategoryName) })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: taxonomyCategoryName }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: placeName })).toBeVisible();
+
+    await signIn(page, user.email);
+    await page.goto(`/places?q=${encodeURIComponent(placeName)}`);
+    const ownerCard = page.getByRole("article").filter({ hasText: placeName });
+    await expect(ownerCard).toContainText("Your visits · 1");
+    await expect(ownerCard).not.toContainText("private browser visit snapshot");
+  });
+
   test("exchanges and consumes a one-time setup link", async ({ page }) => {
     const provisioned = await provisionUser(
       { id: admin.id, role: "admin" },
