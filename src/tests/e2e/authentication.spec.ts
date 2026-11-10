@@ -77,6 +77,9 @@ test.describe("authentication boundaries", () => {
 
   test.afterAll(async () => {
     if (browserSubmissionId) {
+      const proposals = await sql<{ id: string }[]>`
+        select id from place_change_proposals where place_id = ${browserSubmissionId}
+      `;
       const media = await sql<{ id: string; storageKey: string }[]>`
         select id, storage_key as "storageKey" from media where place_id = ${browserSubmissionId}
       `;
@@ -94,6 +97,10 @@ test.describe("authentication boundaries", () => {
       await sql`delete from media where place_id = ${browserSubmissionId}`;
       if (media.length) {
         await sql`delete from audit_events where target_type = 'media' and target_id in ${sql(media.map(({ id }) => id))}`;
+      }
+      if (proposals.length) {
+        await sql`delete from audit_events where target_type = 'proposal' and target_id in ${sql(proposals.map(({ id }) => id))}`;
+        await sql`delete from place_change_proposals where id in ${sql(proposals.map(({ id }) => id))}`;
       }
       await sql`delete from audit_events where target_type = 'place' and target_id = ${browserSubmissionId}`;
       await sql`delete from visits where place_id = ${browserSubmissionId}`;
@@ -501,6 +508,47 @@ test.describe("authentication boundaries", () => {
     const ownerCard = page.getByRole("article").filter({ hasText: placeName });
     await expect(ownerCard).toContainText("Your visits · 1");
     await expect(ownerCard).not.toContainText("private browser visit snapshot");
+  });
+
+  test("submits and approves a published-place change proposal", async ({
+    page,
+  }) => {
+    expect(browserSubmissionId).toBeTruthy();
+    const placeName = `Browser Place ${taxonomySuffix}`;
+    const placePath = `/places/${browserSubmissionId}/browser-place-${taxonomySuffix}`;
+    const proposedSummary = `A browser-approved proposed summary ${taxonomySuffix}.`;
+
+    await signIn(page, user.email);
+    await page.goto(placePath);
+    await page.getByRole("link", { name: "Suggest an edit" }).click();
+    await expect(
+      page.getByRole("heading", { name: `Suggest an edit to ${placeName}` }),
+    ).toBeVisible();
+    await page.getByLabel("Short summary").fill(proposedSummary);
+    await page
+      .getByLabel("Notes for the administrator")
+      .fill("Private evidence for the proposal reviewer.");
+    await page.getByRole("button", { name: "Submit proposed edit" }).click();
+    await expect(page).toHaveURL(/\/my\/proposals\/[0-9a-f-]+\?created=true$/);
+    await expect(page.getByRole("status")).toContainText(
+      "submitted for administrative review",
+    );
+    await expect(page.getByText(proposedSummary)).toBeVisible();
+
+    await page.context().clearCookies();
+    await signIn(page, admin.email);
+    await page.goto("/admin/proposals");
+    const proposalRow = page.getByRole("row").filter({ hasText: placeName });
+    await proposalRow.getByRole("link", { name: "Compare" }).click();
+    await expect(
+      page.getByRole("heading", { name: `Edit to ${placeName}` }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Private evidence for the proposal reviewer."),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Approve changes" }).click();
+    await expect(page).toHaveURL(/proposal=approved$/);
+    await expect(page.getByText(proposedSummary)).toBeVisible();
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {

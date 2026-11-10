@@ -56,6 +56,12 @@ export default async function PlacePage({
         <div className="public-place__actions">
           <Link
             className="button-secondary"
+            href={`/places/${place.id}/${place.slug}/suggest-edit`}
+          >
+            Suggest an edit
+          </Link>
+          <Link
+            className="button-secondary"
             href={`/places/${place.id}/${place.slug}/visits`}
           >
             Record a visit

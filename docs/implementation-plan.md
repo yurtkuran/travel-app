@@ -1,7 +1,7 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-09
+> **Last updated:** 2026-11-10
 > **Current phase:** Phase 7 — Complete public and administrative UX
 > **Project status:** Phase 7 in progress — public discovery experience underway
 
@@ -740,6 +740,12 @@ optimized variants.
   journey across the main archive and city/category discovery pages. The
   checkpoint passes fifty integration tests, twenty-six Playwright journeys at
   both supported viewport widths, and the production build.
+- Replaced the four change-proposal placeholders with the complete owner and
+  moderation lifecycle: prefilled public-field editing, private submitter notes,
+  owner-only tracking and withdrawal, field-level comparison, rejection reasons,
+  transactional approval, audit events, and stale-canonical-value protection.
+  The checkpoint passes fifty-five integration tests, twenty-eight Playwright
+  journeys at both supported viewport widths, and the production build.
 
 ### Public experience
 
@@ -903,6 +909,12 @@ tested, and the next set of features has been prioritized from actual needs.
 - Independent backup destination
 
 ## Change log
+
+### 2026-11-10
+
+- Implemented the Phase 7 published-place change-proposal lifecycle across the
+  personal and administrative experiences, including ownership enforcement,
+  field comparisons, withdrawal, approval/rejection, and stale-edit protection.
 
 ### 2026-11-09
 

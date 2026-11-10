@@ -1674,6 +1674,53 @@ textarea {
   box-shadow: var(--shadow-ambient);
 }
 
+.proposal-comparison {
+  margin-top: 2.5rem;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-lowest);
+}
+
+.proposal-comparison__heading,
+.proposal-comparison__row {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(10rem, 0.75fr) repeat(2, minmax(0, 1fr));
+  padding: 1rem 1.25rem;
+}
+
+.proposal-comparison__heading {
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.proposal-comparison__row + .proposal-comparison__row {
+  border-top: 1px solid var(--surface-highest);
+}
+
+.proposal-comparison__row > strong {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.proposal-comparison__row > span {
+  overflow-wrap: anywhere;
+  color: var(--on-surface-variant);
+  white-space: pre-wrap;
+}
+
+.proposal-notes {
+  margin-top: 2rem;
+}
+
+.proposal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
 @media (max-width: 74rem) {
   .public-filters {
     grid-template-columns: repeat(3, minmax(0, 1fr));
