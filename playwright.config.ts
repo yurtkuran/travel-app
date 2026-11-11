@@ -39,7 +39,11 @@ export default defineConfig({
       BETTER_AUTH_URL: testBaseUrl,
       NEXT_DIST_DIR: ".next-playwright",
     },
-    url: `${testBaseUrl}/health/live`,
+    // Warm the authentication route before workers begin. Waiting only on the
+    // lightweight health handler leaves the sign-in client bundle to compile
+    // during the first serial authentication journey, which can trigger a
+    // development Fast Refresh after credentials have been entered.
+    url: `${testBaseUrl}/sign-in`,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -40,10 +40,10 @@ async function createCredentialUser(role: Role) {
 
 async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  await expect(signInButton).toBeEnabled({ timeout: 15_000 });
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
-  const signInButton = page.getByRole("button", { name: "Sign in" });
-  await expect(signInButton).toBeEnabled();
   const [authResponse] = await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -612,6 +612,52 @@ test.describe("authentication boundaries", () => {
       .filter({ hasText: "user · deleted" })
       .filter({ hasText: administratedUserId ?? "missing-managed-user-id" });
     await expect(deletionEvent).toBeVisible();
+  });
+
+  test("updates the signed-in profile, password, and owned sessions", async ({
+    page,
+  }) => {
+    const updatedPassword = "Updated-browser-password-456!";
+    await page.context().clearCookies();
+    await signIn(page, user.email);
+    await page.goto("/account");
+    await page.getByLabel("Name", { exact: true }).fill("Updated Browser User");
+    await page.getByRole("button", { name: "Save profile" }).click();
+    await expect(page).toHaveURL(/\/account\?updated=true$/);
+    await expect(page.getByRole("status")).toContainText("profile was updated");
+
+    const secondarySessionId = randomUUID();
+    await sql`
+      insert into session (id, token, user_id, expires_at, user_agent)
+      values (
+        ${secondarySessionId},
+        ${randomUUID()},
+        ${user.id},
+        now() + interval '1 day',
+        'Secondary browser test agent'
+      )
+    `;
+    await page.goto("/account/security");
+    await expect(page.getByText("Current browser")).toBeVisible();
+    const secondarySession = page
+      .getByRole("article")
+      .filter({ hasText: "Secondary browser test agent" });
+    await secondarySession.getByRole("button", { name: "End session" }).click();
+    await expect(page).toHaveURL(/updated=session$/);
+    await expect(page.getByRole("status")).toContainText(
+      "selected session was ended",
+    );
+
+    await page.getByLabel("Current password").fill(password);
+    await page
+      .getByLabel("New password", { exact: true })
+      .fill(updatedPassword);
+    await page.getByLabel("Confirm new password").fill(updatedPassword);
+    await page.getByRole("button", { name: "Change password" }).click();
+    await expect(page).toHaveURL(/updated=password$/);
+    await expect(page.getByRole("status")).toContainText(
+      "password was changed",
+    );
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {

@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — administrative experience underway
+> **Project status:** Phase 7 in progress — authenticated account experience underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -753,6 +753,11 @@ optimized variants.
   redacted read-only audit log that excludes credentials and private activity.
   The checkpoint passes fifty-nine integration tests and thirty Playwright
   journeys at both supported viewport widths, plus the production build.
+- Replaced the account profile and security placeholders with owner-scoped
+  profile editing, password changes that revoke other sessions, and a redacted
+  active-session list with owner-verified revocation controls. The checkpoint
+  passes sixty-three integration tests and thirty-two Playwright journeys at
+  both supported viewport widths, plus the production build.
 
 ### Public experience
 
@@ -919,6 +924,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Implemented the Phase 7 authenticated account profile and security experience,
+  including owner-only profile editing, password changes, and active-session
+  review and revocation. Verified sixty-three disposable-database integration
+  tests and thirty-two Playwright journeys across both supported viewport widths,
+  plus the production build.
 - Verified the Phase 7 administrative account-management and audit experience
   with fifty-nine disposable-database integration tests and thirty Playwright
   journeys across both supported viewport widths, plus the production build.
