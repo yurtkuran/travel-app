@@ -81,8 +81,56 @@ describe("canonical place administration", () => {
       slug: "direct-admin-place",
     });
     expect(
-      (await listManagedPlaces(admin, "Direct Admin")).map(({ id }) => id),
+      (await listManagedPlaces(admin, { q: "Direct Admin" })).items.map(
+        ({ id }) => id,
+      ),
     ).toContain(place.id);
+  });
+  test("paginates, filters, sorts, and safely normalizes repository input", async () => {
+    const alpha = await createCanonicalPlace(admin, values("Alpha Repository"));
+    const omega = await createCanonicalPlace(admin, values("Omega Repository"));
+    placeIds.push(alpha.id, omega.id);
+    await setPlacePublication(admin, omega.id, false);
+
+    const firstPage = await listManagedPlaces(admin, {
+      page: 1,
+      pageSize: 1,
+      q: "Repository",
+      sort: "name",
+      status: "all",
+    });
+    expect(firstPage).toMatchObject({ page: 1, pageSize: 1, total: 2 });
+    expect(firstPage.items.map(({ id }) => id)).toEqual([alpha.id]);
+    expect(
+      (
+        await listManagedPlaces(admin, {
+          page: 2,
+          pageSize: 1,
+          q: "Repository",
+          sort: "name",
+          status: "all",
+        })
+      ).items.map(({ id }) => id),
+    ).toEqual([omega.id]);
+    expect(
+      (
+        await listManagedPlaces(admin, {
+          q: "Repository",
+          status: "unpublished",
+        })
+      ).items.map(({ id }) => id),
+    ).toEqual([omega.id]);
+
+    const fallback = await listManagedPlaces(admin, {
+      page: "invalid",
+      sort: "invalid" as "name",
+      status: "invalid" as "all",
+    });
+    expect(fallback.input).toMatchObject({
+      page: 1,
+      sort: "recent",
+      status: "all",
+    });
   });
   test("edits canonical fields and maintains a descriptive slug", async () => {
     const place = await createCanonicalPlace(admin, values("Before Edit"));

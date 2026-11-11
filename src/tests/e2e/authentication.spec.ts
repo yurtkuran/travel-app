@@ -498,6 +498,20 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("heading", { name: `Browser Place ${taxonomySuffix}` }),
     ).toBeVisible();
+
+    await page.goto(
+      `/admin/places?q=${encodeURIComponent(`Browser Place ${taxonomySuffix}`)}&status=published&sort=name`,
+    );
+    await expect(page.getByLabel("Search places")).toHaveValue(
+      `Browser Place ${taxonomySuffix}`,
+    );
+    await expect(page.getByLabel("Status")).toHaveValue("published");
+    await expect(page.getByLabel("Sort")).toHaveValue("name");
+    const repositoryRow = page
+      .getByRole("row")
+      .filter({ hasText: `Browser Place ${taxonomySuffix}` });
+    await expect(repositoryRow).toContainText("published");
+    await expect(page.getByText("Page 1 of 1 · 1 total")).toBeVisible();
   });
 
   test("uploads, publishes, and removes optimized place media", async ({

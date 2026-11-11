@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
-> **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — destructive-action safeguards underway
+> **Current phase:** Phase 8 — Security and quality hardening
+> **Project status:** Phase 7 complete — ready to begin Phase 8
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -32,7 +32,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 4     | Build the application shell and navigation | Complete    |
 | 5     | Implement the core vertical slice          | Complete    |
 | 6     | Add media handling                         | Complete    |
-| 7     | Complete public and administrative UX      | In progress |
+| 7     | Complete public and administrative UX      | Complete    |
 | 8     | Security and quality hardening             | Not started |
 | 9     | Deploy to DigitalOcean                     | Not started |
 | 10    | Stabilize before adding features           | Not started |
@@ -723,7 +723,7 @@ optimized variants.
 
 ## Phase 7 — Complete public and administrative UX
 
-**Status:** In progress
+**Status:** Complete
 
 ### Current implementation progress
 
@@ -788,6 +788,12 @@ optimized variants.
   publication consequences before submitting the existing authorized action.
   The checkpoint passes sixty-seven integration tests, thirty-two Playwright
   journeys at both supported viewport widths, and the production build.
+- Replaced the canonical-place repository's fixed 100-record window with
+  URL-addressable search, publication-status filters, allowlisted sorting,
+  bounded pagination, total counts, and distinct empty and no-results states.
+  The final Phase 7 checkpoint passes sixty-eight integration tests, thirty-two
+  Playwright journeys at both supported viewport widths, and the production
+  build.
 
 ### Public experience
 
@@ -954,6 +960,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Added bounded, filterable, and sortable pagination to the canonical-place
+  administration repository with safe query fallbacks. Verified sixty-eight
+  disposable-database integration tests and thirty-two Playwright journeys
+  across both supported viewport widths, plus the production build. Marked
+  Phase 7 complete and advanced the roadmap to Phase 8.
 - Added accessible, form-backed confirmation dialogs for destructive personal
   and administrative actions while keeping reversible operations lightweight.
   Verified sixty-seven disposable-database integration tests and thirty-two

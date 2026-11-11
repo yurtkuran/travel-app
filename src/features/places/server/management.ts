@@ -36,6 +36,19 @@ const optionalHttpsUrl = z
   )
   .optional()
   .transform((value) => value || null);
+const managedPlaceListSchema = z.object({
+  page: z.coerce.number().int().positive().default(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20).catch(20),
+  q: z.string().trim().max(100).default("").catch(""),
+  sort: z
+    .enum(["name", "name_desc", "recent"])
+    .default("recent")
+    .catch("recent"),
+  status: z
+    .enum(["all", "published", "unpublished"])
+    .default("all")
+    .catch("all"),
+});
 export const canonicalPlaceSchema = z
   .object({
     addressLine2: optional(120),
@@ -58,6 +71,7 @@ export const canonicalPlaceSchema = z
     path: ["longitude"],
   });
 export type CanonicalPlaceInput = z.input<typeof canonicalPlaceSchema>;
+export type ManagedPlaceListInput = z.input<typeof managedPlaceListSchema>;
 export class PlaceManagementError extends Error {
   constructor(message: string) {
     super(message);
@@ -108,15 +122,48 @@ export interface ManagedPlace {
   updatedAt: string;
 }
 
-export async function listManagedPlaces(actor: Actor, query = "") {
+export async function listManagedPlaces(
+  actor: Actor,
+  rawInput: ManagedPlaceListInput = {},
+) {
   requireCapability(actor, "places.manageAny");
-  return getSqlClient()<ManagedPlace[]>`
-    select p.id, p.name, p.slug, p.status, p.city_id as "cityId", p.category_id as "categoryId", p.short_summary as "shortSummary", p.description, p.type_label as "typeLabel", p.street_address as "streetAddress", p.address_line_2 as "addressLine2", p.postal_code as "postalCode", p.phone, p.latitude::text as latitude, p.longitude::text as longitude, links."officialWebsite", links."mapListing", p.updated_at::text as "updatedAt", city.name as "cityName", category.name as "categoryName"
-    from places p join cities city on city.id = p.city_id join categories category on category.id = p.category_id
-    left join lateral (select max(url) filter (where type='official_website') as "officialWebsite", max(url) filter (where type='map_listing') as "mapListing" from place_links where place_id=p.id) links on true
-    where p.status in ('published', 'unpublished') and (${query} = '' or position(lower(${query}) in lower(concat_ws(' ', p.name, city.name, category.name))) > 0)
-    order by p.updated_at desc, p.name limit 100
-  `;
+  const input = managedPlaceListSchema.parse(rawInput);
+  const offset = (input.page - 1) * input.pageSize;
+  const sql = getSqlClient();
+  const statusFilter = () =>
+    input.status === "all" ? sql`` : sql`and p.status = ${input.status}`;
+  const order =
+    input.sort === "name"
+      ? sql`p.name, p.id`
+      : input.sort === "name_desc"
+        ? sql`p.name desc, p.id desc`
+        : sql`p.updated_at desc, p.id desc`;
+  const [items, [count]] = await Promise.all([
+    sql<ManagedPlace[]>`
+      select p.id, p.name, p.slug, p.status, p.city_id as "cityId", p.category_id as "categoryId", p.short_summary as "shortSummary", p.description, p.type_label as "typeLabel", p.street_address as "streetAddress", p.address_line_2 as "addressLine2", p.postal_code as "postalCode", p.phone, p.latitude::text as latitude, p.longitude::text as longitude, links."officialWebsite", links."mapListing", p.updated_at::text as "updatedAt", city.name as "cityName", category.name as "categoryName"
+      from places p join cities city on city.id = p.city_id join categories category on category.id = p.category_id
+      left join lateral (select max(url) filter (where type='official_website') as "officialWebsite", max(url) filter (where type='map_listing') as "mapListing" from place_links where place_id=p.id) links on true
+      where p.status in ('published', 'unpublished')
+        and (${input.q} = '' or position(lower(${input.q}) in lower(concat_ws(' ', p.name, city.name, category.name))) > 0)
+        ${statusFilter()}
+      order by ${order}
+      limit ${input.pageSize} offset ${offset}
+    `,
+    sql<{ total: number }[]>`
+      select count(*)::integer as total
+      from places p join cities city on city.id = p.city_id join categories category on category.id = p.category_id
+      where p.status in ('published', 'unpublished')
+        and (${input.q} = '' or position(lower(${input.q}) in lower(concat_ws(' ', p.name, city.name, category.name))) > 0)
+        ${statusFilter()}
+    `,
+  ]);
+  return {
+    input,
+    items,
+    page: input.page,
+    pageSize: input.pageSize,
+    total: count?.total ?? 0,
+  };
 }
 
 export async function getManagedPlace(actor: Actor, placeId: string) {
