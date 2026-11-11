@@ -467,6 +467,19 @@ test.describe("authentication boundaries", () => {
 
     await page.goto(`/admin/places/${browserSubmissionId}`);
     await page.getByRole("button", { name: "Unpublish" }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: `Unpublish Browser Place ${taxonomySuffix}?`,
+      }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: `Unpublish Browser Place ${taxonomySuffix}?`,
+      }),
+    ).not.toBeVisible();
+    await page.getByRole("button", { name: "Unpublish" }).click();
+    await page.getByRole("button", { name: "Unpublish place" }).click();
     await expect(page).toHaveURL(/publication=unpublished$/);
     await page.goto(publicPath);
     await expect(
@@ -533,6 +546,7 @@ test.describe("authentication boundaries", () => {
       .getByRole("article")
       .filter({ hasText: "Browser media caption" });
     await mediaCard.getByRole("button", { name: "Remove" }).click();
+    await mediaCard.getByRole("button", { name: "Remove image" }).click();
     await expect(page).toHaveURL(/media=deleted$/);
 
     await page.context().clearCookies();

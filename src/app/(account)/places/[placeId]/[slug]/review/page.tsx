@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { PageHeading } from "@/components/ui/page-heading";
 import { requireCurrentSession } from "@/features/auth/server/session";
 import {
@@ -96,14 +97,18 @@ export default async function ReviewPlacePage({
           </button>
         </form>
         {review ? (
-          <form action={deleteReviewAction}>
-            <input name="reviewId" type="hidden" value={review.id} />
-            <input name="placeId" type="hidden" value={place.id} />
-            <input name="slug" type="hidden" value={place.slug} />
-            <button className="button-danger" type="submit">
-              Delete review
-            </button>
-          </form>
+          <FormConfirmationDialog
+            action={deleteReviewAction}
+            confirmLabel="Delete review"
+            description="This permanently removes your public review and its ratings from the place aggregates. Private visits are unaffected."
+            fields={{
+              placeId: place.id,
+              reviewId: review.id,
+              slug: place.slug,
+            }}
+            title="Delete your review?"
+            triggerLabel="Delete review"
+          />
         ) : null}
       </section>
     </>

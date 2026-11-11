@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { PageHeading } from "@/components/ui/page-heading";
 import { requireCurrentSession } from "@/features/auth/server/session";
 import { getVisitPlace, listOwnVisits } from "@/features/visits/server/visits";
@@ -194,14 +195,18 @@ export default async function PlaceVisitsPage({
                       </button>
                     </form>
                   </details>
-                  <form action={deleteVisitAction}>
-                    <input name="visitId" type="hidden" value={visit.id} />
-                    <input name="placeId" type="hidden" value={place.id} />
-                    <input name="slug" type="hidden" value={place.slug} />
-                    <button className="button-danger" type="submit">
-                      Delete visit
-                    </button>
-                  </form>
+                  <FormConfirmationDialog
+                    action={deleteVisitAction}
+                    confirmLabel="Delete visit"
+                    description="This permanently removes the visit date, private notes, and private ratings from your history."
+                    fields={{
+                      placeId: place.id,
+                      slug: place.slug,
+                      visitId: visit.id,
+                    }}
+                    title="Delete this private visit?"
+                    triggerLabel="Delete visit"
+                  />
                 </article>
               ))}
             </div>

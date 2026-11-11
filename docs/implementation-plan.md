@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — editor safeguards underway
+> **Project status:** Phase 7 in progress — destructive-action safeguards underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -782,6 +782,12 @@ optimized variants.
   submissions and retaining protection after validation errors. The checkpoint
   passes sixty-seven integration tests, thirty-two Playwright journeys at both
   supported viewport widths, and the production build.
+- Standardized destructive-action confirmation for place unpublishing, media
+  removal, public-review deletion and permanent moderation removal, private-visit
+  deletion, and proposal withdrawal. Each dialog describes its privacy and
+  publication consequences before submitting the existing authorized action.
+  The checkpoint passes sixty-seven integration tests, thirty-two Playwright
+  journeys at both supported viewport widths, and the production build.
 
 ### Public experience
 
@@ -948,6 +954,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Added accessible, form-backed confirmation dialogs for destructive personal
+  and administrative actions while keeping reversible operations lightweight.
+  Verified sixty-seven disposable-database integration tests and thirty-two
+  Playwright journeys across both supported viewport widths, plus the production
+  build.
 - Added consistent unsaved-change protection to the primary contribution and
   administrative editors, with browser coverage for cancelled navigation.
   Verified sixty-seven disposable-database integration tests and thirty-two

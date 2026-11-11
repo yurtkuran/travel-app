@@ -1,5 +1,6 @@
 import { DataTable } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { PageHeading } from "@/components/ui/page-heading";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { requireAdminSession } from "@/features/auth/server/session";
@@ -79,13 +80,14 @@ export default async function AdminReviewsPage() {
                     </form>
                   ) : null}
                   {review.moderationStatus !== "removed" ? (
-                    <form action={moderateReviewAction}>
-                      <input name="reviewId" type="hidden" value={review.id} />
-                      <input name="status" type="hidden" value="removed" />
-                      <button className="button-danger" type="submit">
-                        Remove
-                      </button>
-                    </form>
+                    <FormConfirmationDialog
+                      action={moderateReviewAction}
+                      confirmLabel="Remove review"
+                      description="The review will be permanently excluded from public display and rating aggregates. This moderation state cannot be restored."
+                      fields={{ reviewId: review.id, status: "removed" }}
+                      title={`Remove ${review.userName}'s review?`}
+                      triggerLabel="Remove"
+                    />
                   ) : null}
                 </div>
               ),

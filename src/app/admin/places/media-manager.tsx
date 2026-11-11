@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { mediaPolicy } from "@/features/media/policy";
 import { thumbnailUrl, type MediaItem } from "@/features/media/server/media";
 
@@ -71,13 +72,14 @@ export function MediaManager({
                     Later
                   </button>
                 </form>
-                <form action={deleteMediaAction}>
-                  <input name="placeId" type="hidden" value={placeId} />
-                  <input name="mediaId" type="hidden" value={item.id} />
-                  <button className="button-danger" type="submit">
-                    Remove
-                  </button>
-                </form>
+                <FormConfirmationDialog
+                  action={deleteMediaAction}
+                  confirmLabel="Remove image"
+                  description="This permanently removes the optimized image files and their metadata from the place."
+                  fields={{ mediaId: item.id, placeId }}
+                  title={`Remove ${index === 0 ? "the cover image" : `image ${index + 1}`}?`}
+                  triggerLabel="Remove"
+                />
               </div>
               <form action={replaceMediaAction}>
                 <input name="placeId" type="hidden" value={placeId} />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { PageHeading } from "@/components/ui/page-heading";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { requireAdminSession } from "@/features/auth/server/session";
@@ -49,24 +50,24 @@ export default async function EditAdminPlacePage({
                 View public page
               </Link>
             ) : null}
-            <form action={publicationAction}>
-              <input name="placeId" type="hidden" value={place.id} />
-              <input
-                name="intent"
-                type="hidden"
-                value={place.status === "published" ? "unpublish" : "publish"}
+            {place.status === "published" ? (
+              <FormConfirmationDialog
+                action={publicationAction}
+                confirmLabel="Unpublish place"
+                description="The public page will become unavailable immediately. Reviews and private visits will be preserved, and the place can be republished later."
+                fields={{ intent: "unpublish", placeId: place.id }}
+                title={`Unpublish ${place.name}?`}
+                triggerLabel="Unpublish"
               />
-              <button
-                className={
-                  place.status === "published"
-                    ? "button-danger"
-                    : "button-primary"
-                }
-                type="submit"
-              >
-                {place.status === "published" ? "Unpublish" : "Republish"}
-              </button>
-            </form>
+            ) : (
+              <form action={publicationAction}>
+                <input name="placeId" type="hidden" value={place.id} />
+                <input name="intent" type="hidden" value="publish" />
+                <button className="button-primary" type="submit">
+                  Republish
+                </button>
+              </form>
+            )}
           </div>
         }
         description="Edit canonical public information, manage publication state, and keep provenance separate from public attribution."

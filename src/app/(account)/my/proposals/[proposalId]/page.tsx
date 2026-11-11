@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { FormConfirmationDialog } from "@/components/ui/form-confirmation-dialog";
 import { PageHeading } from "@/components/ui/page-heading";
 import { requireCurrentSession } from "@/features/auth/server/session";
 import { getOwnProposal } from "@/features/places/server/proposals";
@@ -114,12 +115,16 @@ export default async function ProposalPage({
         </section>
       ) : null}
       {proposal.status === "pending_review" ? (
-        <form action={withdrawProposalAction} className="proposal-actions">
-          <input name="proposalId" type="hidden" value={proposal.id} />
-          <button className="button-danger" type="submit">
-            Withdraw proposal
-          </button>
-        </form>
+        <div className="proposal-actions">
+          <FormConfirmationDialog
+            action={withdrawProposalAction}
+            confirmLabel="Withdraw proposal"
+            description="The proposal will leave the administration review queue and cannot be reopened. The published place will remain unchanged."
+            fields={{ proposalId: proposal.id }}
+            title="Withdraw this proposed edit?"
+            triggerLabel="Withdraw proposal"
+          />
+        </div>
       ) : null}
     </>
   );
