@@ -9,8 +9,11 @@ import { getDatabase } from "@/db/client";
 import * as schema from "@/db/schema";
 import { getServerEnv } from "@/lib/env";
 
-function createAuth() {
+export function createAuth({
+  productionSecurity,
+}: { productionSecurity?: boolean } = {}) {
   const env = getServerEnv();
+  const secureProduction = productionSecurity ?? env.NODE_ENV === "production";
 
   return betterAuth({
     appName: "TravelTrove",
@@ -36,7 +39,7 @@ function createAuth() {
     },
     trustedOrigins: [env.BETTER_AUTH_URL],
     rateLimit: {
-      enabled: env.NODE_ENV === "production",
+      enabled: secureProduction,
       window: 60,
       max: 100,
       storage: "memory",
@@ -46,7 +49,9 @@ function createAuth() {
     },
     advanced: {
       cookiePrefix: "traveltrove",
-      useSecureCookies: env.NODE_ENV === "production",
+      disableCSRFCheck: false,
+      disableOriginCheck: false,
+      useSecureCookies: secureProduction,
       database: {
         validateSchema: true,
       },

@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { getSqlClient } from "@/db/client";
 import { setUserSuspended } from "@/features/auth/server/account-administration";
-import { getAuth } from "@/features/auth/server/auth";
+import { createAuth, getAuth } from "@/features/auth/server/auth";
 import { bootstrapFirstAdmin } from "@/features/auth/server/bootstrap-admin";
 import {
   consumeSetupToken,
@@ -87,6 +87,63 @@ describe("authentication lifecycle", () => {
          and password is not null
     `;
     expect(account?.count).toBe(1);
+  });
+
+  it("rejects cookie-authenticated mutations from an untrusted origin", async () => {
+    const signIn = await getAuth().handler(
+      request("/sign-in/email", {
+        email: provisionedEmail,
+        password,
+      }),
+    );
+    expect(signIn.status).toBe(200);
+    const cookie = signIn.headers
+      .getSetCookie()
+      .map((value) => value.split(";", 1)[0])
+      .join("; ");
+
+    const untrusted = request("/update-user", {
+      name: "Compromised User",
+    });
+    untrusted.headers.set("Cookie", cookie);
+    untrusted.headers.set("Origin", "https://attacker.example");
+    const response = await getAuth().handler(untrusted);
+    expect(response.status).toBe(403);
+
+    const [user] = await sql<{ name: string }[]>`
+      select name from "user" where id = ${provisionedUserId}
+    `;
+    expect(user?.name).toBe("Provisioned User");
+    await sql`delete from session where user_id = ${provisionedUserId}`;
+  });
+
+  it("uses secure production cookies", async () => {
+    const response = await createAuth({ productionSecurity: true }).handler(
+      request("/sign-in/email", { email: provisionedEmail, password }),
+    );
+    expect(response.status).toBe(200);
+    const cookies = response.headers.getSetCookie().join("; ");
+    expect(cookies).toMatch(/;\s*Secure/i);
+    expect(cookies).toMatch(/;\s*HttpOnly/i);
+    expect(cookies).toMatch(/;\s*SameSite=Lax/i);
+
+    await sql`delete from session where user_id = ${provisionedUserId}`;
+  });
+
+  it("throttles repeated production sign-in attempts", async () => {
+    const auth = createAuth({ productionSecurity: true });
+    const statuses: number[] = [];
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const signIn = request("/sign-in/email", {
+        email: provisionedEmail,
+        password,
+      });
+      signIn.headers.set("X-Forwarded-For", "203.0.113.10");
+      statuses.push((await auth.handler(signIn)).status);
+    }
+    expect(statuses.slice(0, 5)).toEqual([200, 200, 200, 200, 200]);
+    expect(statuses[5]).toBe(429);
+    await sql`delete from session where user_id = ${provisionedUserId}`;
   });
 
   it("signs in through Better Auth and creates a PostgreSQL session", async () => {

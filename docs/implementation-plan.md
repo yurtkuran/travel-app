@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — browser response hardening underway
+> **Project status:** Phase 8 in progress — authentication boundary verification underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,17 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Added integration coverage that exercises Better Auth's trusted-origin
+  rejection, production-only secure cookie attributes, and production sign-in
+  throttling through the real authentication handler. The auth factory accepts
+  a narrow security-mode override so disposable-database tests can verify
+  production behavior without mutating the process environment or weakening
+  runtime defaults. Origin and CSRF checks are explicitly enabled in every
+  environment so Better Auth's test-environment shortcut cannot bypass this
+  boundary during integration coverage. All seventy-one disposable-database
+  integration tests pass, including the intentional foreign-origin rejection,
+  along with all thirty-two Playwright journeys at both supported viewport
+  widths, thirteen unit tests, and the production build.
 - Added enforced application-wide content security, frame-embedding,
   MIME-sniffing, referrer, permissions, and cross-origin response policies.
   Development alone permits script evaluation for the Next.js development
@@ -972,6 +983,14 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Added real-handler authentication boundary coverage for untrusted origins,
+  production secure-cookie attributes, and repeated sign-in throttling while
+  retaining environment-derived production defaults at runtime. Explicitly
+  enabled Better Auth's origin and CSRF checks in every environment so tests
+  exercise the same boundary as production. Verified all seventy-one
+  disposable-database integration tests and thirty-two Playwright journeys
+  across both supported viewport widths, plus thirteen unit tests and the
+  production build.
 - Started Phase 8 with application-wide browser security headers, an enforced
   content security policy, production-only HSTS, and environment-specific unit
   and browser assertions. Verified thirteen unit tests, sixty-eight disposable
