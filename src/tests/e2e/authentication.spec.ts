@@ -411,12 +411,33 @@ test.describe("authentication boundaries", () => {
     await page
       .getByLabel("Short summary")
       .fill("An administrator-updated public summary.");
+    await page.getByLabel("Phone").fill("+1 212 555 0100");
+    await page.getByLabel("Latitude").fill("40.7128");
+    await page.getByLabel("Longitude").fill("-74.0060");
+    await page
+      .getByLabel("Official website")
+      .fill("https://example.com/browser-place");
+    await page
+      .getByLabel("Map listing")
+      .fill("https://maps.example.com/browser-place");
     await page.getByRole("button", { name: "Save changes" }).click();
     await expect(page).toHaveURL(/\?updated=true$/);
     await page.goto(publicPath);
     await expect(
       page.getByText("An administrator-updated public summary."),
     ).toBeVisible();
+    await expect(page).toHaveTitle(
+      new RegExp(`Browser Place ${taxonomySuffix}`),
+    );
+    await expect(
+      page.getByRole("link", { name: "Visit official website" }),
+    ).toHaveAttribute("href", "https://example.com/browser-place");
+    await expect(
+      page.getByRole("link", { name: "View on map" }),
+    ).toHaveAttribute("href", "https://maps.example.com/browser-place");
+    await expect(
+      page.getByRole("link", { name: "+1 212 555 0100" }),
+    ).toHaveAttribute("href", "tel:+12125550100");
 
     await page.goto(`/admin/places/${browserSubmissionId}`);
     await page.getByRole("button", { name: "Unpublish" }).click();

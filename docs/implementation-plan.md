@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — administration dashboard underway
+> **Project status:** Phase 7 in progress — public place detail underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -763,6 +763,13 @@ optimized variants.
   queue; and redacted recent administrative activity. The checkpoint passes
   sixty-five integration tests and thirty-two Playwright journeys at both
   supported viewport widths, plus the production build.
+- Extended canonical place administration and public detail pages with validated
+  public website and map links, paired coordinates, clickable telephone details,
+  coordinate-based map fallbacks, and route-specific search and social-preview
+  metadata. The checkpoint passes sixty-six integration tests, thirty-two
+  Playwright journeys at both supported viewport widths, and the production
+  build. Integration files run sequentially against their shared disposable
+  database so global account invariants remain deterministic.
 
 ### Public experience
 
@@ -771,11 +778,11 @@ optimized variants.
 - Filter and sort through URL parameters.
 - Provide an adaptive list or card presentation for supported web viewports.
 - Provide permanent place-detail URLs.
-- Add contact, website, and map links.
+- Provide contact, website, and map links.
 - Add the image gallery.
 - Add useful empty and no-results states.
 - Display public reviews.
-- Add page metadata and social-preview metadata.
+- Provide route-specific page and social-preview metadata.
 
 ### Authenticated user experience
 
@@ -929,6 +936,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Extended the Phase 7 public place-detail experience with validated contact,
+  website, coordinate, and map data plus route-specific Open Graph and Twitter
+  metadata. Verified sixty-six disposable-database integration tests and
+  thirty-two Playwright journeys across both supported viewport widths, plus the
+  production build.
 - Implemented the Phase 7 operational administration dashboard with actionable
   moderation counts, unified queue links, and redacted recent activity. Verified
   sixty-five disposable-database integration tests and thirty-two Playwright

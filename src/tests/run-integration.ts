@@ -53,7 +53,12 @@ async function main() {
     );
     await run(
       process.execPath,
-      ["node_modules/vitest/vitest.mjs", "run", "src/tests/integration"],
+      [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--no-file-parallelism",
+        "src/tests/integration",
+      ],
       testUrl.toString(),
     );
   } finally {

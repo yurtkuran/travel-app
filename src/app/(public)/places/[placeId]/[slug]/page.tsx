@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { getPublishedPlace } from "@/features/places/server/moderation";
@@ -25,6 +26,46 @@ function publicAddress(place: {
     .join(", ");
 }
 
+function metadataDescription(place: {
+  categoryName: string;
+  cityLabel: string;
+  description: string | null;
+  shortSummary: string | null;
+}) {
+  const description =
+    place.shortSummary ??
+    place.description ??
+    `Discover this ${place.categoryName.toLowerCase()} in ${place.cityLabel}.`;
+  return description.length > 160
+    ? `${description.slice(0, 157).trimEnd()}...`
+    : description;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ placeId: string; slug: string }>;
+}): Promise<Metadata> {
+  const { placeId } = await params;
+  const place = await getPublishedPlace(placeId);
+  if (!place) return {};
+  const description = metadataDescription(place);
+  return {
+    title: place.name,
+    description,
+    openGraph: {
+      title: place.name,
+      description,
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title: place.name,
+      description,
+    },
+  };
+}
+
 export default async function PlacePage({
   params,
 }: {
@@ -35,6 +76,14 @@ export default async function PlacePage({
   if (!place) notFound();
   if (slug !== place.slug) redirect(`/places/${place.id}/${place.slug}`);
   const address = publicAddress(place);
+  const mapUrl =
+    place.mapListing ??
+    (place.latitude && place.longitude
+      ? `https://www.openstreetmap.org/?mlat=${encodeURIComponent(place.latitude)}&mlon=${encodeURIComponent(place.longitude)}#map=16/${encodeURIComponent(place.latitude)}/${encodeURIComponent(place.longitude)}`
+      : null);
+  const phoneUrl = place.phone
+    ? `tel:${place.phone.replace(/[^+\d,;#*]/g, "")}`
+    : null;
   const [reviews, ratingSummary, media] = await Promise.all([
     listPublicReviews(place.id),
     getPublicRatingSummary(place.id),
@@ -117,7 +166,33 @@ export default async function PlacePage({
             {place.phone ? (
               <div>
                 <dt>Phone</dt>
-                <dd>{place.phone}</dd>
+                <dd>
+                  <a href={phoneUrl ?? undefined}>{place.phone}</a>
+                </dd>
+              </div>
+            ) : null}
+            {place.officialWebsite ? (
+              <div>
+                <dt>Website</dt>
+                <dd>
+                  <a
+                    href={place.officialWebsite}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Visit official website
+                  </a>
+                </dd>
+              </div>
+            ) : null}
+            {mapUrl ? (
+              <div>
+                <dt>Map</dt>
+                <dd>
+                  <a href={mapUrl} rel="noreferrer" target="_blank">
+                    View on map
+                  </a>
+                </dd>
               </div>
             ) : null}
           </dl>

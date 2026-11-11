@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { ZodError } from "zod";
 import { getSqlClient } from "@/db/client";
 import { AuthorizationError, type Actor } from "@/features/auth/permissions";
 import {
@@ -27,7 +28,11 @@ const values = (name: string) => ({
   categoryId: seededTaxonomy.categories.restaurant,
   cityId,
   description: "Canonical description.",
+  latitude: "",
+  longitude: "",
+  mapListing: "",
   name,
+  officialWebsite: "",
   phone: "",
   postalCode: "",
   shortSummary: "Canonical summary.",
@@ -84,13 +89,41 @@ describe("canonical place administration", () => {
     placeIds.push(place.id);
     await updateCanonicalPlace(admin, place.id, {
       ...values("After Edit"),
+      latitude: "40.712800",
+      longitude: "-74.006000",
+      mapListing: "https://maps.example.com/after-edit",
+      officialWebsite: "https://example.com/after-edit",
       shortSummary: "Updated summary.",
     });
     expect(await getManagedPlace(admin, place.id)).toMatchObject({
+      latitude: "40.712800",
+      longitude: "-74.006000",
+      mapListing: "https://maps.example.com/after-edit",
       name: "After Edit",
+      officialWebsite: "https://example.com/after-edit",
       shortSummary: "Updated summary.",
       slug: "after-edit",
     });
+    expect(await getPublishedPlace(place.id)).toMatchObject({
+      latitude: "40.712800",
+      longitude: "-74.006000",
+      mapListing: "https://maps.example.com/after-edit",
+      officialWebsite: "https://example.com/after-edit",
+    });
+  });
+  test("validates public links and coordinate pairs", async () => {
+    await expect(
+      createCanonicalPlace(admin, {
+        ...values("Unsafe Website"),
+        officialWebsite: "http://localhost/private",
+      }),
+    ).rejects.toBeInstanceOf(ZodError);
+    await expect(
+      createCanonicalPlace(admin, {
+        ...values("Incomplete Coordinates"),
+        latitude: "40.7128",
+      }),
+    ).rejects.toBeInstanceOf(ZodError);
   });
   test("unpublishes immediately while preserving reviews and visits, then republishes", async () => {
     const place = await createCanonicalPlace(admin, values("Lifecycle Place"));

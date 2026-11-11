@@ -256,7 +256,11 @@ export interface PublicPlaceDetail {
   cityLabel: string;
   description: string | null;
   id: string;
+  latitude: string | null;
+  longitude: string | null;
+  mapListing: string | null;
   name: string;
+  officialWebsite: string | null;
   phone: string | null;
   postalCode: string | null;
   shortSummary: string | null;
@@ -277,11 +281,21 @@ export async function getPublishedPlace(placeId: string) {
            p.address_line_2 as "addressLine2",
            p.postal_code as "postalCode",
            p.phone,
+           p.latitude::text as latitude,
+           p.longitude::text as longitude,
+           links."officialWebsite",
+           links."mapListing",
            concat_ws(', ', city.name, city.region, city.country) as "cityLabel",
            category.name as "categoryName"
       from places p
       join cities city on city.id = p.city_id
       join categories category on category.id = p.category_id
+      left join lateral (
+        select max(url) filter (where type = 'official_website') as "officialWebsite",
+               max(url) filter (where type = 'map_listing') as "mapListing"
+          from place_links
+         where place_id = p.id
+      ) links on true
      where p.id = ${placeId}
        and p.status = 'published'
   `;

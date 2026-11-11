@@ -136,6 +136,54 @@ export function PlaceForm({
             defaultValue={place?.phone ?? ""}
           />
         </div>
+        <div className="form-field">
+          <label htmlFor="place-latitude">Latitude</label>
+          <input
+            id="place-latitude"
+            max={90}
+            min={-90}
+            name="latitude"
+            step="any"
+            type="number"
+            defaultValue={place?.latitude ?? ""}
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="place-longitude">Longitude</label>
+          <input
+            id="place-longitude"
+            max={180}
+            min={-180}
+            name="longitude"
+            step="any"
+            type="number"
+            defaultValue={place?.longitude ?? ""}
+          />
+          <small>Supply both coordinates or leave both blank.</small>
+        </div>
+        <div className="form-field">
+          <label htmlFor="place-website">Official website</label>
+          <input
+            id="place-website"
+            maxLength={2048}
+            name="officialWebsite"
+            placeholder="https://example.com"
+            type="url"
+            defaultValue={place?.officialWebsite ?? ""}
+          />
+        </div>
+        <div className="form-field">
+          <label htmlFor="place-map-listing">Map listing</label>
+          <input
+            id="place-map-listing"
+            maxLength={2048}
+            name="mapListing"
+            placeholder="https://maps.example.com/place"
+            type="url"
+            defaultValue={place?.mapListing ?? ""}
+          />
+          <small>Links must use public HTTPS URLs.</small>
+        </div>
       </div>
       <div className="taxonomy-form__actions">
         <button className="button-primary" type="submit">
