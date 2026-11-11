@@ -3,7 +3,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ZodError } from "zod";
 import { requireAdminSession } from "@/features/auth/server/session";
-import { MediaValidationError } from "@/features/media/policy";
+import {
+  MediaValidationError,
+  validateMediaUploadMetadata,
+} from "@/features/media/policy";
 import {
   deletePlaceMedia,
   listPlaceMedia,
@@ -62,11 +65,13 @@ export async function uploadMediaAction(formData: FormData) {
   const file = formData.get("image");
   if (!(file instanceof File)) throw new Error("Choose an image to upload");
   try {
+    validateMediaUploadMetadata(file);
     await uploadPlaceMedia(session.actor, placeId, {
       altText: String(formData.get("altText") ?? ""),
       caption: String(formData.get("caption") ?? ""),
       contents: Buffer.from(await file.arrayBuffer()),
       isDecorative: formData.get("isDecorative") === "on",
+      mimeType: file.type,
     });
   } catch (error) {
     if (error instanceof MediaValidationError || error instanceof ZodError) {
@@ -113,11 +118,13 @@ export async function replaceMediaAction(formData: FormData) {
   const file = formData.get("replacement");
   if (!(file instanceof File)) throw new Error("Choose a replacement image");
   try {
+    validateMediaUploadMetadata(file);
     await replacePlaceMedia(
       session.actor,
       placeId,
       String(formData.get("mediaId") ?? ""),
       Buffer.from(await file.arrayBuffer()),
+      file.type,
     );
   } catch (error) {
     if (error instanceof MediaValidationError) {

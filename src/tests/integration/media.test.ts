@@ -3,7 +3,7 @@ import sharp from "sharp";
 
 import { getSqlClient } from "@/db/client";
 import type { Actor } from "@/features/auth/permissions";
-import { MediaValidationError } from "@/features/media/policy";
+import { mediaPolicy, MediaValidationError } from "@/features/media/policy";
 import {
   deletePlaceMedia,
   listPlaceMedia,
@@ -67,6 +67,7 @@ describe("place media lifecycle", () => {
         caption: "",
         contents: Buffer.from("not an image"),
         isDecorative: false,
+        mimeType: "image/png",
       }),
     ).rejects.toBeInstanceOf(MediaValidationError);
     await expect(
@@ -75,8 +76,43 @@ describe("place media lifecycle", () => {
         caption: "",
         contents: await image(100),
         isDecorative: false,
+        mimeType: "image/png",
       }),
     ).rejects.toBeInstanceOf(MediaValidationError);
+  });
+  test("rejects oversized, unsupported, and misleading image uploads", async () => {
+    await expect(
+      uploadPlaceMedia(admin, placeId, {
+        altText: "Oversized image",
+        caption: "",
+        contents: Buffer.alloc(mediaPolicy.maximumBytes + 1),
+        isDecorative: false,
+        mimeType: "image/png",
+      }),
+    ).rejects.toThrow("Image must be 10 MB or smaller");
+
+    const validPng = await image(110);
+    await expect(
+      uploadPlaceMedia(admin, placeId, {
+        altText: "Unsupported declared type",
+        caption: "",
+        contents: validPng,
+        isDecorative: false,
+        mimeType: "image/gif",
+      }),
+    ).rejects.toThrow("Upload a JPEG, PNG, or WebP image");
+
+    const gifDisguisedAsPng = await sharp(validPng).gif().toBuffer();
+    await expect(
+      uploadPlaceMedia(admin, placeId, {
+        altText: "Misleading image type",
+        caption: "",
+        contents: gifDisguisedAsPng,
+        isDecorative: false,
+        mimeType: "image/png",
+      }),
+    ).rejects.toBeInstanceOf(MediaValidationError);
+    expect(await listPlaceMedia(placeId, "all")).toHaveLength(0);
   });
   test("does not let a user manage a published canonical place", async () => {
     await expect(
@@ -85,6 +121,7 @@ describe("place media lifecycle", () => {
         caption: "",
         contents: await image(120),
         isDecorative: false,
+        mimeType: "image/png",
       }),
     ).rejects.toBeInstanceOf(MediaValidationError);
   });
@@ -94,6 +131,7 @@ describe("place media lifecycle", () => {
       caption: "Test caption",
       contents: await image(200),
       isDecorative: false,
+      mimeType: "image/png",
     });
     const [item] = await listPlaceMedia(placeId, "all");
     expect(item).toMatchObject({
@@ -109,6 +147,7 @@ describe("place media lifecycle", () => {
       caption: "",
       contents: await image(220),
       isDecorative: false,
+      mimeType: "image/png",
     });
     const before = await listPlaceMedia(placeId, "all");
     expect(before).toHaveLength(2);
@@ -116,7 +155,13 @@ describe("place media lifecycle", () => {
     const after = await listPlaceMedia(placeId, "all");
     expect(after[0]?.id).toBe(before[1]?.id);
     const previousKey = after[0]!.storageKey;
-    await replacePlaceMedia(admin, placeId, after[0]!.id, await image(240));
+    await replacePlaceMedia(
+      admin,
+      placeId,
+      after[0]!.id,
+      await image(240),
+      "image/png",
+    );
     expect((await listPlaceMedia(placeId, "all"))[0]?.storageKey).not.toBe(
       previousKey,
     );

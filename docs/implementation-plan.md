@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — authentication boundary verification underway
+> **Project status:** Phase 8 in progress — adversarial upload hardening underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,14 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Hardened image ingestion with early byte-size and declared-MIME validation in
+  Server Actions, repeated service-boundary validation, and authoritative
+  content decoding. Added unit and disposable-database coverage for empty,
+  oversized, unsupported, malformed, and MIME-misleading uploads, including
+  assertions that rejected content creates no media record. All sixteen unit
+  tests, seventy-two disposable-database integration tests, and thirty-two
+  Playwright journeys at both supported viewport widths pass, along with the
+  production build.
 - Added integration coverage that exercises Better Auth's trusted-origin
   rejection, production-only secure cookie attributes, and production sign-in
   throttling through the real authentication handler. The auth factory accepts
@@ -983,6 +991,12 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Hardened place-image upload and replacement boundaries with pre-buffer byte
+  and MIME checks, repeated service validation, and content-based format
+  verification. Added adversarial coverage for empty, oversized, unsupported,
+  malformed, and misleading uploads. Verified all sixteen unit tests and
+  seventy-two disposable-database integration tests, plus thirty-two Playwright
+  journeys across both supported viewport widths and the production build.
 - Added real-handler authentication boundary coverage for untrusted origins,
   production secure-cookie attributes, and repeated sign-in throttling while
   retaining environment-derived production defaults at runtime. Explicitly

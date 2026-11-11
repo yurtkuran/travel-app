@@ -5,7 +5,11 @@ import { z } from "zod";
 
 import { getSqlClient } from "@/db/client";
 import { hasCapability, type Actor } from "@/features/auth/permissions";
-import { mediaPolicy, MediaValidationError } from "@/features/media/policy";
+import {
+  mediaPolicy,
+  MediaValidationError,
+  validateMediaUploadMetadata,
+} from "@/features/media/policy";
 
 import { processImage } from "./process-image";
 import { getMediaStorage } from "./storage";
@@ -89,10 +93,15 @@ export async function uploadPlaceMedia(
     caption: string;
     contents: Buffer;
     isDecorative: boolean;
+    mimeType: string;
   },
 ) {
   const place = await assertCanManage(actor, placeId);
   const metadata = metadataSchema.parse(input);
+  validateMediaUploadMetadata({
+    size: input.contents.length,
+    type: input.mimeType,
+  });
   if (!metadata.isDecorative && !metadata.altText) {
     throw new MediaValidationError(
       "Alternative text is required unless the image is decorative",
@@ -194,8 +203,10 @@ export async function replacePlaceMedia(
   placeId: string,
   mediaId: string,
   contents: Buffer,
+  mimeType: string,
 ) {
   await assertCanManage(actor, placeId);
+  validateMediaUploadMetadata({ size: contents.length, type: mimeType });
   const processed = await processImage(contents);
   const base = `places/${placeId}/${randomUUID()}`;
   const displayKey = `${base}/display.webp`;
