@@ -17,10 +17,21 @@ domain permissions, and account-retention workflows.
 - Role changes, suspension, recovery, and deletion revoke active sessions.
 - Better Auth origin/CSRF validation remains enabled. Only the configured
   application URL is trusted.
-- Authentication rate limiting is always enabled, with a stricter email sign-in
-  rule. Version one uses in-process rate-limit storage because deployment is a
-  single application instance; multi-instance deployment requires shared
-  storage.
+- Production authentication rate limiting is enabled with a stricter email
+  sign-in rule. Development keeps the in-memory limiter disabled so local and
+  browser-test workflows remain deterministic. Version one uses in-process
+  rate-limit storage because deployment is a single application instance;
+  multi-instance deployment requires shared storage.
+
+## Browser response policy
+
+Every application response receives an enforced content security policy plus
+frame, MIME-sniffing, referrer, permissions, and cross-origin isolation headers.
+The policy limits resources and form submissions to TravelTrove, disables object
+and frame embedding, and permits only the inline script/style behavior currently
+required by the Next.js runtime. Script evaluation is allowed only by the local
+development server. Production additionally emits one-year HTTP Strict Transport
+Security; TLS termination must therefore preserve these application headers.
 
 ## Invitation and recovery links
 

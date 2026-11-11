@@ -1,7 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 test("renders the application foundation", async ({ page }) => {
-  await page.goto("/");
+  const response = await page.goto("/");
+  expect(response).not.toBeNull();
+  const headers = response!.headers();
+  expect(headers["content-security-policy"]).toContain("default-src 'self'");
+  expect(headers["content-security-policy"]).toContain(
+    "frame-ancestors 'none'",
+  );
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
   await expect(
     page.getByRole("heading", { name: /places worth returning to/i }),
   ).toBeVisible();

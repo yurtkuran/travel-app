@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 7 complete — ready to begin Phase 8
+> **Project status:** Phase 8 in progress — browser response hardening underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -33,7 +33,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 5     | Implement the core vertical slice          | Complete    |
 | 6     | Add media handling                         | Complete    |
 | 7     | Complete public and administrative UX      | Complete    |
-| 8     | Security and quality hardening             | Not started |
+| 8     | Security and quality hardening             | In progress |
 | 9     | Deploy to DigitalOcean                     | Not started |
 | 10    | Stabilize before adding features           | Not started |
 
@@ -839,9 +839,21 @@ desktop, and wide-desktop web viewports and under required accessibility zoom.
 
 ## Phase 8 — Security and quality hardening
 
-**Status:** Not started
+**Status:** In progress
 
 Perform a focused release review before deployment.
+
+### Current implementation progress
+
+- Added enforced application-wide content security, frame-embedding,
+  MIME-sniffing, referrer, permissions, and cross-origin response policies.
+  Development alone permits script evaluation for the Next.js development
+  runtime, while production adds HTTP Strict Transport Security.
+- Added unit coverage for environment-specific header construction and browser
+  coverage proving the headers reach rendered application responses without
+  breaking hydration. The checkpoint passes thirteen unit tests, sixty-eight
+  integration tests, thirty-two Playwright journeys at both supported viewport
+  widths, and the production build.
 
 ### Security work
 
@@ -960,6 +972,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Started Phase 8 with application-wide browser security headers, an enforced
+  content security policy, production-only HSTS, and environment-specific unit
+  and browser assertions. Verified thirteen unit tests, sixty-eight disposable
+  database integration tests, thirty-two Playwright journeys across both
+  supported viewport widths, and the production build.
 - Added bounded, filterable, and sortable pagination to the canonical-place
   administration repository with safe query fallbacks. Verified sixty-eight
   disposable-database integration tests and thirty-two Playwright journeys
