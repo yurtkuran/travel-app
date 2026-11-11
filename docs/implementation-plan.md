@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — adversarial upload hardening underway
+> **Project status:** Phase 8 in progress — authorization-surface hardening underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,14 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Audited every Server Action and Route Handler against an explicit session,
+  capability, bearer-token, delegated-auth, or intentionally public boundary.
+  Closed the public media gap by requiring both the media row and owning place
+  to be published before storage is read, with route-level coverage for display,
+  thumbnail, draft, unpublished, and malformed keys. All sixteen unit tests and
+  seventy-three disposable-database integration tests pass, along with all
+  thirty-two Playwright journeys at both supported viewport widths and the
+  production build.
 - Hardened image ingestion with early byte-size and declared-MIME validation in
   Server Actions, repeated service-boundary validation, and authoritative
   content decoding. Added unit and disposable-database coverage for empty,
@@ -991,6 +999,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Audited the complete Server Action and Route Handler authorization surface.
+  Added database-backed publication enforcement to the public media transport
+  so draft or unpublished files return 404 even when their storage key is known,
+  with route-level integration coverage. Verified all sixteen unit tests and
+  seventy-three disposable-database integration tests, plus thirty-two
+  Playwright journeys across both supported viewport widths and the production
+  build.
 - Hardened place-image upload and replacement boundaries with pre-buffer byte
   and MIME checks, repeated service validation, and content-based format
   verification. Added adversarial coverage for empty, oversized, unsupported,

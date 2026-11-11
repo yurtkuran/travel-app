@@ -1,6 +1,6 @@
 # Authentication and Authorization
 
-> **Status:** Phase 3 implementation  
+> **Status:** Phase 8 audited implementation
 > **Provider:** Better Auth 1.7 with PostgreSQL-backed sessions
 
 ## Identity and session model
@@ -66,6 +66,33 @@ Server reads and mutations call its checks; UI visibility is only a convenience.
 Protected pages fetch the authoritative database session. Guests are redirected
 to sign-in with a same-origin return path. Authenticated non-admins receive an
 HTTP 403 boundary for administration pages.
+
+## Server boundary audit
+
+The Phase 8 Server Action and Route Handler audit uses these explicit boundary
+classes:
+
+- Personal account, visit, review, submission, and proposal actions call
+  `requireCurrentSession`; their services additionally enforce the relevant
+  capability and record ownership.
+- Administrative taxonomy, place, media, moderation, and account actions call
+  `requireAdminSession` or `requireFreshAdminSession`; their services repeat
+  capability checks. Account provisioning and destructive account management
+  require a fresh session.
+- Account setup is the intentional sessionless mutation. Its single-use,
+  hashed, expiring setup token is the authorization credential, and successful
+  consumption invalidates it.
+- `/api/auth/*` delegates authentication and session authorization to Better
+  Auth with origin/CSRF checks explicitly enabled.
+- Liveness and readiness handlers are intentionally public and disclose only
+  bounded status values.
+- `/media/*` is intentionally public only for media whose row and owning place
+  are both published. Draft, unpublished, missing, malformed, and unrecognized
+  keys return the same 404 response before storage is read.
+
+UI visibility is never treated as authorization. New Server Actions and Route
+Handlers must be assigned to one of these classes and enforce the corresponding
+guard before reading private data or mutating state.
 
 ## Account-administration safeguards
 

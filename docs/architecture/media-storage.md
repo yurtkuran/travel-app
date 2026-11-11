@@ -33,6 +33,11 @@ service operation. Canonical published-place media requires admin capability;
 users may manage only their own draft media. Public queries return only published
 media.
 
+The `/media/*` transport verifies the requested display or thumbnail key against
+the database before reading storage. Both the media row and owning place must be
+published; unpublishing a place therefore removes direct media access
+immediately without deleting files needed for a later republish.
+
 Server Actions reject empty, oversized, and unsupported declared uploads before
 reading the file into application memory. The media service repeats those checks
 for every caller, while Sharp rejects malformed, truncated, unsupported, or

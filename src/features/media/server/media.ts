@@ -46,6 +46,27 @@ export const thumbnailKey = (storageKey: string) =>
 export const thumbnailUrl = (storageKey: string) =>
   mediaUrl(thumbnailKey(storageKey));
 
+export async function isPublishedMediaKey(storageKey: string) {
+  const displayKey = storageKey.endsWith("/thumbnail.webp")
+    ? storageKey.replace(/\/thumbnail\.webp$/, "/display.webp")
+    : storageKey.endsWith("/display.webp")
+      ? storageKey
+      : null;
+  if (!displayKey) return false;
+
+  const [result] = await getSqlClient()<{ visible: boolean }[]>`
+    select exists(
+      select 1
+        from media
+        join places on places.id = media.place_id
+       where media.storage_key = ${displayKey}
+         and media.status = 'published'
+         and places.status = 'published'
+    ) as visible
+  `;
+  return result?.visible ?? false;
+}
+
 async function assertCanManage(actor: Actor, placeId: string) {
   const [place] = await getSqlClient()<
     {

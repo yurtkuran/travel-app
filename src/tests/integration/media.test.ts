@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import sharp from "sharp";
 
+import { GET as getMediaRoute } from "@/app/media/[...key]/route";
 import { getSqlClient } from "@/db/client";
 import type { Actor } from "@/features/auth/permissions";
 import { mediaPolicy, MediaValidationError } from "@/features/media/policy";
@@ -11,6 +12,7 @@ import {
   replacePlaceMedia,
   uploadPlaceMedia,
 } from "@/features/media/server/media";
+import { setPlacePublication } from "@/features/places/server/management";
 import {
   createTestCity,
   createTestPlace,
@@ -35,6 +37,11 @@ async function image(red: number) {
     .png()
     .toBuffer();
 }
+
+const mediaResponse = (storageKey: string) =>
+  getMediaRoute(new Request(`http://localhost/media/${storageKey}`), {
+    params: Promise.resolve({ key: storageKey.split("/") }),
+  });
 
 describe("place media lifecycle", () => {
   beforeAll(async () => {
@@ -140,6 +147,25 @@ describe("place media lifecycle", () => {
       width: 960,
       height: 720,
     });
+  });
+  test("serves only media belonging to a published place", async () => {
+    const [item] = await listPlaceMedia(placeId, "all");
+    expect(item).toBeDefined();
+    expect((await mediaResponse(item!.storageKey)).status).toBe(200);
+    expect(
+      (await mediaResponse(item!.storageKey.replace("display", "thumbnail")))
+        .status,
+    ).toBe(200);
+
+    await sql`update media set status = 'draft' where id = ${item!.id}`;
+    expect((await mediaResponse(item!.storageKey)).status).toBe(404);
+    await sql`update media set status = 'published' where id = ${item!.id}`;
+
+    await setPlacePublication(admin, placeId, false);
+    expect((await mediaResponse(item!.storageKey)).status).toBe(404);
+    await setPlacePublication(admin, placeId, true);
+
+    expect((await mediaResponse("../../private.webp")).status).toBe(404);
   });
   test("reorders and deletes media records with their files", async () => {
     await uploadPlaceMedia(admin, placeId, {
