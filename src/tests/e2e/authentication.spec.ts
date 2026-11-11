@@ -172,6 +172,26 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("navigation", { name: "Administration navigation" }),
     ).toContainText("Users");
+    const administrationSummary = page.getByRole("region", {
+      name: "Administration summary",
+    });
+    await expect(
+      administrationSummary.getByRole("link", {
+        name: /pending submissions/i,
+      }),
+    ).toHaveAttribute("href", "/admin/submissions");
+    await expect(
+      administrationSummary.getByRole("link", { name: /change proposals/i }),
+    ).toHaveAttribute("href", "/admin/proposals");
+    await expect(
+      administrationSummary.getByRole("link", { name: /hidden reviews/i }),
+    ).toHaveAttribute("href", "/admin/reviews");
+    await expect(
+      page.getByRole("heading", { name: "Needs attention" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Recent administrative activity" }),
+    ).toBeVisible();
 
     await page.goto("/admin/places");
     const breadcrumbs = page.getByRole("navigation", { name: "Breadcrumb" });
