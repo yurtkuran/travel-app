@@ -178,7 +178,26 @@ export async function createChangeProposal(
     const [proposal] = await transaction<{ id: string }[]>`
       insert into place_change_proposals (
         place_id, proposed_by_user_id, status, proposed_values, submitter_notes, submitted_at
-      ) values (${placeId}, ${actor.id}, 'pending_review', ${JSON.stringify(snapshot)}::jsonb, ${notes}, now())
+      ) values (
+        ${placeId},
+        ${actor.id},
+        'pending_review',
+        jsonb_build_object(
+          '_baselineUpdatedAt', ${snapshot._baselineUpdatedAt}::text,
+          'addressLine2', ${snapshot.addressLine2}::text,
+          'categoryId', ${snapshot.categoryId}::text,
+          'cityId', ${snapshot.cityId}::text,
+          'description', ${snapshot.description}::text,
+          'name', ${snapshot.name}::text,
+          'phone', ${snapshot.phone}::text,
+          'postalCode', ${snapshot.postalCode}::text,
+          'shortSummary', ${snapshot.shortSummary}::text,
+          'streetAddress', ${snapshot.streetAddress}::text,
+          'typeLabel', ${snapshot.typeLabel}::text
+        ),
+        ${notes},
+        now()
+      )
       returning id
     `;
     if (!proposal) throw new Error("Proposal creation did not return a record");
@@ -368,11 +387,10 @@ export async function approveProposal(actor: Actor, id: string) {
     `;
     await transaction`
       insert into audit_events (actor_type, actor_user_id, action, target_type, target_id, metadata)
-      values ('user', ${actor.id}, 'proposal.approved', 'proposal', ${id}, ${JSON.stringify(
-        {
-          placeId: proposal.placeId,
-        },
-      )}::jsonb)
+      values (
+        'user', ${actor.id}, 'proposal.approved', 'proposal', ${id},
+        jsonb_build_object('placeId', ${proposal.placeId}::text)
+      )
     `;
     return { placeId: proposal.placeId, slug };
   });

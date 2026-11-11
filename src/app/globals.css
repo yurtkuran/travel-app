@@ -1721,6 +1721,80 @@ textarea {
   margin-top: 2rem;
 }
 
+.management-toolbar {
+  margin-block: 2rem 1.5rem;
+}
+
+.account-administration-form {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 58rem;
+  margin-top: 2.5rem;
+}
+
+.setup-link-result {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 1rem;
+}
+
+.setup-link-result label,
+.setup-link-result p {
+  grid-column: 1 / -1;
+}
+
+.setup-link-result input {
+  min-width: 0;
+}
+
+.account-detail-grid {
+  margin-top: 2.5rem;
+}
+
+.inline-management-form {
+  display: flex;
+  align-items: end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.inline-management-form .form-field {
+  flex: 1;
+}
+
+.account-action-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--surface-highest);
+}
+
+.account-action-row > p {
+  margin: 0;
+  color: var(--on-surface-variant);
+}
+
+.account-management-section {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding: 2rem;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-lowest);
+}
+
+.account-management-section h2 {
+  margin: 0.5rem 0 0;
+}
+
+.account-management-section > div > p:last-child {
+  margin-bottom: 0;
+  color: var(--on-surface-variant);
+}
+
 @media (max-width: 74rem) {
   .public-filters {
     grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -1,14 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { authClient } from "./auth-client";
 
 export function SignInForm({ returnTo }: { returnTo: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setHydrated(true), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,7 +67,7 @@ export function SignInForm({ returnTo }: { returnTo: string }) {
       </div>
       <button
         className="button-primary w-full"
-        disabled={pending}
+        disabled={!hydrated || pending}
         type="submit"
       >
         {pending ? "Signing in…" : "Sign in"}

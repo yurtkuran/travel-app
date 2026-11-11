@@ -83,7 +83,7 @@ export async function changeUserRole(actor: Actor, userId: string, role: Role) {
         'user.role_changed',
         'user',
         ${userId},
-        ${transaction.json({ from: target.role, to: role })}
+        jsonb_build_object('from', ${target.role}::text, 'to', ${role}::text)
       )
     `;
   });

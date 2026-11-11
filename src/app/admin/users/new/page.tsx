@@ -1,13 +1,18 @@
-import { AdminShellPage } from "@/components/ui/admin-shell-page";
+import { PageHeading } from "@/components/ui/page-heading";
+import { requireAdminSession } from "@/features/auth/server/session";
 
-export default function NewAdminUserPage() {
+import { ProvisionForm } from "./provision-form";
+
+export default async function NewAdminUserPage() {
+  await requireAdminSession();
   return (
-    <AdminShellPage
-      description="Create a user account and generate a revocable, expiring, single-use setup link to email manually."
-      emptyDescription="The provisioning form will call the existing account-setup service with recent-admin authorization."
-      emptyTitle="Provisioning form ready"
-      eyebrow="Invitation-only access"
-      title="Provision a user"
-    />
+    <>
+      <PageHeading
+        description="Create a user account and generate a revocable, expiring, single-use setup link to email manually."
+        eyebrow="Invitation-only access"
+        title="Provision a user"
+      />
+      <ProvisionForm />
+    </>
   );
 }

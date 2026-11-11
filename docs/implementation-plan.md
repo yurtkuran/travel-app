@@ -1,9 +1,9 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-10
+> **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — public discovery experience underway
+> **Project status:** Phase 7 in progress — administrative experience underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -746,6 +746,13 @@ optimized variants.
   transactional approval, audit events, and stale-canonical-value protection.
   The checkpoint passes fifty-five integration tests, twenty-eight Playwright
   journeys at both supported viewport widths, and the production build.
+- Replaced the account-management and audit placeholders with searchable,
+  paginated administrative views; recent-authentication-protected provisioning,
+  recovery, role, suspension, restoration, and deletion actions; one-time link
+  presentation that never enters a URL; final-administrator safeguards; and a
+  redacted read-only audit log that excludes credentials and private activity.
+  The checkpoint passes fifty-nine integration tests and thirty Playwright
+  journeys at both supported viewport widths, plus the production build.
 
 ### Public experience
 
@@ -910,8 +917,18 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ## Change log
 
+### 2026-11-11
+
+- Verified the Phase 7 administrative account-management and audit experience
+  with fifty-nine disposable-database integration tests and thirty Playwright
+  journeys across both supported viewport widths, plus the production build.
+
 ### 2026-11-10
 
+- Implemented the Phase 7 administrative account-management and audit
+  experience, including invitation and recovery link handling, account status
+  filtering, lifecycle controls, typed deletion confirmation, and redacted audit
+  search.
 - Implemented the Phase 7 published-place change-proposal lifecycle across the
   personal and administrative experiences, including ownership enforcement,
   field comparisons, withdrawal, approval/rejection, and stale-edit protection.

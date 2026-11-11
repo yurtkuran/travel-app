@@ -42,12 +42,15 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
   await page.goto("/sign-in");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
-  const authResponsePromise = page.waitForResponse(
-    (response) =>
-      new URL(response.url()).pathname === "/api/auth/sign-in/email",
-  );
-  await page.getByRole("button", { name: "Sign in" }).click();
-  const authResponse = await authResponsePromise;
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  await expect(signInButton).toBeEnabled();
+  const [authResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/api/auth/sign-in/email",
+    ),
+    signInButton.click(),
+  ]);
   expect(
     authResponse.status(),
     `Sign-in response: ${await authResponse.text()}`,
@@ -66,6 +69,7 @@ test.describe("authentication boundaries", () => {
   test.describe.configure({ mode: "serial" });
 
   let admin: { email: string; id: string };
+  let administratedUserId: string | undefined;
   let browserSubmissionId: string | undefined;
   let user: { email: string; id: string };
   let setupUserId: string | undefined;
@@ -107,9 +111,12 @@ test.describe("authentication boundaries", () => {
       await sql`delete from reviews where place_id = ${browserSubmissionId}`;
       await sql`delete from places where id = ${browserSubmissionId}`;
     }
-    const userIds = [admin?.id, user?.id, setupUserId].filter(
-      (value): value is string => Boolean(value),
-    );
+    const userIds = [
+      admin?.id,
+      user?.id,
+      setupUserId,
+      administratedUserId,
+    ].filter((value): value is string => Boolean(value));
     if (userIds.length) {
       await sql`delete from "user" where id in ${sql(userIds)}`;
       await sql`delete from audit_events where target_id in ${sql(userIds)}`;
@@ -549,6 +556,62 @@ test.describe("authentication boundaries", () => {
     await page.getByRole("button", { name: "Approve changes" }).click();
     await expect(page).toHaveURL(/proposal=approved$/);
     await expect(page.getByText(proposedSummary)).toBeVisible();
+  });
+
+  test("provisions and manages an account without exposing private activity", async ({
+    page,
+  }) => {
+    const managedEmail = `managed-${taxonomySuffix}@example.test`;
+    await page.context().clearCookies();
+    await signIn(page, admin.email);
+    await page.goto("/admin/users/new");
+    await page.getByLabel("Name").fill("Managed Browser User");
+    await page.getByLabel("Email address").fill(managedEmail);
+    await page.getByRole("button", { name: "Provision user" }).click();
+    await expect(page.getByRole("status")).toContainText(
+      /single-use link ready/i,
+    );
+    const setupLink = page.getByLabel("Setup link");
+    await expect(setupLink).toHaveValue(/\/account\/setup#token=/);
+    const manageLink = page.getByRole("link", { name: "Manage account" });
+    administratedUserId = (await manageLink.getAttribute("href"))
+      ?.split("/")
+      .at(-1);
+    expect(administratedUserId).toBeTruthy();
+    await manageLink.click();
+    await expect(
+      page.getByRole("heading", { name: "Managed Browser User" }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Generate replacement link" })
+      .click();
+    await expect(page.getByRole("status")).toContainText(
+      "new recovery link was generated",
+    );
+
+    await page.getByRole("button", { name: "Suspend account" }).click();
+    await page.getByLabel("Reason").fill("Browser lifecycle verification");
+    await page.getByRole("button", { name: "Suspend account" }).last().click();
+    await expect(page).toHaveURL(/updated=suspended$/);
+    await page.getByRole("button", { name: "Restore account" }).click();
+    await expect(page).toHaveURL(/updated=restored$/);
+
+    await page.getByRole("button", { name: "Delete account" }).click();
+    await page.getByLabel(`Type ${managedEmail} to confirm`).fill(managedEmail);
+    await page.getByRole("button", { name: "Permanently delete" }).click();
+    await expect(page).toHaveURL(/\/admin\/users\?deleted=true$/);
+    await expect(page.getByRole("status")).toContainText(
+      "private activity were deleted",
+    );
+
+    await page.goto(
+      `/admin/audit?q=${encodeURIComponent(administratedUserId ?? "")}`,
+    );
+    const deletionEvent = page
+      .getByRole("row")
+      .filter({ hasText: "user · deleted" })
+      .filter({ hasText: administratedUserId ?? "missing-managed-user-id" });
+    await expect(deletionEvent).toBeVisible();
   });
 
   test("exchanges and consumes a one-time setup link", async ({ page }) => {
