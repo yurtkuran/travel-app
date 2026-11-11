@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — public place detail underway
+> **Project status:** Phase 7 in progress — contribution draft lifecycle underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -770,6 +770,12 @@ optimized variants.
   Playwright journeys at both supported viewport widths, and the production
   build. Integration files run sequentially against their shared disposable
   database so global account invariants remain deterministic.
+- Completed the owner-only contribution draft lifecycle: incomplete private
+  drafts retain separate provenance, provide a read-only preview, reopen in a
+  prefilled editor, accept further saves, and transition exactly once into the
+  administrative review queue. The checkpoint passes sixty-seven integration
+  tests, thirty-two Playwright journeys at both supported viewport widths, and
+  the production build.
 
 ### Public experience
 
@@ -936,6 +942,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Completed owner-only place-draft preview, editing, resaving, and submission
+  while preserving private provenance and terminal review-state boundaries.
+  Verified sixty-seven disposable-database integration tests and thirty-two
+  Playwright journeys across both supported viewport widths, plus the production
+  build.
 - Extended the Phase 7 public place-detail experience with validated contact,
   website, coordinate, and map data plus route-specific Open Graph and Twitter
   metadata. Verified sixty-six disposable-database integration tests and

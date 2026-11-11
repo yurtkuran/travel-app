@@ -10,7 +10,28 @@ import {
   placeDraftSchema,
   PlaceSubmissionError,
   type SubmissionIntent,
+  updatePlaceDraft,
 } from "@/features/places/server/submissions";
+
+function submissionInput(formData: FormData) {
+  return {
+    addressLine2: String(formData.get("addressLine2") ?? ""),
+    categoryId: String(formData.get("categoryId") ?? ""),
+    cityId: String(formData.get("cityId") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    postalCode: String(formData.get("postalCode") ?? ""),
+    recommendedOn: String(formData.get("recommendedOn") ?? ""),
+    shortSummary: String(formData.get("shortSummary") ?? ""),
+    sourceName: String(formData.get("sourceName") ?? ""),
+    sourceType: String(formData.get("sourceType") ?? ""),
+    sourceUrl: String(formData.get("sourceUrl") ?? ""),
+    streetAddress: String(formData.get("streetAddress") ?? ""),
+    submissionNotes: String(formData.get("submissionNotes") ?? ""),
+    typeLabel: String(formData.get("typeLabel") ?? ""),
+  };
+}
 
 function validationState(
   previous: SubmissionActionState,
@@ -39,23 +60,7 @@ export async function createSubmissionAction(
   const session = await requireCurrentSession("/my/submissions/new");
   const intent: SubmissionIntent =
     formData.get("intent") === "submit" ? "submit" : "draft";
-  const parsed = placeDraftSchema.safeParse({
-    addressLine2: String(formData.get("addressLine2") ?? ""),
-    categoryId: String(formData.get("categoryId") ?? ""),
-    cityId: String(formData.get("cityId") ?? ""),
-    description: String(formData.get("description") ?? ""),
-    name: String(formData.get("name") ?? ""),
-    phone: String(formData.get("phone") ?? ""),
-    postalCode: String(formData.get("postalCode") ?? ""),
-    recommendedOn: String(formData.get("recommendedOn") ?? ""),
-    shortSummary: String(formData.get("shortSummary") ?? ""),
-    sourceName: String(formData.get("sourceName") ?? ""),
-    sourceType: String(formData.get("sourceType") ?? ""),
-    sourceUrl: String(formData.get("sourceUrl") ?? ""),
-    streetAddress: String(formData.get("streetAddress") ?? ""),
-    submissionNotes: String(formData.get("submissionNotes") ?? ""),
-    typeLabel: String(formData.get("typeLabel") ?? ""),
-  });
+  const parsed = placeDraftSchema.safeParse(submissionInput(formData));
   if (!parsed.success) return validationState(previous, parsed.error);
 
   let result: Awaited<ReturnType<typeof createPlaceDraft>>;
@@ -78,5 +83,54 @@ export async function createSubmissionAction(
 
   redirect(
     `/my/submissions/${result.id}?created=${result.status === "draft" ? "draft" : "submitted"}`,
+  );
+}
+
+export async function updateSubmissionAction(
+  previous: SubmissionActionState,
+  formData: FormData,
+): Promise<SubmissionActionState> {
+  const submissionId = String(formData.get("submissionId") ?? "");
+  const session = await requireCurrentSession(
+    `/my/submissions/${encodeURIComponent(submissionId)}?edit=true`,
+  );
+  if (!z.uuid().safeParse(submissionId).success) {
+    return {
+      fieldErrors: {},
+      message: "The draft could not be found.",
+      revision: previous.revision + 1,
+      status: "error",
+    };
+  }
+  const intent: SubmissionIntent =
+    formData.get("intent") === "submit" ? "submit" : "draft";
+  const parsed = placeDraftSchema.safeParse(submissionInput(formData));
+  if (!parsed.success) return validationState(previous, parsed.error);
+
+  let result: Awaited<ReturnType<typeof updatePlaceDraft>>;
+  try {
+    result = await updatePlaceDraft(
+      session.actor,
+      submissionId,
+      parsed.data,
+      intent,
+    );
+  } catch (error) {
+    return {
+      fieldErrors:
+        error instanceof PlaceSubmissionError && error.field
+          ? { [error.field]: error.message }
+          : {},
+      message:
+        error instanceof PlaceSubmissionError
+          ? error.message
+          : "The draft could not be saved. Please try again.",
+      revision: previous.revision + 1,
+      status: "error",
+    };
+  }
+
+  redirect(
+    `/my/submissions/${result.id}?updated=${result.status === "draft" ? "draft" : "submitted"}`,
   );
 }

@@ -3,13 +3,14 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { getSqlClient } from "@/db/client";
-import type { Actor } from "@/features/auth/permissions";
+import { AuthorizationError, type Actor } from "@/features/auth/permissions";
 import {
   createPlaceDraft,
   getOwnSubmission,
   isSafePublicHttpsUrl,
   listOwnSubmissions,
   PlaceSubmissionError,
+  updatePlaceDraft,
 } from "@/features/places/server/submissions";
 
 import {
@@ -77,6 +78,61 @@ describe("place submission lifecycle", () => {
       field: "cityId",
       name: "PlaceSubmissionError",
     });
+  });
+
+  test("lets only the owner update and submit a private draft", async () => {
+    const draft = await createPlaceDraft(
+      actor,
+      { name: "Draft to refine", sourceType: "friend" },
+      "draft",
+    );
+    createdPlaceIds.push(draft.id);
+
+    await expect(
+      updatePlaceDraft(
+        otherActor,
+        draft.id,
+        { name: "Not the owner" },
+        "draft",
+      ),
+    ).rejects.toBeInstanceOf(AuthorizationError);
+
+    await updatePlaceDraft(
+      actor,
+      draft.id,
+      {
+        categoryId: seededTaxonomy.categories.restaurant,
+        cityId,
+        name: "Refined draft",
+        sourceName: "Trusted traveler",
+        sourceType: "friend",
+      },
+      "draft",
+    );
+    expect(await getOwnSubmission(actor, draft.id)).toMatchObject({
+      name: "Refined draft",
+      sourceName: "Trusted traveler",
+      status: "draft",
+    });
+
+    await updatePlaceDraft(
+      actor,
+      draft.id,
+      {
+        categoryId: seededTaxonomy.categories.restaurant,
+        cityId,
+        name: "Refined draft",
+        sourceName: "Trusted traveler",
+        sourceType: "friend",
+      },
+      "submit",
+    );
+    expect(await getOwnSubmission(actor, draft.id)).toMatchObject({
+      status: "pending_review",
+    });
+    await expect(
+      updatePlaceDraft(actor, draft.id, { name: "Too late" }, "draft"),
+    ).rejects.toBeInstanceOf(PlaceSubmissionError);
   });
 
   test("submits a complete place and records an audit event", async () => {

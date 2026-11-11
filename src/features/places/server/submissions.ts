@@ -290,6 +290,76 @@ export async function createPlaceDraft(
   });
 }
 
+export async function updatePlaceDraft(
+  actor: Actor,
+  placeId: string,
+  rawInput: PlaceDraftInput,
+  intent: SubmissionIntent,
+) {
+  requireCapability(actor, "submissions.manageOwn");
+  const input = placeDraftSchema.parse(rawInput);
+  if (intent === "submit") assertReadyToSubmit(input);
+  const status = intent === "submit" ? "pending_review" : "draft";
+  const sql = getSqlClient();
+
+  return sql.begin(async (transaction) => {
+    const [draft] = await transaction<
+      { status: string; submittedByUserId: string | null }[]
+    >`
+      select status, submitted_by_user_id as "submittedByUserId"
+        from places
+       where id = ${placeId}
+       for update
+    `;
+    if (!draft) throw new PlaceSubmissionError("Draft not found");
+    requireOwnership(actor, draft.submittedByUserId ?? "");
+    if (draft.status !== "draft") {
+      throw new PlaceSubmissionError("Only private drafts can be edited");
+    }
+
+    await assertAvailableTaxonomy(transaction, input);
+    await transaction`
+      update places
+         set name = ${input.name || null},
+             city_id = ${input.cityId || null},
+             category_id = ${input.categoryId || null},
+             short_summary = ${input.shortSummary || null},
+             description = ${input.description || null},
+             type_label = ${input.typeLabel || null},
+             street_address = ${input.streetAddress || null},
+             address_line_2 = ${input.addressLine2 || null},
+             postal_code = ${input.postalCode || null},
+             phone = ${input.phone || null},
+             status = ${status},
+             submitted_at = ${intent === "submit" ? new Date().toISOString() : null},
+             updated_by_user_id = ${actor.id},
+             updated_at = now()
+       where id = ${placeId}
+    `;
+    await transaction`
+      update place_submission_provenance
+         set source_type = ${input.sourceType || null},
+             source_name = ${input.sourceName || null},
+             source_url = ${input.sourceUrl || null},
+             recommended_on = ${input.recommendedOn || null},
+             submission_notes = ${input.submissionNotes || null},
+             updated_at = now()
+       where place_id = ${placeId}
+    `;
+    await transaction`
+      insert into audit_events (actor_type, actor_user_id, action, target_type, target_id)
+      values (
+        'user',
+        ${actor.id},
+        ${intent === "submit" ? "place.submitted" : "place.draft_updated"},
+        'place',
+        ${placeId}
+      )
+    `;
+    return { id: placeId, status };
+  });
+}
+
 export interface SubmissionListItem {
   categoryName: string | null;
   cityName: string | null;
@@ -318,6 +388,8 @@ export async function listOwnSubmissions(actor: Actor) {
 
 export interface OwnedSubmissionDetail extends SubmissionListItem {
   addressLine2: string | null;
+  categoryId: string | null;
+  cityId: string | null;
   description: string | null;
   phone: string | null;
   postalCode: string | null;
@@ -347,6 +419,8 @@ export async function getOwnSubmission(actor: Actor, placeId: string) {
            p.address_line_2 as "addressLine2",
            p.postal_code as "postalCode",
            p.phone,
+           p.city_id as "cityId",
+           p.category_id as "categoryId",
            p.moderation_reason as "moderationReason",
            p.submitted_by_user_id as "submittedByUserId",
            c.name as "cityName",

@@ -252,6 +252,29 @@ test.describe("authentication boundaries", () => {
     await signIn(page, user.email);
     await page.goto("/my/submissions/new");
     await page.getByLabel("Place name").fill(placeName);
+    await page.getByLabel("Source type").selectOption("publication");
+    await page.getByLabel("Source name").fill("Browser Travel Journal");
+    await page
+      .getByLabel("Source URL")
+      .fill("https://example.com/browser-travel-journal");
+    await page
+      .getByLabel("Submission notes")
+      .fill("Private provenance for the submitter and administrators.");
+    await page.getByRole("button", { name: "Save draft" }).click();
+
+    await expect(page).toHaveURL(
+      /\/my\/submissions\/[0-9a-f-]+\?created=draft$/,
+    );
+    browserSubmissionId = new URL(page.url()).pathname.split("/").at(-1);
+    await expect(page.getByRole("status")).toContainText(
+      "private draft was saved",
+    );
+    await expect(page.getByText("Draft", { exact: true })).toBeVisible();
+    await page.getByRole("link", { name: "Edit draft" }).click();
+    await expect(page).toHaveURL(/\?edit=true$/);
+    await expect(page.getByLabel("Source name")).toHaveValue(
+      "Browser Travel Journal",
+    );
     await page.getByLabel("City", { exact: true }).selectOption({
       label: `${taxonomyCityName}, Browser Region, United States`,
     });
@@ -262,20 +285,11 @@ test.describe("authentication boundaries", () => {
     await page
       .getByLabel("Short summary")
       .fill("A place submitted through the complete browser workflow.");
-    await page.getByLabel("Source type").selectOption("publication");
-    await page.getByLabel("Source name").fill("Browser Travel Journal");
-    await page
-      .getByLabel("Source URL")
-      .fill("https://example.com/browser-travel-journal");
-    await page
-      .getByLabel("Submission notes")
-      .fill("Private provenance for the submitter and administrators.");
     await page.getByRole("button", { name: "Submit for review" }).click();
 
     await expect(page).toHaveURL(
-      /\/my\/submissions\/[0-9a-f-]+\?created=submitted$/,
+      /\/my\/submissions\/[0-9a-f-]+\?updated=submitted$/,
     );
-    browserSubmissionId = new URL(page.url()).pathname.split("/").at(-1);
     await expect(page.getByRole("status")).toContainText(
       "submitted for administrative review",
     );
