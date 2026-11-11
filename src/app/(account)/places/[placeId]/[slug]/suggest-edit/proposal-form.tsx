@@ -1,3 +1,7 @@
+"use client";
+
+import { useUnsavedChanges } from "@/components/forms/use-unsaved-changes";
+
 import { createProposalAction } from "./actions";
 
 interface PlaceValues {
@@ -24,8 +28,14 @@ export function ProposalForm({
   cities: { id: string; label: string }[];
   place: PlaceValues;
 }) {
+  const { formProps } = useUnsavedChanges();
+
   return (
-    <form action={createProposalAction} className="submission-form">
+    <form
+      action={createProposalAction}
+      className="submission-form"
+      {...formProps}
+    >
       <input name="placeId" type="hidden" value={place.id} />
       <input name="slug" type="hidden" value={place.slug} />
       <fieldset className="form-section">

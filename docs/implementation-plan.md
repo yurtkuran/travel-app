@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-11
 > **Current phase:** Phase 7 — Complete public and administrative UX
-> **Project status:** Phase 7 in progress — contribution draft lifecycle underway
+> **Project status:** Phase 7 in progress — editor safeguards underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -776,6 +776,12 @@ optimized variants.
   administrative review queue. The checkpoint passes sixty-seven integration
   tests, thirty-two Playwright journeys at both supported viewport widths, and
   the production build.
+- Added reusable unsaved-change protection to contribution drafts, canonical
+  place administration, and published-place proposal editors. The guard covers
+  page unload and same-origin navigation while allowing intentional form
+  submissions and retaining protection after validation errors. The checkpoint
+  passes sixty-seven integration tests, thirty-two Playwright journeys at both
+  supported viewport widths, and the production build.
 
 ### Public experience
 
@@ -942,6 +948,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-11
 
+- Added consistent unsaved-change protection to the primary contribution and
+  administrative editors, with browser coverage for cancelled navigation.
+  Verified sixty-seven disposable-database integration tests and thirty-two
+  Playwright journeys across both supported viewport widths, plus the production
+  build.
 - Completed owner-only place-draft preview, editing, resaving, and submission
   while preserving private provenance and terminal review-state boundaries.
   Verified sixty-seven disposable-database integration tests and thirty-two

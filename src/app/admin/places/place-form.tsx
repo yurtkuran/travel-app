@@ -1,3 +1,6 @@
+"use client";
+
+import { useUnsavedChanges } from "@/components/forms/use-unsaved-changes";
 import type { ManagedPlace } from "@/features/places/server/management";
 import type {
   CategoryListItem,
@@ -16,8 +19,10 @@ export function PlaceForm({
   place?: ManagedPlace;
   submitLabel: string;
 }) {
+  const { formProps } = useUnsavedChanges();
+
   return (
-    <form action={action} className="taxonomy-form">
+    <form action={action} className="taxonomy-form" {...formProps}>
       <input name="placeId" type="hidden" value={place?.id} />
       <div className="form-grid form-grid--two">
         <div className="form-field">

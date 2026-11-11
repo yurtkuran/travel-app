@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
+import { useUnsavedChanges } from "@/components/forms/use-unsaved-changes";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
 import { initialSubmissionActionState } from "@/features/places/submission-action-state";
 import type { OwnedSubmissionDetail } from "@/features/places/server/submissions";
@@ -33,9 +34,14 @@ export function SubmissionForm({
     submission ? updateSubmissionAction : createSubmissionAction,
     initialSubmissionActionState,
   );
+  const { formProps, markDirty } = useUnsavedChanges();
+
+  useEffect(() => {
+    if (state.status === "error") markDirty();
+  }, [markDirty, state.revision, state.status]);
 
   return (
-    <form action={action} className="submission-form">
+    <form action={action} className="submission-form" {...formProps}>
       {submission ? (
         <input name="submissionId" type="hidden" value={submission.id} />
       ) : null}

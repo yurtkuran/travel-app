@@ -275,6 +275,18 @@ test.describe("authentication boundaries", () => {
     await expect(page.getByLabel("Source name")).toHaveValue(
       "Browser Travel Journal",
     );
+    await page
+      .getByLabel("Short summary")
+      .fill("A change that has not been saved yet.");
+    page.once("dialog", async (dialog) => {
+      expect(dialog.message()).toContain("unsaved changes");
+      await dialog.dismiss();
+    });
+    await page.getByRole("link", { name: "Cancel editing" }).click();
+    await expect(page).toHaveURL(/\?edit=true$/);
+    await expect(page.getByLabel("Short summary")).toHaveValue(
+      "A change that has not been saved yet.",
+    );
     await page.getByLabel("City", { exact: true }).selectOption({
       label: `${taxonomyCityName}, Browser Region, United States`,
     });
