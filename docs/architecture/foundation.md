@@ -60,5 +60,19 @@ also verifies PostgreSQL connectivity and reveals no connection details.
 - Playwright covers critical user-visible workflows at the supported desktop
   and large-tablet viewport range.
 
+## Secret boundaries
+
+Local environment files, private-key formats, credential stores, Git metadata,
+build output, and persistent application data are excluded from the Docker build
+context. The production image is built without `.env.local`, runtime secrets, or
+a live database; session-aware route groups are explicitly dynamic so secrets
+are read only when the container serves a request.
+
+The `Security scans` workflow uses Trivy's secret scanner against both the
+checked-out repository and a freshly built production image. Either scan fails
+the workflow when a secret is detected. Documented local and CI credentials are
+non-production placeholders and must never be reused outside their isolated
+environments.
+
 CI runs formatting, linting, strict type-checking, unit tests, database
 integration tests, a production build, and the Chromium browser suite.

@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-12
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — infrastructure exposure hardening underway
+> **Project status:** Phase 8 in progress — repository and image secret scanning underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,14 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Added failing CI secret scans for both committed files and a freshly built
+  production image. Expanded Git and Docker build-context exclusions for local
+  environments, private keys, and credential stores, and made session-aware
+  route groups explicitly dynamic so the production image builds without
+  runtime secrets or a live database. All twenty-two unit tests and seventy-three
+  disposable-database integration tests pass, along with all thirty-two
+  Playwright journeys at both supported viewport widths, the production build,
+  and a production Docker image build from the sanitized context.
 - Bound the local PostgreSQL and Adminer ports to loopback while preserving the
   private Compose service network used by the application. Confirmed that media
   remains a filesystem volume rather than a network service and added unit
@@ -1007,6 +1015,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-12
 
+- Added Trivy secret scanning for committed files and the built production
+  image, expanded repository and build-context secret exclusions, and removed
+  the image build's dependency on runtime secrets or a live database by marking
+  session-aware route groups explicitly dynamic. Verified all twenty-two unit
+  tests and seventy-three disposable-database integration tests, plus thirty-two
+  Playwright journeys across both supported viewport widths, the production
+  build, and a production Docker image build without runtime secrets.
 - Restricted local PostgreSQL and Adminer host bindings to loopback, documented
   the production requirement to omit the database host port, and added
   configuration regression tests for database, tooling, container-image, and

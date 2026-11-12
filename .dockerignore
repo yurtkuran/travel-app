@@ -9,3 +9,10 @@ coverage
 *.log
 .env*
 !.env.example
+*.key
+*.kdbx
+*.p12
+*.pem
+*.pfx
+.aws
+.ssh
