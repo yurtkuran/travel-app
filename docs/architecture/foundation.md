@@ -12,8 +12,10 @@ the living implementation plan and should be updated when a convention changes.
 - Drizzle ORM and reviewed SQL migrations
 - Tailwind CSS 4
 
-The checked-in lockfile is authoritative. Dependency updates should be made in a
-focused change and verified with the complete quality suite.
+The checked-in lockfile is authoritative and every direct dependency uses an
+exact version. Container base images likewise use exact application and
+distribution versions. Dependency updates should be made in a focused change
+and verified with the complete quality suite.
 
 ## Module boundaries
 
@@ -73,6 +75,13 @@ checked-out repository and a freshly built production image. Either scan fails
 the workflow when a secret is detected. Documented local and CI credentials are
 non-production placeholders and must never be reused outside their isolated
 environments.
+
+Dependabot checks npm packages, container images, and GitHub Actions weekly.
+Production and development package patches and minors are grouped separately;
+major updates remain isolated for explicit review. The repository dependency
+graph, Dependabot alerts, and Dependabot security updates must remain enabled in
+GitHub's Advanced Security settings so disclosed vulnerabilities generate
+alerts and remediation pull requests.
 
 CI runs formatting, linting, strict type-checking, unit tests, database
 integration tests, a production build, and the Chromium browser suite.

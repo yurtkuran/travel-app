@@ -1,4 +1,4 @@
-FROM node:24-alpine AS base
+FROM node:24.22.2-alpine3.24 AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
@@ -17,7 +17,7 @@ FROM dependencies AS builder
 COPY . .
 RUN pnpm build
 
-FROM node:24-alpine AS production
+FROM node:24.22.2-alpine3.24 AS production
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
