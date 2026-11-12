@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-12
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — dependency supply-chain hardening underway
+> **Project status:** Phase 8 in progress — log privacy hardening underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,12 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Audited every application-owned log call and removed account email addresses
+  from administrative CLI events. Structured logging now recursively redacts
+  personal and credential context, sanitizes error messages, omits stack traces
+  and database diagnostic detail, and prevents context from replacing envelope
+  fields. One-time setup URLs remain deliberate operator-only CLI output and are
+  never copied into structured logs. All twenty-eight unit tests pass.
 - Pinned every direct npm dependency to its resolved version, pinned the Node.js
   and PostgreSQL container tags to exact runtime and distribution releases, and
   made exact versions the default for future package additions. Added weekly
@@ -1021,6 +1027,10 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-12
 
+- Audited application logging for personal and credential data, removed account
+  emails from CLI events, and added centralized recursive redaction plus safe
+  error serialization. Documented one-time setup links as intentional
+  operator-only command output and verified all twenty-eight unit tests.
 - Pinned direct npm packages and runtime container tags to exact versions,
   enabled exact-save behavior for future additions, and added weekly Dependabot
   monitoring for npm, Docker, and GitHub Actions with reviewable update groups.

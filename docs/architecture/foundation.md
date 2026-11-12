@@ -51,9 +51,17 @@ migration.
 ## Logging and health checks
 
 Application logs are newline-delimited JSON with a stable event name and
-optional context. Errors are serialized without exposing request data or
-secrets. `/health/live` verifies that the process can answer HTTP; `/health/ready`
-also verifies PostgreSQL connectivity and reveals no connection details.
+optional context. Personal and credential-bearing context keys are recursively
+redacted, and error serialization retains only the sanitized message, type,
+code, and severity. Stack traces, database detail and hints, nested causes,
+request data, credentials, and email addresses are excluded. Context cannot
+replace the timestamp, level, or event envelope fields.
+
+The provisioning and recovery commands deliberately print a one-time setup URL
+to their invoking operator as command output; that credential is never copied
+into the structured event log and must be handled like a password. `/health/live`
+verifies that the process can answer HTTP; `/health/ready` also verifies
+PostgreSQL connectivity and reveals no connection details.
 
 ## Test lanes
 

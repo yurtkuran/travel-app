@@ -22,7 +22,6 @@ async function main() {
 
   process.stdout.write(`${result.setupUrl}\n`);
   logger.info("user_provisioned", {
-    email: result.email,
     expiresAt: result.expiresAt,
     userId: result.userId,
   });

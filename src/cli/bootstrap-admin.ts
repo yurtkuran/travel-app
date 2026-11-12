@@ -18,7 +18,7 @@ async function main() {
     password,
   });
 
-  logger.info("bootstrap_admin_created", result);
+  logger.info("bootstrap_admin_created", { userId: result.userId });
 }
 
 main()
