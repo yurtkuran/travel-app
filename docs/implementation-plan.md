@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-12
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — log privacy hardening underway
+> **Project status:** Phase 8 in progress — automated accessibility review underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,15 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Added a reusable axe-core WCAG A/AA audit to representative public, sign-in,
+  personal, and administrative Playwright journeys. The checks run at both
+  supported browser widths and emit concise rule, selector, impact, and guidance
+  details when a violation is found. The first run identified and corrected
+  low-contrast home and administration labels plus an account-menu accessible
+  name mismatch. All twenty-eight unit tests, seventy-three disposable-database
+  integration tests, and thirty-two Playwright journeys now pass, along with the
+  production build; manual keyboard and enlargement review remains a separate
+  checkpoint.
 - Audited every application-owned log call and removed account email addresses
   from administrative CLI events. Structured logging now recursively redacts
   personal and credential context, sanitizes error messages, omits stack traces
@@ -1027,6 +1036,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-12
 
+- Added automated axe-core WCAG A/AA checks to representative public,
+  authentication, personal, and administrative browser states at both supported
+  viewport widths, with actionable violation reports and explicit manual-review
+  boundaries. Corrected three low-contrast labels and the account-menu accessible
+  name exposed by the initial scan, then verified all twenty-eight unit tests,
+  seventy-three disposable-database integration tests, thirty-two Playwright
+  journeys, and the production build.
 - Audited application logging for personal and credential data, removed account
   emails from CLI events, and added centralized recursive redaction plus safe
   error serialization. Documented one-time setup links as intentional

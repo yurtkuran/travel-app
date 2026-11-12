@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { expectNoAccessibilityViolations } from "./accessibility";
+
 test("renders the application foundation", async ({ page }) => {
   const response = await page.goto("/");
   expect(response).not.toBeNull();
@@ -26,4 +28,5 @@ test("renders the application foundation", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Administration" })).toHaveCount(
     0,
   );
+  await expectNoAccessibilityViolations(page);
 });

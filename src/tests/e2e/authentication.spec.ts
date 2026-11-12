@@ -13,6 +13,8 @@ import {
 } from "@/features/auth/server/setup-tokens";
 import type { Role } from "@/features/auth/permissions";
 
+import { expectNoAccessibilityViolations } from "./accessibility";
+
 const sql = getSqlClient();
 const password = "A-strong-browser-password-123!";
 const taxonomySuffix = randomUUID();
@@ -137,6 +139,7 @@ test.describe("authentication boundaries", () => {
   test("redirects a guest from administration to sign in", async ({ page }) => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/sign-in\?returnTo=%2Fadmin$/);
+    await expectNoAccessibilityViolations(page);
   });
 
   test("allows a user into personal activity but returns 403 for administration", async ({
@@ -150,6 +153,7 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("link", { name: "Administration" }),
     ).toHaveCount(0);
+    await expectNoAccessibilityViolations(page);
 
     const response = await page.goto("/admin");
     expect(response?.status()).toBe(403);
@@ -172,6 +176,7 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("navigation", { name: "Administration navigation" }),
     ).toContainText("Users");
+    await expectNoAccessibilityViolations(page);
     const administrationSummary = page.getByRole("region", {
       name: "Administration summary",
     });

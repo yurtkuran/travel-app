@@ -15,11 +15,9 @@ function initials(name: string) {
 export function AccountMenu({ session }: { session: CurrentSession }) {
   return (
     <details className="account-menu">
-      <summary aria-label={`Account menu for ${session.name}`}>
-        <span aria-hidden="true" className="account-menu__avatar">
-          {initials(session.name)}
-        </span>
-        <span className="sr-only">Account menu</span>
+      <summary>
+        <span className="sr-only">Account menu for {session.name}</span>
+        <span className="account-menu__avatar">{initials(session.name)}</span>
       </summary>
       <div className="account-menu__panel">
         <div className="account-menu__identity">

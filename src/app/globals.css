@@ -433,7 +433,7 @@ textarea {
 }
 
 .archive-note__index {
-  color: var(--outline);
+  color: var(--on-surface-variant);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -697,7 +697,7 @@ a.metric-card:hover .metric-card__label {
 
 .admin-nav__label {
   margin: 0 0 0.5rem 0.875rem;
-  color: var(--outline);
+  color: var(--on-surface-variant);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.08em;

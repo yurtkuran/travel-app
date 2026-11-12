@@ -68,7 +68,11 @@ PostgreSQL connectivity and reveals no connection details.
 - Unit tests are isolated and require no external services.
 - Integration tests may use PostgreSQL and must clean up records they create.
 - Playwright covers critical user-visible workflows at the supported desktop
-  and large-tablet viewport range.
+  and large-tablet viewport range. Representative public, authentication,
+  personal, and administrative states run axe-core's automated WCAG 2.0, 2.1,
+  and 2.2 Level A/AA rules at both widths. Automated results complement manual
+  keyboard, zoom, text-enlargement, and screen-reader review; they do not replace
+  it.
 
 ## Secret boundaries
 
