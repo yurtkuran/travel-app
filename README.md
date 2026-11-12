@@ -62,6 +62,10 @@ Adminer is available locally at <http://localhost:8080>. Sign in with system
 database `traveltrove`. Its port is bound to the local machine only and should
 not be exposed in production.
 
+PostgreSQL is likewise bound to `127.0.0.1:5432` for native local tooling and
+tests, rather than to every host interface. Containers reach it over Compose's
+private service network. Production must omit the host database port entirely.
+
 Uploaded image variants are stored under `MEDIA_ROOT`, which defaults to
 `.local-data/media`. Docker Compose mounts that path from the persistent
 `media_data` volume; the application container filesystem is not durable.

@@ -1,9 +1,9 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-11
+> **Last updated:** 2026-11-12
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — authorization-surface hardening underway
+> **Project status:** Phase 8 in progress — infrastructure exposure hardening underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,14 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Bound the local PostgreSQL and Adminer ports to loopback while preserving the
+  private Compose service network used by the application. Confirmed that media
+  remains a filesystem volume rather than a network service and added unit
+  regression checks that reject public database/tool bindings or database ports
+  exposed by the application image. All nineteen unit tests and seventy-three
+  disposable-database integration tests pass, along with all thirty-two
+  Playwright journeys at both supported viewport widths and the production
+  build.
 - Audited every Server Action and Route Handler against an explicit session,
   capability, bearer-token, delegated-auth, or intentionally public boundary.
   Closed the public media gap by requiring both the media row and owning place
@@ -996,6 +1004,16 @@ tested, and the next set of features has been prioritized from actual needs.
 - Independent backup destination
 
 ## Change log
+
+### 2026-11-12
+
+- Restricted local PostgreSQL and Adminer host bindings to loopback, documented
+  the production requirement to omit the database host port, and added
+  configuration regression tests for database, tooling, container-image, and
+  filesystem-media exposure boundaries. Verified all nineteen unit tests and
+  seventy-three disposable-database integration tests, plus thirty-two
+  Playwright journeys across both supported viewport widths and the production
+  build.
 
 ### 2026-11-11
 
