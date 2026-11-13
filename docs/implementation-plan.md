@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-13
-> **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — release execution validation underway
+> **Current phase:** Phase 8 complete — Phase 9 deployment is next
+> **Project status:** Version one is security- and quality-gated for deployment
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -33,7 +33,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 5     | Implement the core vertical slice          | Complete    |
 | 6     | Add media handling                         | Complete    |
 | 7     | Complete public and administrative UX      | Complete    |
-| 8     | Security and quality hardening             | In progress |
+| 8     | Security and quality hardening             | Complete    |
 | 9     | Deploy to DigitalOcean                     | Not started |
 | 10    | Stabilize before adding features           | Not started |
 
@@ -839,12 +839,21 @@ desktop, and wide-desktop web viewports and under required accessibility zoom.
 
 ## Phase 8 — Security and quality hardening
 
-**Status:** In progress
+**Status:** Complete
 
 Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Added a coordinated PostgreSQL-and-media recovery contract with checksummed,
+  access-controlled artifacts, clean-target restore rules, post-restore
+  validation, and an explicit off-host requirement. A disposable restore test
+  uses the pinned PostgreSQL container tools to dump a migrated sentinel
+  database, archive a sentinel media tree, verify both checksums, restore fresh
+  targets, validate both data planes, and remove every temporary resource. CI
+  runs the recovery test against its PostgreSQL service container. The live
+  container-backed restoration test passes with both disposable databases and
+  all temporary artifacts removed.
 - Added a dedicated disposable-database migration gate that applies the complete
   journal twice, verifies its applied-entry count and required release tables,
   and always removes the isolated database. The integration runner now shares
@@ -859,16 +868,15 @@ Perform a focused release review before deployment.
   browser project now guards 200% zoom and independent 200% text enlargement
   against document-level horizontal overflow.
 - Added a reusable axe-core WCAG A/AA audit to representative public, sign-in,
-  personal, and administrative Playwright journeys. The checks run at both
-  supported browser widths and emit concise rule, selector, impact, and guidance
+  personal, and administrative Playwright journeys. The checks run at all three
+  default-width projects and emit concise rule, selector, impact, and guidance
   details when a violation is found. The first run identified and corrected
   low-contrast home and administration labels plus an account-menu accessible
-  name mismatch. Keyboard regression coverage now verifies visible focus,
-  skip-link focus transfer, sign-in tab order, account-menu operation, and
-  administrative modal focus containment, dismissal, and restoration at both
-  supported browser widths. The main content landmarks are programmatically
-  focusable without entering the normal tab order. Browser zoom and text
-  enlargement review remains a separate checkpoint.
+  name mismatch. Keyboard regression coverage verifies visible focus, skip-link
+  focus transfer, sign-in tab order, account-menu operation, and administrative
+  modal focus containment, dismissal, and restoration. The main content
+  landmarks are programmatically focusable without entering the normal tab
+  order, and focused 200% zoom and text-enlargement reflow checks pass.
 - Audited every application-owned log call and removed account email addresses
   from administrative CLI events. Structured logging now recursively redacts
   personal and credential context, sanitizes error messages, omits stack traces
@@ -1051,6 +1059,12 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-13
 
+- Added the coordinated database-and-media backup runbook and an automated
+  clean-target restoration test using the pinned PostgreSQL 18 container tools.
+  The test verifies artifact checksums, database and media sentinels, disposable
+  resource cleanup, and CI compatibility. Verified the complete live
+  container-backed round trip and marked Phase 8 complete with no known
+  high-severity security, accessibility, or data-integrity issue.
 - Added an isolated migration-execution release test covering a clean install,
   journal completeness, required tables, idempotent repeat execution, and
   guaranteed database cleanup. Reused the disposable-database lifecycle for the

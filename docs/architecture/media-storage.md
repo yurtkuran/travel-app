@@ -1,7 +1,7 @@
 # Media Storage and Processing
 
 > **Status:** Phase 8 hardened implementation policy
-> **Last reviewed:** 2026-11-11
+> **Last reviewed:** 2026-11-13
 
 TravelTrove stores version-one image variants on a persistent filesystem behind
 the `MediaStorage` interface. Place and UI code do not construct filesystem paths
@@ -44,4 +44,7 @@ for every caller, while Sharp rejects malformed, truncated, unsupported, or
 over-pixel-limit encoded content before any file or database record is created.
 
 `MEDIA_ROOT` must be persistent. Docker Compose uses the `media_data` volume; the
-DigitalOcean deployment must back it up alongside PostgreSQL.
+DigitalOcean deployment must back it up alongside PostgreSQL as one coordinated
+recovery point. The checksummed procedure, clean-target restore rules, and
+automated verification are defined in
+[`../operations/backup-and-restore.md`](../operations/backup-and-restore.md).

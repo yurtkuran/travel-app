@@ -33,6 +33,7 @@ outside the initial scope.
 - [Technical foundation](docs/architecture/foundation.md)
 - [Database schema](docs/architecture/database-schema.md)
 - [Authentication and authorization](docs/architecture/authentication-authorization.md)
+- [Backup and restore runbook](docs/operations/backup-and-restore.md)
 
 ## Local development
 
@@ -99,16 +100,19 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm test:migrations
+pnpm test:backup-restore
 pnpm test:integration
 pnpm test:e2e
 pnpm build
 ```
 
-Unit tests do not require services. Migration and integration tests require
-PostgreSQL; both commands create, migrate, and remove uniquely named disposable
-databases without changing the development database. The migration test applies
-the complete journal twice, verifies required release tables, and confirms that
-repeat execution is idempotent. The browser suite manages its own Next.js
+Unit tests do not require services. Migration, backup/restore, and integration
+tests require PostgreSQL; these commands use uniquely named disposable databases
+without changing the development database. The migration test applies the
+complete journal twice, verifies required release tables, and confirms that
+repeat execution is idempotent. The backup test uses the pinned database
+container's `pg_dump` and `pg_restore`, verifies checksums, and restores database
+and media sentinels into clean targets. The browser suite manages its own Next.js
 development server. GitHub Actions runs the same checks on pushes to `master`
 and on pull requests, with the build forced to the production environment.
 

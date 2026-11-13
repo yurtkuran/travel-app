@@ -1,0 +1,104 @@
+# Backup and Restore Runbook
+
+> **Status:** Phase 8 release policy  
+> **Last reviewed:** 2026-11-13
+
+TravelTrove recovery requires a coordinated PostgreSQL logical dump and a copy
+of the persistent media root. A database-only backup is incomplete because media
+rows refer to files outside PostgreSQL.
+
+## Backup policy
+
+- Stop the application or otherwise quiesce writes before capturing either
+  artifact. Keep PostgreSQL running for `pg_dump`.
+- Create a PostgreSQL custom-format dump with the PostgreSQL 18 client shipped in
+  the pinned database container. Use `--no-owner --no-acl` so restoration does
+  not depend on source-system role identifiers.
+- Archive the complete `MEDIA_ROOT`, preserving its relative `places/...` keys.
+- Generate SHA-256 checksums for both artifacts and verify them before every
+  restore.
+- Encrypt backups in transit and at rest. They contain account data, session
+  state, private visits, provenance, audit history, and unpublished media.
+- Copy completed artifacts to an access-controlled destination independent of
+  the application Droplet. A backup left only on the source host is not a
+  recoverable backup.
+- Never place backup artifacts in the repository, application image, or public
+  media path.
+
+## Backup procedure
+
+The Phase 9 production Compose file must provide the database service as `db`
+and mount media at a documented host path. With the application stopped and
+`BACKUP_DIR`, `POSTGRES_USER`, `POSTGRES_DB`, and `MEDIA_ROOT` set by the operator:
+
+```bash
+umask 077
+mkdir -p "$BACKUP_DIR"
+
+docker compose exec -T db pg_dump \
+  --format=custom \
+  --no-owner \
+  --no-acl \
+  --username="$POSTGRES_USER" \
+  --dbname="$POSTGRES_DB" \
+  > "$BACKUP_DIR/postgresql.dump"
+
+tar -C "$MEDIA_ROOT" -czf "$BACKUP_DIR/media.tar.gz" .
+
+(
+  cd "$BACKUP_DIR"
+  shasum -a 256 postgresql.dump media.tar.gz > SHA256SUMS
+)
+```
+
+Record the application revision, migration journal revision, UTC capture time,
+and PostgreSQL major version beside these files, then transfer the complete set
+to the independent backup destination before restarting writes.
+
+## Restore procedure
+
+Restore into newly provisioned, empty database and media targets. Do not extract
+over a live media tree or run `pg_restore --clean` against an unverified target.
+
+1. Keep the application stopped and retrieve the dump, media archive, checksums,
+   capture metadata, and separately stored runtime secrets.
+2. Verify `(cd "$BACKUP_DIR" && shasum -a 256 -c SHA256SUMS)` before opening
+   either artifact.
+3. Create the empty target database and an empty staging media directory.
+4. Restore PostgreSQL with the matching major-version client:
+
+   ```bash
+   docker compose exec -T db pg_restore \
+     --exit-on-error \
+     --no-owner \
+     --no-acl \
+     --username="$POSTGRES_USER" \
+     --dbname="$POSTGRES_DB" \
+     < "$BACKUP_DIR/postgresql.dump"
+   ```
+
+5. Extract media into the empty staging directory, validate ownership and
+   permissions, then atomically mount or move it to the configured `MEDIA_ROOT`:
+
+   ```bash
+   mkdir -p "$RESTORE_MEDIA_DIR"
+   tar -xzf "$BACKUP_DIR/media.tar.gz" -C "$RESTORE_MEDIA_DIR"
+   ```
+
+6. Run `pnpm db:migrate` to apply migrations newer than the captured release.
+7. Start the application, confirm `/health/live` and `/health/ready`, sign in as
+   an administrator, and verify representative public and private media.
+8. Retain the previous targets until the restored application passes validation.
+
+## Automated restore verification
+
+`pnpm test:backup-restore` exercises this contract without touching development
+data. It creates a migrated source database and media tree, inserts unique
+sentinels, captures a custom-format dump and compressed media archive, verifies
+their checksums, restores into fresh targets, validates both sentinels, and
+removes all disposable resources. CI supplies the PostgreSQL service container
+identifier; locally the test discovers the running Compose `db` container.
+
+Run this test after changing migrations, PostgreSQL versions, media layout,
+backup commands, or deployment storage. Phase 9 must schedule the same restore
+verification against real off-host backup artifacts and alert on failures.

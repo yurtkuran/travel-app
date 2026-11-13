@@ -42,6 +42,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:migrations
+      - name: Test database and media backup restoration
+        run: pnpm test:backup-restore
+        env:
+          POSTGRES_CONTAINER_ID: ${{ job.services.postgres.id }}
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck

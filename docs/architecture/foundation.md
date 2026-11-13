@@ -102,6 +102,6 @@ graph, Dependabot alerts, and Dependabot security updates must remain enabled in
 GitHub's Advanced Security settings so disclosed vulnerabilities generate
 alerts and remediation pull requests.
 
-CI runs formatting, linting, strict type-checking, unit tests, isolated migration
-and database integration tests, a production-environment build, and the
-Chromium browser suite.
+CI runs formatting, linting, strict type-checking, unit tests, isolated migration,
+backup-restoration, and database integration tests, a production-environment
+build, and the Chromium browser suite.
