@@ -1,9 +1,9 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-12
+> **Last updated:** 2026-11-13
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — automated accessibility review underway
+> **Project status:** Phase 8 in progress — responsive accessibility review underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,13 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Expanded the complete Playwright workflow matrix to the approved 1024-pixel
+  minimum, 1440-pixel desktop, and 1920-pixel wide-desktop frames while retaining
+  the 1440-pixel content maximum at wide widths. Removed the fixed document
+  minimum and added an accessibility-reflow layer for compact shell navigation,
+  single-column content, forms, dialogs, and administration layouts. A focused
+  browser project now guards 200% zoom and independent 200% text enlargement
+  against document-level horizontal overflow.
 - Added a reusable axe-core WCAG A/AA audit to representative public, sign-in,
   personal, and administrative Playwright journeys. The checks run at both
   supported browser widths and emit concise rule, selector, impact, and guidance
@@ -1035,6 +1042,16 @@ tested, and the next set of features has been prioritized from actual needs.
 - Independent backup destination
 
 ## Change log
+
+### 2026-11-13
+
+- Added the approved 1920-pixel wide-desktop Playwright project and focused
+  200%-zoom and 200%-text-enlargement regression coverage. Replaced the fixed
+  1024-pixel document minimum with accessibility reflow styles while preserving
+  the version-one default-width product boundary and the 1440-pixel content
+  maximum. Verified formatting, ESLint, TypeScript, all twenty-eight unit tests,
+  seventy-three disposable-database integration tests, the complete
+  forty-nine-test browser matrix, and the production build.
 
 ### 2026-11-12
 

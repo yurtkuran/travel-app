@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const testBaseUrl = "http://127.0.0.1:3100";
+const accessibilityReflowTest = /responsive-accessibility\.spec\.ts/;
 
 // Keep browser tests isolated from the Docker development server on port 3000.
 // Workers inherit this value, so generated setup links and Better Auth's trusted
@@ -20,6 +21,7 @@ export default defineConfig({
   projects: [
     {
       name: "minimum-tablet-chromium",
+      testIgnore: accessibilityReflowTest,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1024, height: 768 },
@@ -27,6 +29,23 @@ export default defineConfig({
     },
     {
       name: "desktop-chromium",
+      testIgnore: accessibilityReflowTest,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: "wide-desktop-chromium",
+      testIgnore: accessibilityReflowTest,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+    {
+      name: "accessibility-reflow-chromium",
+      testMatch: accessibilityReflowTest,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },

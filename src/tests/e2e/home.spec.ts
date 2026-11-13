@@ -36,5 +36,16 @@ test("renders the application foundation", async ({ page }) => {
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
+  const layout = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    containerWidth:
+      document.querySelector<HTMLElement>(".page-container")?.offsetWidth ?? 0,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(layout.scrollWidth - layout.clientWidth).toBeLessThanOrEqual(1);
+  if (layout.clientWidth >= 1920) {
+    expect(layout.containerWidth).toBeLessThanOrEqual(1440);
+  }
+
   await expectNoAccessibilityViolations(page);
 });
