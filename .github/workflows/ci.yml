@@ -41,13 +41,16 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm db:migrate
+      - run: pnpm test:migrations
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm test:integration
-      - run: pnpm build
+      - name: Build production application
+        run: pnpm build
+        env:
+          NODE_ENV: production
 
   browser:
     runs-on: ubuntu-latest

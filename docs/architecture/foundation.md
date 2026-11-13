@@ -48,6 +48,11 @@ change must produce a checked-in SQL migration, and its SQL must be reviewed.
 Previously applied migrations are immutable. Corrections are made with a new
 migration.
 
+`pnpm test:migrations` creates an isolated database, applies the complete
+migration journal twice, verifies the required release tables and journal count,
+and drops the database. CI runs this check before the integration suite so a
+fresh deployment and an idempotent repeat execution are both release gates.
+
 ## Logging and health checks
 
 Application logs are newline-delimited JSON with a stable event name and
@@ -97,5 +102,6 @@ graph, Dependabot alerts, and Dependabot security updates must remain enabled in
 GitHub's Advanced Security settings so disclosed vulnerabilities generate
 alerts and remediation pull requests.
 
-CI runs formatting, linting, strict type-checking, unit tests, database
-integration tests, a production build, and the Chromium browser suite.
+CI runs formatting, linting, strict type-checking, unit tests, isolated migration
+and database integration tests, a production-environment build, and the
+Chromium browser suite.

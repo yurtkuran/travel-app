@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-13
 > **Current phase:** Phase 8 — Security and quality hardening
-> **Project status:** Phase 8 in progress — responsive accessibility review underway
+> **Project status:** Phase 8 in progress — release execution validation underway
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -845,6 +845,12 @@ Perform a focused release review before deployment.
 
 ### Current implementation progress
 
+- Added a dedicated disposable-database migration gate that applies the complete
+  journal twice, verifies its applied-entry count and required release tables,
+  and always removes the isolated database. The integration runner now shares
+  the same hardened database lifecycle, CI runs the migration gate explicitly,
+  and the production build step overrides the job's test environment with
+  `NODE_ENV=production`.
 - Expanded the complete Playwright workflow matrix to the approved 1024-pixel
   minimum, 1440-pixel desktop, and 1920-pixel wide-desktop frames while retaining
   the 1440-pixel content maximum at wide widths. Removed the fixed document
@@ -1045,6 +1051,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-13
 
+- Added an isolated migration-execution release test covering a clean install,
+  journal completeness, required tables, idempotent repeat execution, and
+  guaranteed database cleanup. Reused the disposable-database lifecycle for the
+  integration runner and made CI build under an explicit production environment.
+  Verified formatting, ESLint, TypeScript, all twenty-eight unit tests, the clean
+  and repeated migration run, seventy-three disposable-database integration
+  tests, and the production build.
 - Added the approved 1920-pixel wide-desktop Playwright project and focused
   200%-zoom and 200%-text-enlargement regression coverage. Replaced the fixed
   1024-pixel document minimum with accessibility reflow styles while preserving
