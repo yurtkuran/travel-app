@@ -139,6 +139,21 @@ test.describe("authentication boundaries", () => {
   test("redirects a guest from administration to sign in", async ({ page }) => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/sign-in\?returnTo=%2Fadmin$/);
+
+    const wordmark = page.getByRole("link", { name: "TravelTrove" });
+    const email = page.getByLabel("Email address");
+    const passwordInput = page.getByLabel("Password", { exact: true });
+    const submit = page.getByRole("button", { name: "Sign in" });
+    await expect(submit).toBeEnabled({ timeout: 15_000 });
+    await page.keyboard.press("Tab");
+    await expect(wordmark).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(email).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(passwordInput).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(submit).toBeFocused();
+
     await expectNoAccessibilityViolations(page);
   });
 
@@ -153,6 +168,23 @@ test.describe("authentication boundaries", () => {
     await expect(
       page.getByRole("link", { name: "Administration" }),
     ).toHaveCount(0);
+
+    await page.goto("/my");
+    const skipLink = page.getByRole("link", { name: "Skip to content" });
+    await page.keyboard.press("Tab");
+    await expect(skipLink).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#main-content")).toBeFocused();
+
+    for (let index = 0; index < 6; index += 1) {
+      await page.keyboard.press("Shift+Tab");
+    }
+    const accountMenu = page.locator("summary");
+    await expect(accountMenu).toBeFocused();
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Account" })).toBeFocused();
+
     await expectNoAccessibilityViolations(page);
 
     const response = await page.goto("/admin");
@@ -471,18 +503,42 @@ test.describe("authentication boundaries", () => {
     ).toHaveAttribute("href", "tel:+12125550100");
 
     await page.goto(`/admin/places/${browserSubmissionId}`);
-    await page.getByRole("button", { name: "Unpublish" }).click();
+    const unpublishTrigger = page.getByRole("button", { name: "Unpublish" });
+    await unpublishTrigger.focus();
+    await page.keyboard.press("Enter");
     await expect(
       page.getByRole("heading", {
         name: `Unpublish Browser Place ${taxonomySuffix}?`,
       }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Cancel" }).click();
+    const cancelUnpublish = page.getByRole("button", { name: "Cancel" });
+    const confirmUnpublish = page.getByRole("button", {
+      name: "Unpublish place",
+    });
+    await expect(cancelUnpublish).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(confirmUnpublish).toBeFocused();
+    await page.keyboard.press("Tab");
+    expect(
+      await page.evaluate(() => {
+        const activeElement = document.activeElement;
+        const openDialog = document.querySelector("dialog[open]");
+        return (
+          activeElement === document.body ||
+          (activeElement instanceof HTMLElement &&
+            openDialog?.contains(activeElement))
+        );
+      }),
+    ).toBe(true);
+    await page.keyboard.press("Tab");
+    await expect(cancelUnpublish).toBeFocused();
+    await page.keyboard.press("Escape");
     await expect(
       page.getByRole("heading", {
         name: `Unpublish Browser Place ${taxonomySuffix}?`,
       }),
     ).not.toBeVisible();
+    await expect(unpublishTrigger).toBeFocused();
     await page.getByRole("button", { name: "Unpublish" }).click();
     await page.getByRole("button", { name: "Unpublish place" }).click();
     await expect(page).toHaveURL(/publication=unpublished$/);

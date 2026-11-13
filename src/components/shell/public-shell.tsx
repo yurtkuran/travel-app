@@ -16,7 +16,7 @@ export function PublicShell({
         Skip to content
       </a>
       <PublicHeader session={session} />
-      <main className="public-main" id="main-content">
+      <main className="public-main" id="main-content" tabIndex={-1}>
         {children}
       </main>
       <PublicFooter />

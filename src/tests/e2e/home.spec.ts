@@ -28,5 +28,13 @@ test("renders the application foundation", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Administration" })).toHaveCount(
     0,
   );
+
+  const skipLink = page.getByRole("link", { name: "Skip to content" });
+  await page.keyboard.press("Tab");
+  await expect(skipLink).toBeFocused();
+  await expect(skipLink).toHaveCSS("outline-style", "solid");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+
   await expectNoAccessibilityViolations(page);
 });

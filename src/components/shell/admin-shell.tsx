@@ -39,7 +39,7 @@ export function AdminShell({
             </div>
           </nav>
         </aside>
-        <main className="admin-content" id="main-content">
+        <main className="admin-content" id="main-content" tabIndex={-1}>
           <AdminBreadcrumbs />
           {children}
         </main>

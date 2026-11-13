@@ -27,7 +27,11 @@ export function PersonalShell({
           <NavLink href="/my/proposals">Proposed edits</NavLink>
         </nav>
       </div>
-      <main className="page-container shell-content" id="main-content">
+      <main
+        className="page-container shell-content"
+        id="main-content"
+        tabIndex={-1}
+      >
         {children}
       </main>
     </div>

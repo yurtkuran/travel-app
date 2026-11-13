@@ -850,10 +850,12 @@ Perform a focused release review before deployment.
   supported browser widths and emit concise rule, selector, impact, and guidance
   details when a violation is found. The first run identified and corrected
   low-contrast home and administration labels plus an account-menu accessible
-  name mismatch. All twenty-eight unit tests, seventy-three disposable-database
-  integration tests, and thirty-two Playwright journeys now pass, along with the
-  production build; manual keyboard and enlargement review remains a separate
-  checkpoint.
+  name mismatch. Keyboard regression coverage now verifies visible focus,
+  skip-link focus transfer, sign-in tab order, account-menu operation, and
+  administrative modal focus containment, dismissal, and restoration at both
+  supported browser widths. The main content landmarks are programmatically
+  focusable without entering the normal tab order. Browser zoom and text
+  enlargement review remains a separate checkpoint.
 - Audited every application-owned log call and removed account email addresses
   from administrative CLI events. Structured logging now recursively redacts
   personal and credential context, sanitizes error messages, omits stack traces
@@ -1036,6 +1038,14 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-12
 
+- Added keyboard-only browser coverage for public skip navigation, sign-in tab
+  order, authenticated account-menu access, and administrative confirmation
+  dialogs. Made each shell's main landmark a reliable skip-link focus target and
+  asserted visible focus, modal focus containment, Escape dismissal, and focus
+  restoration at both supported viewport widths. Verified formatting, ESLint,
+  TypeScript, all twenty-eight unit tests, seventy-three disposable-database
+  integration tests, all thirty-two Playwright journeys, and the production
+  build.
 - Added automated axe-core WCAG A/AA checks to representative public,
   authentication, personal, and administrative browser states at both supported
   viewport widths, with actionable violation reports and explicit manual-review
