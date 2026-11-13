@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-13
-> **Current phase:** Phase 8 complete — Phase 9 deployment is next
-> **Project status:** Version one is security- and quality-gated for deployment
+> **Current phase:** Phase 9 — Deploy to DigitalOcean
+> **Project status:** Phase 9 in progress — production Compose foundation implemented
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -34,7 +34,7 @@ tracked in [`roadmap.md`](roadmap.md).
 | 6     | Add media handling                         | Complete    |
 | 7     | Complete public and administrative UX      | Complete    |
 | 8     | Security and quality hardening             | Complete    |
-| 9     | Deploy to DigitalOcean                     | Not started |
+| 9     | Deploy to DigitalOcean                     | In progress |
 | 10    | Stabilize before adding features           | Not started |
 
 ## Confirmed project decisions
@@ -976,9 +976,26 @@ security, accessibility, or data-integrity issues.
 
 ## Phase 9 — Deploy to DigitalOcean
 
-**Status:** Not started
+**Status:** In progress
 
 Create a production Docker Compose deployment.
+
+### Current implementation progress
+
+- Added an environment-parameterized production Compose stack with a pinned
+  Caddy reverse proxy, standalone Next.js application, private PostgreSQL 18
+  network, and controlled one-shot migration image. Only Caddy publishes host
+  ports; application and database health checks gate dependencies. Explicit host
+  paths persist PostgreSQL, media, and Caddy state, while restart, process,
+  memory, CPU, and bounded JSON-log policies constrain each long-running service.
+  Compose interpolation validates and both the standalone application and
+  controlled migration image targets build successfully.
+- Added a production environment template and DigitalOcean foundation runbook
+  covering DNS, firewall boundaries, SSH posture, host-path permissions,
+  external secret storage, configuration validation, staged migrations, HTTPS
+  health verification, and strict staging/production isolation on separate
+  Droplets. Configuration regression tests reject public database exposure,
+  floating runtime versions, missing health checks, or unbounded logs.
 
 ### Planned production services
 
@@ -1052,13 +1069,19 @@ tested, and the next set of features has been prioritized from actual needs.
 ## Open decisions
 
 - Supported browser policy
-- Staging environment topology
 - Independent backup destination
 
 ## Change log
 
 ### 2026-11-13
 
+- Started Phase 9 with a production Docker Compose foundation for pinned Caddy,
+  standalone Next.js, private PostgreSQL, and controlled migration services.
+  Added explicit persistent host paths, externalized configuration, health and
+  restart policies, resource and log limits, a staging-isolation contract, and a
+  DigitalOcean deployment runbook. Verified production Compose interpolation,
+  both production image targets, formatting, ESLint, TypeScript, and all
+  thirty-one unit tests.
 - Added the coordinated database-and-media backup runbook and an automated
   clean-target restoration test using the pinned PostgreSQL 18 container tools.
   The test verifies artifact checksums, database and media sentinels, disposable

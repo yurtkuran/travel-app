@@ -29,4 +29,29 @@ describe("deployment network boundaries", () => {
     expect(compose).toContain("media_data:/app/.local-data/media");
     expect(compose).not.toMatch(/^\s+media:\s*$/m);
   });
+
+  it("publishes only the production reverse proxy", () => {
+    const compose = projectFile("compose.production.yaml");
+    expect(compose).toContain('"80:80"');
+    expect(compose).toContain('"443:443"');
+    expect(compose).not.toMatch(/5432:5432/);
+    expect(compose).not.toMatch(/8080:8080/);
+    expect(compose).toContain("database:\n    internal: true");
+    expect(compose).toContain("target: production");
+    expect(compose).toContain("target: migration");
+  });
+
+  it("requires persistent paths, health checks, and bounded logs", () => {
+    const compose = projectFile("compose.production.yaml");
+    expect(compose).toContain("TRAVELTROVE_DATA_ROOT:?");
+    expect(compose.match(/healthcheck:/g)).toHaveLength(3);
+    expect(compose).toContain("max-size: 10m");
+    expect(compose).toContain('max-file: "5"');
+    expect(compose.match(/restart: unless-stopped/g)).toHaveLength(3);
+  });
+
+  it("does not log credential-bearing proxy request URLs", () => {
+    const caddyfile = projectFile("deploy/Caddyfile");
+    expect(caddyfile).not.toMatch(/^\s*log\s*{/m);
+  });
 });

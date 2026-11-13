@@ -1,0 +1,13 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$TRAVELTROVE_DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy app:3000 {
+		health_uri /health/live
+		health_interval 30s
+		health_timeout 5s
+	}
+}

@@ -1,0 +1,133 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-file: "5"
+    max-size: 10m
+
+x-application-environment: &application-environment
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
+  BETTER_AUTH_URL: https://${TRAVELTROVE_DOMAIN:?set TRAVELTROVE_DOMAIN}
+  DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  MEDIA_ROOT: /app/.local-data/media
+  NODE_ENV: production
+
+services:
+  caddy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    init: true
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+      TRAVELTROVE_DOMAIN: ${TRAVELTROVE_DOMAIN:?set TRAVELTROVE_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    networks:
+      - proxy
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${TRAVELTROVE_DATA_ROOT:?set TRAVELTROVE_DATA_ROOT}/caddy-data:/data
+      - ${TRAVELTROVE_DATA_ROOT:?set TRAVELTROVE_DATA_ROOT}/caddy-config:/config
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+
+  app:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *application-environment
+    expose:
+      - "3000"
+    networks:
+      - proxy
+      - database
+    volumes:
+      - ${TRAVELTROVE_DATA_ROOT:?set TRAVELTROVE_DATA_ROOT}/media:/app/.local-data/media
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1G
+
+  db:
+    image: postgres:18.6-alpine3.24
+    restart: unless-stopped
+    init: true
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+    networks:
+      - database
+    volumes:
+      - ${TRAVELTROVE_DATA_ROOT:?set TRAVELTROVE_DATA_ROOT}/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2G
+
+  migrate:
+    profiles: [tools]
+    build:
+      context: .
+      target: migration
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *application-environment
+    networks:
+      - database
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+
+networks:
+  proxy:
+  database:
+    internal: true

@@ -13,6 +13,12 @@ COPY . .
 EXPOSE 3000
 CMD ["pnpm", "dev", "--hostname", "0.0.0.0"]
 
+FROM dependencies AS migration
+COPY tsconfig.json ./
+COPY drizzle ./drizzle
+COPY src ./src
+CMD ["pnpm", "db:migrate"]
+
 FROM dependencies AS builder
 COPY . .
 RUN pnpm build

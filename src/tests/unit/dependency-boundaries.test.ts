@@ -27,10 +27,13 @@ describe("dependency supply-chain boundaries", () => {
   it("pins runtime container tags to exact releases", () => {
     const dockerfile = projectFile("Dockerfile");
     const compose = projectFile("compose.yaml");
+    const productionCompose = projectFile("compose.production.yaml");
     const workflow = projectFile(".github/workflows/ci.yml");
 
     expect(dockerfile.match(/node:24\.22\.2-alpine3\.24/g)).toHaveLength(2);
     expect(compose).toContain("postgres:18.6-alpine3.24");
+    expect(productionCompose).toContain("postgres:18.6-alpine3.24");
+    expect(productionCompose).toContain("caddy:2.11.9-alpine");
     expect(workflow.match(/postgres:18\.6-alpine3\.24/g)).toHaveLength(2);
   });
 

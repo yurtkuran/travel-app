@@ -34,6 +34,7 @@ outside the initial scope.
 - [Database schema](docs/architecture/database-schema.md)
 - [Authentication and authorization](docs/architecture/authentication-authorization.md)
 - [Backup and restore runbook](docs/operations/backup-and-restore.md)
+- [DigitalOcean deployment runbook](docs/operations/deployment.md)
 
 ## Local development
 
