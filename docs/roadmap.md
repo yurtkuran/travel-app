@@ -1,12 +1,15 @@
 # TravelTrove Product Roadmap
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-08
+> **Last updated:** 2026-11-14
 
 This document captures ideas that may improve TravelTrove after the current
 version-one phase work. An item appearing here is not committed scope or a target
 release. Before implementation, each item must be prioritized, designed, and
 moved into the relevant phase of the implementation plan.
+
+Improvements observed around or after the initial production deployment are
+tracked separately in the [post-deployment backlog](post-deployment-backlog.md).
 
 ## Presentation and editorial enhancements
 
