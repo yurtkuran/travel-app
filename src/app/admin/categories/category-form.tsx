@@ -26,7 +26,6 @@ export function CategoryForm({
     <form action={action} className="taxonomy-form" ref={formRef}>
       <div className="taxonomy-form__heading">
         <div>
-          <p className="eyebrow">New classification</p>
           <h2>Add a category</h2>
         </div>
         <p>Rating dimensions can be enabled now or managed later.</p>
@@ -44,6 +43,8 @@ export function CategoryForm({
               state.fieldErrors.name ? "category-name-error" : undefined
             }
             aria-invalid={Boolean(state.fieldErrors.name)}
+            autoComplete="off"
+            data-1p-ignore="true"
             id="category-name"
             maxLength={80}
             name="name"

@@ -21,7 +21,8 @@ export function ProvisionForm() {
             <div className="form-field">
               <label htmlFor="provision-name">Name</label>
               <input
-                autoComplete="name"
+                autoComplete="off"
+                data-1p-ignore="true"
                 id="provision-name"
                 maxLength={160}
                 name="name"
@@ -31,7 +32,8 @@ export function ProvisionForm() {
             <div className="form-field">
               <label htmlFor="provision-email">Email address</label>
               <input
-                autoComplete="email"
+                autoComplete="off"
+                data-1p-ignore="true"
                 id="provision-email"
                 name="email"
                 required
@@ -39,12 +41,17 @@ export function ProvisionForm() {
               />
             </div>
           </div>
-          <p className="field-help">
-            New accounts always begin with the user role. Promote an activated
-            account separately when administrative access is required.
-          </p>
-          <div className="submission-form__actions">
-            <p>The generated link expires after 72 hours and is shown once.</p>
+          <div className="provision-form__footer">
+            <ul>
+              <li>
+                New accounts always begin with the user role. Promote an
+                activated account separately when administrative access is
+                required.
+              </li>
+              <li>
+                The generated link expires after 72 hours and is shown once.
+              </li>
+            </ul>
             <button className="button-primary" disabled={pending} type="submit">
               {pending ? "Provisioning…" : "Provision user"}
             </button>

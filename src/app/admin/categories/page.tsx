@@ -41,11 +41,7 @@ export default async function AdminCategoriesPage({
 
   return (
     <>
-      <PageHeading
-        description="Manage public classifications and choose which optional rating dimensions each category supports. Historical ratings remain intact if capabilities change later."
-        eyebrow="Taxonomy"
-        title="Manage categories"
-      />
+      <PageHeading title="Manage categories" />
       <CategoryForm dimensions={dimensions} />
       <section
         aria-labelledby="category-list-title"

@@ -37,11 +37,7 @@ export default async function AdminCitiesPage({
 
   return (
     <>
-      <PageHeading
-        description="Create, find, and review the cities used to organize published places. Existing place history remains intact when a city is later deactivated."
-        eyebrow="Taxonomy"
-        title="Manage cities"
-      />
+      <PageHeading title="Manage cities" />
       <CityForm />
       <section aria-labelledby="city-list-title" className="management-list">
         <div className="management-list__heading">

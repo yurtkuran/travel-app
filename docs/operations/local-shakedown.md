@@ -70,7 +70,13 @@ shakedown data.
 
 Environment files and commands must make the distinction obvious. A developer
 should be able to run the application against Supabase while test commands still
-resolve to disposable local database URLs.
+resolve to disposable local database URLs. Copy `.env.test.local.example` to
+`.env.test.local` for the test commands; they reject non-local database hosts.
+
+When the application runs in Docker, start it with `docker compose --env-file
+.env.local up --build`. The development Compose file passes the selected
+`DATABASE_URL` into the application while retaining its local PostgreSQL URL as
+the default when no override is supplied.
 
 ## Media and durability
 

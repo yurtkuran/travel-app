@@ -8,6 +8,9 @@ import { z } from "zod";
 import { getSqlClient } from "@/db/client";
 import { requireCapability, type Actor } from "@/features/auth/permissions";
 
+import { countryNameForCode, isIsoCountryCode } from "../countries";
+import { isUsStateName } from "../us-states";
+
 type Transaction = postgres.TransactionSql<Record<string, never>>;
 
 const compactText = (value: string) => value.trim().replace(/\s+/g, " ");
@@ -34,22 +37,33 @@ const optionalText = (maximum: number, label: string) =>
     .optional()
     .default("");
 
-export const createCitySchema = z.object({
-  country: requiredText(120, "Country"),
-  countryCode: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .refine(
-      (value) => value === "" || /^[A-Z]{2}$/.test(value),
-      "Country code must contain two letters",
-    )
-    .transform((value) => value || undefined)
-    .optional()
-    .default(""),
-  name: requiredText(160, "City name"),
-  region: optionalText(160, "Region"),
-});
+export const createCitySchema = z
+  .object({
+    countryCode: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .refine(isIsoCountryCode, "Select a valid country"),
+    name: requiredText(160, "City name"),
+    region: optionalText(160, "Region"),
+  })
+  .superRefine((input, context) => {
+    if (input.countryCode !== "US") return;
+
+    if (!input.region) {
+      context.addIssue({
+        code: "custom",
+        message: "Select a state",
+        path: ["region"],
+      });
+    } else if (!isUsStateName(input.region)) {
+      context.addIssue({
+        code: "custom",
+        message: "Select a valid U.S. state",
+        path: ["region"],
+      });
+    }
+  });
 
 export const createCategorySchema = z.object({
   description: optionalText(500, "Description"),
@@ -140,12 +154,14 @@ async function availableCategorySlug(
 export async function createCity(actor: Actor, rawInput: CreateCityInput) {
   requireCapability(actor, "taxonomy.manage");
   const input = createCitySchema.parse(rawInput);
-  const identity = [input.name, input.region, input.country]
+  const country = countryNameForCode(input.countryCode);
+  if (!country) throw new Error("Validated country code has no country name");
+  const identity = [input.name, input.region, country]
     .filter(Boolean)
     .join("|")
     .toLocaleLowerCase("en-US");
   const baseSlug = slugify(
-    [input.name, input.region, input.country].filter(Boolean).join(" "),
+    [input.name, input.region, country].filter(Boolean).join(" "),
     180,
   );
   const sql = getSqlClient();
@@ -158,8 +174,8 @@ export async function createCity(actor: Actor, rawInput: CreateCityInput) {
         values (
           ${input.name},
           ${input.region || null},
-          ${input.country},
-          ${input.countryCode || null},
+          ${country},
+          ${input.countryCode},
           ${slug}
         )
         returning id, slug

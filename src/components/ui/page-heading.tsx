@@ -5,16 +5,18 @@ export function PageHeading({
   title,
 }: {
   action?: React.ReactNode;
-  description: string;
-  eyebrow: string;
+  description?: string;
+  eyebrow?: string;
   title: string;
 }) {
   return (
     <header className="page-heading">
       <div>
-        <p className="eyebrow">{eyebrow}</p>
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <h1>{title}</h1>
-        <p className="page-heading__description">{description}</p>
+        {description ? (
+          <p className="page-heading__description">{description}</p>
+        ) : null}
       </div>
       {action ? <div>{action}</div> : null}
     </header>

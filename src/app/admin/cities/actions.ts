@@ -20,7 +20,6 @@ export async function createCityAction(
 ): Promise<TaxonomyActionState> {
   const session = await requireAdminSession();
   const parsed = createCitySchema.safeParse({
-    country: String(formData.get("country") ?? ""),
     countryCode: String(formData.get("countryCode") ?? ""),
     name: String(formData.get("name") ?? ""),
     region: String(formData.get("region") ?? ""),

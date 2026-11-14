@@ -46,7 +46,6 @@ describe("taxonomy administration", () => {
 
   test("normalizes and transactionally creates an audited city", async () => {
     const city = await createCity(admin, {
-      country: "  United   States  ",
       countryCode: "us",
       name: `  Phase Five   City ${suffix}  `,
       region: "  New   York  ",
@@ -82,7 +81,6 @@ describe("taxonomy administration", () => {
   test("rejects duplicate cities with a friendly domain error", async () => {
     await expect(
       createCity(admin, {
-        country: "United States",
         countryCode: "US",
         name: `Phase Five City ${suffix}`,
         region: "New York",
@@ -90,10 +88,19 @@ describe("taxonomy administration", () => {
     ).rejects.toBeInstanceOf(TaxonomyConflictError);
   });
 
+  test("rejects freeform regions for United States cities", async () => {
+    await expect(
+      createCity(admin, {
+        countryCode: "US",
+        name: `Invalid Region City ${suffix}`,
+        region: "Not a state",
+      }),
+    ).rejects.toThrow("Select a valid U.S. state");
+  });
+
   test("requires taxonomy capability for mutations", async () => {
     await expect(
       createCity(user, {
-        country: "France",
         countryCode: "FR",
         name: `Unauthorized City ${suffix}`,
         region: "",

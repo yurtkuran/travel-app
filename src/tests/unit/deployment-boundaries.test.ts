@@ -123,4 +123,18 @@ describe("deployment network boundaries", () => {
     expect(preflight).not.toMatch(/echo[^\n]*\$\{?BETTER_AUTH_SECRET/);
     expect(environment).toContain("TRAVELTROVE_MIN_FREE_BYTES=10737418240");
   });
+
+  it("defines a data-safe contract for external Ansible provisioning", () => {
+    const handoff = projectFile("docs/operations/ansible-handoff.md");
+
+    expect(handoff).toContain("/opt/traveltrove/current");
+    expect(handoff).toContain("/etc/traveltrove/production.env");
+    expect(handoff).toContain("/srv/traveltrove");
+    expect(handoff).toContain("traveltrove-backup.timer");
+    expect(handoff).toContain("traveltrove-restore-verification.timer");
+    expect(handoff).toContain("Never run `docker compose down --volumes`");
+    expect(handoff).toContain("Never regenerate production secrets");
+    expect(handoff).toContain("deploy/preflight.sh");
+    expect(handoff).toContain("DigitalOcean Droplet backups are enabled");
+  });
 });

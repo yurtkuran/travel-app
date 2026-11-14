@@ -3,6 +3,8 @@ import { randomBytes } from "node:crypto";
 
 import postgres from "postgres";
 
+import { assertLocalTestDatabaseUrl } from "./test-database-safety";
+
 export function runNode(arguments_: string[], databaseUrl: string) {
   return new Promise<void>((resolve, reject) => {
     const child = spawn(process.execPath, arguments_, {
@@ -36,6 +38,7 @@ export async function withDisposableDatabase({
 }) {
   const sourceUrl = process.env.DATABASE_URL;
   if (!sourceUrl) throw new Error("DATABASE_URL is required");
+  assertLocalTestDatabaseUrl(sourceUrl);
 
   const databaseName = `${prefix}_${process.pid}_${randomBytes(5).toString("hex")}`;
   if (!/^traveltrove_[a-z0-9_]+$/.test(databaseName)) {

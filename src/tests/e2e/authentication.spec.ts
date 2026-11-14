@@ -246,9 +246,7 @@ test.describe("authentication boundaries", () => {
     await signIn(page, admin.email);
     await page.goto("/admin/cities");
     await page.getByLabel("City name").fill(taxonomyCityName);
-    await page.getByLabel("State or region").fill("Browser Region");
-    await page.getByLabel("Country", { exact: true }).fill("United States");
-    await page.getByLabel("Country code", { exact: true }).fill("US");
+    await page.getByLabel("State", { exact: true }).selectOption("New York");
     await page.getByRole("button", { name: "Add city" }).click();
     await expect(page.getByRole("status")).toContainText(
       `${taxonomyCityName} was created`,
@@ -325,7 +323,7 @@ test.describe("authentication boundaries", () => {
       "A change that has not been saved yet.",
     );
     await page.getByLabel("City", { exact: true }).selectOption({
-      label: `${taxonomyCityName}, Browser Region, United States`,
+      label: `${taxonomyCityName}, New York, United States`,
     });
     await page
       .getByLabel("Category", { exact: true })

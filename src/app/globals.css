@@ -553,6 +553,10 @@ textarea {
   line-height: 1.15;
 }
 
+.page-heading h1:first-child {
+  margin-top: 0;
+}
+
 .page-heading__description {
   max-width: 43rem;
   margin: 0.75rem 0 0;
@@ -866,6 +870,10 @@ a.metric-card:hover .metric-card__label {
   letter-spacing: -0.015em;
 }
 
+.taxonomy-form__heading h2:first-child {
+  margin-top: 0;
+}
+
 .taxonomy-form__heading > p {
   max-width: 28rem;
   margin: 0;
@@ -881,6 +889,10 @@ a.metric-card:hover .metric-card__label {
 
 .form-grid--two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .form-grid__wide {
@@ -1783,6 +1795,29 @@ a.metric-card:hover .metric-card__label {
   margin-top: 2.5rem;
 }
 
+.provision-form__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.provision-form__footer ul {
+  display: grid;
+  gap: 0.5rem;
+  list-style: disc outside;
+  margin: 0;
+  padding-inline-start: 1.25rem;
+  color: var(--on-surface-variant);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.provision-form__footer button {
+  flex: none;
+}
+
 .setup-link-result {
   display: grid;
   gap: 0.75rem;
@@ -1991,6 +2026,7 @@ a.metric-card:hover .metric-card__label {
   .moderation-actions,
   .public-place__actions,
   .account-action-row,
+  .provision-form__footer,
   .inline-management-form {
     align-items: flex-start;
     flex-direction: column;
@@ -1998,6 +2034,7 @@ a.metric-card:hover .metric-card__label {
 
   .metric-grid,
   .form-grid--two,
+  .form-grid--three,
   .media-grid,
   .place-gallery,
   .place-card-grid,
@@ -2028,6 +2065,10 @@ a.metric-card:hover .metric-card__label {
   .setup-link-result label,
   .setup-link-result p {
     grid-column: auto;
+  }
+
+  .provision-form__footer button {
+    align-self: flex-end;
   }
 
   .system-state {

@@ -9,7 +9,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgresql://traveltrove:traveltrove@db:5432/traveltrove
+      DATABASE_URL: ${DATABASE_URL:-postgresql://traveltrove:traveltrove@db:5432/traveltrove}
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_SECRET: local-development-secret-change-before-deploying
       LOG_LEVEL: debug

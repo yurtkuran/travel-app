@@ -86,10 +86,15 @@ major), enable Corepack, install dependencies, and start PostgreSQL:
 corepack enable
 pnpm install
 cp .env.example .env.local
+cp .env.test.local.example .env.test.local
 docker compose up -d db
 pnpm db:migrate
 pnpm dev
 ```
+
+`.env.local` configures the application and may point to the hosted shakedown
+database. Destructive database and browser tests load `.env.test.local` instead
+and reject non-local database hosts.
 
 Use a unique, randomly generated `BETTER_AUTH_SECRET` in every non-local
 environment. Never commit populated environment files.

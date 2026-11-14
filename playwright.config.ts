@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { assertLocalTestDatabaseUrl } from "./src/tests/test-database-safety";
+
 const testBaseUrl = "http://127.0.0.1:3100";
 const accessibilityReflowTest = /responsive-accessibility\.spec\.ts/;
 
@@ -7,6 +9,13 @@ const accessibilityReflowTest = /responsive-accessibility\.spec\.ts/;
 // Workers inherit this value, so generated setup links and Better Auth's trusted
 // origin use the same dedicated test server as Playwright.
 process.env.BETTER_AUTH_URL = testBaseUrl;
+
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL is required; copy .env.test.local.example to .env.test.local",
+  );
+}
+assertLocalTestDatabaseUrl(process.env.DATABASE_URL);
 
 export default defineConfig({
   testDir: "./src/tests/e2e",
