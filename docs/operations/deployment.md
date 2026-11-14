@@ -56,6 +56,7 @@ operator-owned values into the deployment shell:
 ```bash
 sudo install -d -m 0750 /etc/traveltrove
 sudo install -m 0600 .env.production.example /etc/traveltrove/production.env
+sudo install -m 0600 /path/to/rclone.conf /etc/traveltrove/rclone.conf
 sudoedit /etc/traveltrove/production.env
 ```
 
@@ -64,6 +65,12 @@ cryptographically secure generator. URL-encode the database password when
 placing it in `DATABASE_URL`. The environment file must never enter Git, a
 container image, logs, tickets, or chat. Keep a recoverable encrypted copy in
 the approved secrets system.
+
+Configure the rclone file with a client-side encrypted `crypt` remote backed by
+the independent backup provider. The application host should have write access
+only to its scoped production prefix; retention governance belongs to the
+destination. Set `RCLONE_CONFIG_PATH` and the scoped `RCLONE_BACKUP_TARGET` in
+the production environment file.
 
 Set `TRAVELTROVE_RELEASE` to the full Git commit being deployed. Both application
 and migration images receive that immutable tag and an OCI revision label. The

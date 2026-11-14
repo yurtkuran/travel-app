@@ -55,6 +55,39 @@ Record the application revision, migration journal revision, UTC capture time,
 and PostgreSQL major version beside these files, then transfer the complete set
 to the independent backup destination before restarting writes.
 
+## Automated nightly backup
+
+Production uses `deploy/backup.sh` to implement the coordinated procedure and
+upload through the pinned `rclone/rclone:1.76.0` container. Configure
+`RCLONE_CONFIG_PATH` outside the repository and set `RCLONE_BACKUP_TARGET` to a
+scoped path such as `encrypted-remote:traveltrove/production`. The named rclone
+remote must be a client-side `crypt` remote layered over an independently
+controlled off-host backend.
+
+The script obtains an exclusive backup lock, briefly stops a running app to
+quiesce writes, dumps PostgreSQL, archives media, writes release metadata and
+SHA-256 checksums, restarts the app, uploads the recovery point, verifies the
+remote copy, checks readiness, and removes local staging artifacts. Its transfer
+container can read only the rclone configuration and backup staging directory;
+it cannot access the live database or media tree.
+
+Install the provided systemd units after placing the repository at
+`/opt/traveltrove/current`:
+
+```bash
+sudo install -m 0644 deploy/systemd/traveltrove-backup.service /etc/systemd/system/
+sudo install -m 0644 deploy/systemd/traveltrove-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now traveltrove-backup.timer
+sudo systemctl start traveltrove-backup.service
+sudo systemctl status traveltrove-backup.service
+sudo systemctl list-timers traveltrove-backup.timer
+```
+
+Configure retention or object-lock lifecycle rules at the independent backend;
+the application host must not have permission to shorten locked retention. Alert
+on failed units and on recovery-point age exceeding 26 hours.
+
 ## Restore procedure
 
 Restore into newly provisioned, empty database and media targets. Do not extract

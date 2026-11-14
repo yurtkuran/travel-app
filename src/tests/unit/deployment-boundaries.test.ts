@@ -69,4 +69,19 @@ describe("deployment network boundaries", () => {
     const caddyfile = projectFile("deploy/Caddyfile");
     expect(caddyfile).not.toMatch(/^\s*log\s*{/m);
   });
+
+  it("sends coordinated backups through a constrained encrypted transfer", () => {
+    const compose = projectFile("compose.production.yaml");
+    const backup = projectFile("deploy/backup.sh");
+    const timer = projectFile("deploy/systemd/traveltrove-backup.timer");
+
+    expect(compose).toContain("rclone/rclone:1.76.0");
+    expect(compose).toContain("/backup:ro");
+    expect(compose).toContain("rclone.conf:ro");
+    expect(backup).toContain("stop --timeout 60 app");
+    expect(backup).toContain("sha256sum");
+    expect(backup).toContain('check "/backup/$timestamp"');
+    expect(timer).toContain("OnCalendar=*-*-* 03:15:00 UTC");
+    expect(timer).toContain("Persistent=true");
+  });
 });

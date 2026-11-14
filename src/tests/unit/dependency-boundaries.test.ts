@@ -34,6 +34,7 @@ describe("dependency supply-chain boundaries", () => {
     expect(compose).toContain("postgres:18.6-alpine3.24");
     expect(productionCompose).toContain("postgres:18.6-alpine3.24");
     expect(productionCompose).toContain("caddy:2.11.9-alpine");
+    expect(productionCompose).toContain("rclone/rclone:1.76.0");
     expect(workflow.match(/postgres:18\.6-alpine3\.24/g)).toHaveLength(2);
   });
 

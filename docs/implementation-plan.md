@@ -1,9 +1,9 @@
 # TravelTrove Implementation Plan
 
 > **Document status:** Living document
-> **Last updated:** 2026-11-13
+> **Last updated:** 2026-11-14
 > **Current phase:** Phase 9 — Deploy to DigitalOcean
-> **Project status:** Phase 9 in progress — production Compose foundation implemented
+> **Project status:** Phase 9 in progress — automated off-host backups implemented
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -1004,6 +1004,14 @@ Create a production Docker Compose deployment.
   schema-compatible application replacement from clean-target data restoration;
   migrations remain forward-only. Both revision-tagged image targets build
   successfully from the production Compose model.
+- Added a provider-neutral, client-side-encrypted off-host backup path through a
+  pinned rclone transfer container with read-only access only to staging and its
+  external configuration. The nightly systemd job locks against overlap,
+  quiesces writes, captures coordinated PostgreSQL/media artifacts, records
+  release metadata and checksums, restarts the app, verifies the remote recovery
+  point and readiness, and removes local staging data. Retention governance stays
+  at the independent destination rather than on the application host. The pinned
+  backup-transfer image resolves and pulls successfully.
 
 ### Planned production services
 
@@ -1080,6 +1088,16 @@ tested, and the next set of features has been prioritized from actual needs.
 - Independent backup destination
 
 ## Change log
+
+### 2026-11-14
+
+- Added automated nightly coordinated backups through a pinned, constrained
+  rclone container and a client-side encrypted, provider-neutral off-host
+  target. Added overlap protection, app write quiescence, release manifests,
+  checksums, remote verification, readiness checks, systemd scheduling, and
+  destination-controlled retention requirements. Verified the pinned transfer
+  image pull, Compose interpolation, shell syntax, formatting, ESLint,
+  TypeScript, and all thirty-three unit tests.
 
 ### 2026-11-13
 
