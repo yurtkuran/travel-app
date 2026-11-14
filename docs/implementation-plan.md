@@ -3,7 +3,7 @@
 > **Document status:** Living document
 > **Last updated:** 2026-11-14
 > **Current phase:** Phase 9 — Deploy to DigitalOcean
-> **Project status:** Phase 9 in progress — automated off-host backups implemented
+> **Project status:** Phase 9 in progress — automated off-host recovery verification implemented
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -1012,6 +1012,13 @@ Create a production Docker Compose deployment.
   point and readiness, and removes local staging data. Retention governance stays
   at the independent destination rather than on the application host. The pinned
   backup-transfer image resolves and pulls successfully.
+- Added monthly verification of the newest real off-host recovery point. A
+  separately constrained transfer container downloads only into disposable
+  staging; the verifier enforces the expected artifact set and checksums,
+  validates archive paths, restores into a generated disposable PostgreSQL
+  database, checks application tables and migration history, and cleans up
+  without stopping or modifying the live application. A persistent systemd
+  timer and operations guidance make failures observable.
 
 ### Planned production services
 
@@ -1091,6 +1098,11 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-14
 
+- Added scheduled verification of real off-host recovery points with exact
+  artifact and checksum validation, safe media archive inspection, a disposable
+  PostgreSQL restore and schema check, guaranteed cleanup, and a monthly
+  persistent systemd timer. The verifier has no access path that replaces the
+  live database or media tree and leaves the application running.
 - Added automated nightly coordinated backups through a pinned, constrained
   rclone container and a client-side encrypted, provider-neutral off-host
   target. Added overlap protection, app write quiescence, release manifests,

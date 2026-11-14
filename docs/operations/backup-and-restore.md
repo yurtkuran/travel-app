@@ -1,7 +1,7 @@
 # Backup and Restore Runbook
 
-> **Status:** Phase 8 release policy  
-> **Last reviewed:** 2026-11-13
+> **Status:** Phase 9 production recovery policy
+> **Last reviewed:** 2026-11-14
 
 TravelTrove recovery requires a coordinated PostgreSQL logical dump and a copy
 of the persistent media root. A database-only backup is incomplete because media
@@ -133,5 +133,32 @@ removes all disposable resources. CI supplies the PostgreSQL service container
 identifier; locally the test discovers the running Compose `db` container.
 
 Run this test after changing migrations, PostgreSQL versions, media layout,
-backup commands, or deployment storage. Phase 9 must schedule the same restore
-verification against real off-host backup artifacts and alert on failures.
+backup commands, or deployment storage.
+
+Production additionally runs `deploy/verify-backup.sh` against the newest real
+off-host recovery point. The verifier lists only timestamp-shaped directories,
+downloads the newest complete recovery point into restricted local staging,
+requires the exact expected artifact set, verifies SHA-256 checksums, and rejects
+unsafe media archive paths. It restores the PostgreSQL dump into a generated
+disposable database in the running database container, confirms representative
+application tables and the non-empty Drizzle migration journal, then drops the
+disposable database and removes all downloaded artifacts. It never changes the
+live application database or media tree and does not stop the application.
+
+Install and enable the monthly verifier alongside the nightly backup timer:
+
+```bash
+sudo install -m 0644 deploy/systemd/traveltrove-restore-verification.service /etc/systemd/system/
+sudo install -m 0644 deploy/systemd/traveltrove-restore-verification.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now traveltrove-restore-verification.timer
+sudo systemctl start traveltrove-restore-verification.service
+sudo systemctl status traveltrove-restore-verification.service
+sudo systemctl list-timers traveltrove-restore-verification.timer
+```
+
+The timer runs on the first day of each month at 05:15 UTC with up to two hours
+of randomized delay. Alert on any failed verification unit and investigate
+before allowing newer recovery points to age out. A successful job identifies
+the verified remote recovery point in its journal output. Retain that evidence
+with the monthly operations record.

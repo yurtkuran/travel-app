@@ -1,7 +1,7 @@
 # DigitalOcean Deployment Runbook
 
 > **Status:** Phase 9 deployment foundation  
-> **Last reviewed:** 2026-11-13
+> **Last reviewed:** 2026-11-14
 
 TravelTrove deploys as a Docker Compose stack containing Caddy, the standalone
 Next.js application, PostgreSQL, and a one-shot migration image. Only Caddy
@@ -29,7 +29,7 @@ production default. Create the data root before deployment:
 
 ```bash
 sudo install -d -m 0750 /srv/traveltrove
-sudo install -d -m 0750 /srv/traveltrove/{caddy-config,caddy-data,postgres}
+sudo install -d -m 0750 /srv/traveltrove/{backup-staging,caddy-config,caddy-data,postgres}
 sudo install -d -m 0750 -o 1001 -g 1001 /srv/traveltrove/media
 ```
 
@@ -71,6 +71,13 @@ the independent backup provider. The application host should have write access
 only to its scoped production prefix; retention governance belongs to the
 destination. Set `RCLONE_CONFIG_PATH` and the scoped `RCLONE_BACKUP_TARGET` in
 the production environment file.
+
+Install and monitor both the nightly coordinated backup and monthly restore
+verification units described in
+[`backup-and-restore.md`](backup-and-restore.md). The restore verifier requires
+temporary local capacity for one complete recovery point plus one disposable
+PostgreSQL database. Keep that headroom available on the production volume and
+alert on either unit failure.
 
 Set `TRAVELTROVE_RELEASE` to the full Git commit being deployed. Both application
 and migration images receive that immutable tag and an OCI revision label. The
@@ -187,4 +194,6 @@ production rollout.
 
 Follow [`backup-and-restore.md`](backup-and-restore.md) for coordinated database
 and media recovery. A Droplet snapshot is useful infrastructure defense but does
-not replace independent logical database and media backups.
+not replace independent logical database and media backups. The scheduled
+off-host restore verifier proves artifact integrity and database restorability;
+it does not replace a full operator recovery exercise on a fresh Droplet.

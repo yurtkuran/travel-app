@@ -1,0 +1,17 @@
+[Unit]
+Description=TravelTrove off-host restore verification
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/traveltrove/current
+ExecStart=/opt/traveltrove/current/deploy/verify-backup.sh /etc/traveltrove/production.env
+Nice=15
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

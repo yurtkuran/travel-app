@@ -84,4 +84,24 @@ describe("deployment network boundaries", () => {
     expect(timer).toContain("OnCalendar=*-*-* 03:15:00 UTC");
     expect(timer).toContain("Persistent=true");
   });
+
+  it("verifies off-host recovery points without modifying live data", () => {
+    const compose = projectFile("compose.production.yaml");
+    const verifier = projectFile("deploy/verify-backup.sh");
+    const timer = projectFile(
+      "deploy/systemd/traveltrove-restore-verification.timer",
+    );
+
+    expect(compose.match(/rclone\/rclone:1\.76\.0/g)).toHaveLength(2);
+    expect(compose).toContain("restore-transfer:");
+    expect(compose).toContain("/backup\n");
+    expect(verifier).toContain("latest_recovery_point");
+    expect(verifier).toContain("sha256sum --check SHA256SUMS");
+    expect(verifier).toContain("pg_restore");
+    expect(verifier).toContain("traveltrove_restore_verify_");
+    expect(verifier).toContain("DROP DATABASE IF EXISTS");
+    expect(verifier).not.toContain('--dbname="$POSTGRES_DB"');
+    expect(timer).toContain("OnCalendar=*-*-01 05:15:00 UTC");
+    expect(timer).toContain("Persistent=true");
+  });
 });
