@@ -104,4 +104,23 @@ describe("deployment network boundaries", () => {
     expect(timer).toContain("OnCalendar=*-*-01 05:15:00 UTC");
     expect(timer).toContain("Persistent=true");
   });
+
+  it("fails production preflight before unsafe deployment work", () => {
+    const preflight = projectFile("deploy/preflight.sh");
+    const environment = projectFile(".env.production.example");
+
+    expect(preflight).toContain("status --porcelain");
+    expect(preflight).toContain("rev-parse HEAD");
+    expect(preflight).toContain("docker info");
+    expect(preflight).toContain("docker compose version");
+    expect(preflight).toContain("getent ahosts");
+    expect(preflight).toContain("config --quiet");
+    expect(preflight).toContain("TRAVELTROVE_MIN_FREE_BYTES");
+    expect(preflight).toContain(
+      "must not be accessible by group or other users",
+    );
+    expect(preflight).not.toMatch(/echo[^\n]*\$\{?POSTGRES_PASSWORD/);
+    expect(preflight).not.toMatch(/echo[^\n]*\$\{?BETTER_AUTH_SECRET/);
+    expect(environment).toContain("TRAVELTROVE_MIN_FREE_BYTES=10737418240");
+  });
 });

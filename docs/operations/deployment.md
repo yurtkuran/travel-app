@@ -45,6 +45,9 @@ docker run --rm \
 
 Restrict the data root and backup locations to deployment operators. Media and
 database files contain private user data and must not be served directly.
+Keep at least 10 GiB free by default for release work, backup staging, and the
+monthly disposable restore. Increase `TRAVELTROVE_MIN_FREE_BYTES` when the live
+database and media set make that reserve insufficient.
 
 ## Environment configuration
 
@@ -54,9 +57,11 @@ POSIX shell assignment syntax because release validation loads these trusted,
 operator-owned values into the deployment shell:
 
 ```bash
-sudo install -d -m 0750 /etc/traveltrove
-sudo install -m 0600 .env.production.example /etc/traveltrove/production.env
-sudo install -m 0600 /path/to/rclone.conf /etc/traveltrove/rclone.conf
+sudo install -d -m 0700 -o "$USER" -g "$USER" /etc/traveltrove
+sudo install -m 0600 -o "$USER" -g "$USER" \
+  .env.production.example /etc/traveltrove/production.env
+sudo install -m 0600 -o "$USER" -g "$USER" \
+  /path/to/rclone.conf /etc/traveltrove/rclone.conf
 sudoedit /etc/traveltrove/production.env
 ```
 
@@ -84,7 +89,24 @@ and migration images receive that immutable tag and an OCI revision label. The
 checked-out commit must match this value; never deploy a dirty worktree or reuse
 a release tag for different source.
 
-Validate interpolation before building:
+## Production preflight
+
+Run the preflight as the deployment operator from the exact release checkout
+before the first deployment and every update:
+
+```bash
+/opt/traveltrove/current/deploy/preflight.sh \
+  /etc/traveltrove/production.env
+```
+
+The preflight fails before any build, migration, or service replacement if the
+checkout is dirty or does not match `TRAVELTROVE_RELEASE`; secrets files are
+over-permissive; required persistent directories or free-space reserve are
+missing; the domain does not resolve; Docker or Compose is unavailable; or the
+production Compose model cannot interpolate. It does not print secret values or
+change containers, databases, media, firewall rules, or DNS.
+
+For troubleshooting, the underlying Compose interpolation check is:
 
 ```bash
 docker compose \
@@ -151,11 +173,12 @@ window.
 
 Before every update:
 
-1. Fetch and check out the exact reviewed commit without local modifications.
+1. Fetch and check out the exact reviewed commit, set `TRAVELTROVE_RELEASE` to
+   that commit in the protected environment file, and pass the production
+   preflight.
 2. Create and transfer a coordinated database/media backup using
    [`backup-and-restore.md`](backup-and-restore.md).
-3. Update `TRAVELTROVE_RELEASE` to the full commit, validate Compose, and build
-   both revision-tagged images.
+3. Build both revision-tagged images.
 4. Run the migration service and stop if it fails.
 5. Replace `app` and `caddy` with `up -d --no-build`, then verify health and a
    representative authenticated workflow.

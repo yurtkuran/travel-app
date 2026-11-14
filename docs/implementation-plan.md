@@ -1019,6 +1019,11 @@ Create a production Docker Compose deployment.
   database, checks application tables and migration history, and cleans up
   without stopping or modifying the live application. A persistent systemd
   timer and operations guidance make failures observable.
+- Added a read-only production preflight for first deployment and every update.
+  It rejects template values, weak secret configuration, a mismatched or dirty
+  release checkout, unsafe configuration permissions, missing persistent paths,
+  inadequate free space, unresolved DNS, unavailable Docker tooling, and an
+  invalid Compose model before any state-changing release step begins.
 
 ### Planned production services
 
@@ -1098,6 +1103,10 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-14
 
+- Added a production host preflight that validates immutable release identity,
+  secret-file permissions, persistent storage and capacity, DNS, Docker access,
+  and Compose interpolation without changing production state or disclosing
+  credentials.
 - Added scheduled verification of real off-host recovery points with exact
   artifact and checksum validation, safe media archive inspection, a disposable
   PostgreSQL restore and schema check, guaranteed cleanup, and a monthly
