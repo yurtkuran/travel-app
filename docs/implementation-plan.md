@@ -2,8 +2,8 @@
 
 > **Document status:** Living document
 > **Last updated:** 2026-11-14
-> **Current phase:** Phase 9 — Deploy to DigitalOcean
-> **Project status:** Phase 9 in progress — automated off-host recovery verification implemented
+> **Current phase:** Phase 9A — Local hosted-PostgreSQL shakedown
+> **Project status:** Phase 9A planned — validate locally with Supabase before incurring DigitalOcean costs
 
 This document is the implementation roadmap and ongoing record of scope,
 architecture decisions, phase status, and completion criteria for TravelTrove.
@@ -974,13 +974,65 @@ security, accessibility, or data-integrity issues.
 
 ---
 
-## Phase 9 — Deploy to DigitalOcean
+## Phase 9 — Shakedown and deploy
 
 **Status:** In progress
 
-Create a production Docker Compose deployment.
+Validate the application through sustained local use backed by hosted PostgreSQL,
+then deploy the proven system to DigitalOcean.
 
-### Current implementation progress
+### Phase 9A — Local hosted-PostgreSQL shakedown
+
+**Status:** Planned
+
+Run the application locally while using a Supabase Free project strictly as a
+hosted PostgreSQL database. Supabase Auth, Storage, browser SDKs, and public API
+keys are outside this plan. The existing `DATABASE_URL` remains the provider
+boundary: changing its value selects local PostgreSQL, Supabase, or the eventual
+DigitalOcean PostgreSQL service without adding a provider-specific switch.
+
+The detailed operating and migration contract is documented in the
+[local shakedown runbook](operations/local-shakedown.md).
+
+#### Shakedown work
+
+- Select and document the appropriate Supabase direct or session-pooler
+  connection, including required TLS settings.
+- Decide whether administrative operations need a separate
+  `DATABASE_MIGRATION_URL`; do not add one unless the runtime connection is
+  unsuitable for migrations, dumps, or restores.
+- Apply the reviewed Drizzle migrations and bootstrap the first administrator.
+- Keep unit, migration, backup/restore, integration, and browser tests on the
+  disposable local PostgreSQL infrastructure; never let a test runner create or
+  drop databases in the hosted project.
+- Keep media on the local filesystem. Treat database and media artifacts as one
+  coordinated recovery point and store backups independently of both the Mac
+  and Supabase.
+- Exercise real user and administrator workflows, record usability work in the
+  post-deployment backlog, and rehearse restoring the hosted database and local
+  media into clean local targets.
+- Avoid destructive local-volume commands such as `docker compose down
+--volumes` unless data removal is deliberate and a verified recovery point
+  exists.
+
+#### Phase 9A completion gate
+
+- Core user and administrator workflows have been exercised through real use.
+- No known high-severity security or data-integrity issue remains.
+- A coordinated database-and-media recovery point has restored successfully.
+- The Supabase-to-standard-PostgreSQL migration has been rehearsed.
+- Shakedown findings have been reviewed and classified.
+- Database use remains comfortably below the hosted free-tier quota.
+
+### Phase 9B — Deploy to DigitalOcean
+
+**Status:** Deferred until the Phase 9A completion gate is satisfied
+
+Create the production Docker Compose deployment on infrastructure provisioned
+by the separate Ansible project. The production foundation is implemented, but
+Droplet creation and release are intentionally deferred during shakedown.
+
+#### Current implementation progress
 
 - Added an environment-parameterized production Compose stack with a pinned
   Caddy reverse proxy, standalone Next.js application, private PostgreSQL 18
@@ -1024,8 +1076,13 @@ Create a production Docker Compose deployment.
   release checkout, unsafe configuration permissions, missing persistent paths,
   inadequate free space, unresolved DNS, unavailable Docker tooling, and an
   invalid Compose model before any state-changing release step begins.
+- Defined the contract for the separate Ansible provisioning project, including
+  ownership boundaries, required variables and host state, secret handling,
+  repeatable data-safety rules, timer installation, DigitalOcean backup
+  expectations, and fresh-Droplet acceptance checks. Provisioning remains
+  decoupled from state-changing application releases.
 
-### Planned production services
+#### Planned production services
 
 ```text
 Caddy
@@ -1034,7 +1091,7 @@ PostgreSQL
 Persistent media volume
 ```
 
-### Deployment work
+#### Deployment work
 
 - Use Caddy for HTTPS and reverse proxying.
 - Keep PostgreSQL on a private Docker network.
@@ -1047,7 +1104,7 @@ Persistent media volume
 - Maintain staging and production environment configuration.
 - Document provisioning, deployment, rollback, and recovery.
 
-### Backup work
+#### Backup work
 
 - Nightly PostgreSQL logical dump
 - Nightly independent media backup
@@ -1055,7 +1112,7 @@ Persistent media volume
 - Optional volume snapshots
 - Scheduled restore verification
 
-### Completion gate
+#### Phase 9B completion gate
 
 A new Droplet can be provisioned from the documentation, and the application
 can be restored using only documented backups and separately stored secrets.
@@ -1103,6 +1160,13 @@ tested, and the next set of features has been prioritized from actual needs.
 
 ### 2026-11-14
 
+- Revised Phase 9 into a local hosted-PostgreSQL shakedown followed by the
+  DigitalOcean deployment. Supabase is limited to PostgreSQL behind the existing
+  `DATABASE_URL`; local media, coordinated backups, restore rehearsal, and a
+  controlled database-and-media migration remain explicit requirements.
+- Added an Ansible provisioning handoff for the external infrastructure project,
+  defining the immutable application boundary, required host state, protected
+  inputs, idempotency rules, and post-provision acceptance evidence.
 - Added a production host preflight that validates immutable release identity,
   secret-file permissions, persistent storage and capacity, DNS, Docker access,
   and Compose interpolation without changing production state or disclosing

@@ -3,10 +3,20 @@
 > **Status:** Phase 9 deployment foundation  
 > **Last reviewed:** 2026-11-14
 
+DigitalOcean deployment is Phase 9B and is intentionally deferred until the
+[local hosted-PostgreSQL shakedown](local-shakedown.md) satisfies its exit gate.
+This runbook remains the deployment target; the shakedown changes sequencing,
+not the production architecture.
+
 TravelTrove deploys as a Docker Compose stack containing Caddy, the standalone
 Next.js application, PostgreSQL, and a one-shot migration image. Only Caddy
 publishes host ports. PostgreSQL remains on an internal network, while database,
 media, and Caddy state use explicit persistent host paths.
+
+Host provisioning is implemented in a separate Ansible project. That project
+must satisfy the repository's
+[Ansible provisioning handoff](ansible-handoff.md); this runbook remains the
+source of truth for application deployment and recovery behavior.
 
 ## Host and DNS prerequisites
 
