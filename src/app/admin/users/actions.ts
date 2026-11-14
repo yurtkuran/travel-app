@@ -35,7 +35,7 @@ export async function provisionUserAction(
   _previous: LinkActionState,
   formData: FormData,
 ): Promise<LinkActionState> {
-  const session = await requireFreshAdminSession();
+  const session = await requireFreshAdminSession("/admin/users/new");
   try {
     const result = await provisionUser(session.actor, {
       email: String(formData.get("email") ?? ""),

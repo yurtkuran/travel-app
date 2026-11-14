@@ -5,7 +5,13 @@ import { useEffect, useState } from "react";
 
 import { authClient } from "./auth-client";
 
-export function SignInForm({ returnTo }: { returnTo: string }) {
+export function SignInForm({
+  initialEmail,
+  returnTo,
+}: {
+  initialEmail?: string;
+  returnTo: string;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -48,6 +54,7 @@ export function SignInForm({ returnTo }: { returnTo: string }) {
         <label htmlFor="email">Email address</label>
         <input
           autoComplete="email"
+          defaultValue={initialEmail}
           id="email"
           name="email"
           required

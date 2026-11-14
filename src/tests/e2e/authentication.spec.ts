@@ -718,7 +718,22 @@ test.describe("authentication boundaries", () => {
     const managedEmail = `managed-${taxonomySuffix}@example.test`;
     await page.context().clearCookies();
     await signIn(page, admin.email);
+    await sql`
+      update session
+         set created_at = now() - interval '20 minutes'
+       where user_id = ${admin.id}
+    `;
     await page.goto("/admin/users/new");
+    await expect(page).toHaveURL(
+      /\/sign-in\?returnTo=%2Fadmin%2Fusers%2Fnew&fresh=required$/,
+    );
+    await expect(page.getByRole("status")).toContainText(
+      "Confirm your identity",
+    );
+    await expect(page.getByLabel("Email address")).toHaveValue(admin.email);
+    await page.getByLabel("Password", { exact: true }).fill(password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/admin\/users\/new$/);
     await page.getByLabel("Name").fill("Managed Browser User");
     await page.getByLabel("Email address").fill(managedEmail);
     await page.getByRole("button", { name: "Provision user" }).click();

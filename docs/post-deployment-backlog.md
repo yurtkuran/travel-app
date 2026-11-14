@@ -68,6 +68,30 @@ Expected outcome:
   removed.
 - Loading, focus, and screen-reader feedback remain clear during the update.
 
+## User administration
+
+| ID      | Item                                     | Status   |
+| ------- | ---------------------------------------- | -------- |
+| USR-001 | Add the ability to edit an existing user | Captured |
+
+### USR-001 — Edit users
+
+Allow an administrator to edit an existing user from the account-management
+workflow.
+
+Expected outcome:
+
+- Administrators can open and update the permitted account fields.
+- Server-side validation preserves unique email addresses and account
+  integrity.
+- Editing profile information does not expose or alter private user activity.
+- Changes are recorded in the audit log.
+- The workflow provides accessible success and validation feedback.
+
+Before implementation, define which fields administrators may edit, whether an
+email change requires reverification, and whether sensitive changes revoke
+existing sessions.
+
 ## Backlog governance
 
 - Add newly observed items with a stable ID, concise outcome, and status.

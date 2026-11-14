@@ -58,7 +58,7 @@ export function ProvisionForm() {
           </div>
         </form>
       ) : state.userId ? (
-        <div className="proposal-actions">
+        <div className="proposal-actions account-administration-form__actions">
           <Link
             className="button-primary"
             href={`/admin/users/${state.userId}`}

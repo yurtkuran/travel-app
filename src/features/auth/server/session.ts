@@ -42,10 +42,14 @@ export async function requireAdminSession(): Promise<CurrentSession> {
   return session;
 }
 
-export async function requireFreshAdminSession(): Promise<CurrentSession> {
+export async function requireFreshAdminSession(
+  returnTo = "/admin",
+): Promise<CurrentSession> {
   const session = await requireAdminSession();
   if (Date.now() - session.sessionCreatedAt.getTime() > 15 * 60 * 1000) {
-    redirect("/sign-in?returnTo=%2Fadmin&fresh=required");
+    redirect(
+      `/sign-in?returnTo=${encodeURIComponent(returnTo)}&fresh=required`,
+    );
   }
   return session;
 }

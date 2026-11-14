@@ -10,6 +10,7 @@ export default async function SignInPage({
   searchParams,
 }: {
   searchParams: Promise<{
+    fresh?: string | string[];
     returnTo?: string | string[];
     setup?: string | string[];
   }>;
@@ -17,6 +18,7 @@ export default async function SignInPage({
   const params = await searchParams;
   const returnTo = safeReturnPath(params.returnTo);
   const session = await getCurrentSession();
+  const freshRequired = params.fresh === "required";
 
   return (
     <AuthShell
@@ -31,7 +33,15 @@ export default async function SignInPage({
           </FeedbackBanner>
         </div>
       ) : null}
-      {session ? (
+      {freshRequired && session ? (
+        <div className="mt-6">
+          <FeedbackBanner title="Confirm your identity" tone="warning">
+            Sign in again before performing this sensitive administrative
+            action.
+          </FeedbackBanner>
+        </div>
+      ) : null}
+      {session && !freshRequired ? (
         <div className="notice-panel">
           <p>You are already signed in as {session.email}.</p>
           <Link className="button-primary mt-4" href={returnTo}>
@@ -39,7 +49,7 @@ export default async function SignInPage({
           </Link>
         </div>
       ) : (
-        <SignInForm returnTo={returnTo} />
+        <SignInForm initialEmail={session?.email} returnTo={returnTo} />
       )}
     </AuthShell>
   );

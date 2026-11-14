@@ -1,10 +1,10 @@
 import { PageHeading } from "@/components/ui/page-heading";
-import { requireAdminSession } from "@/features/auth/server/session";
+import { requireFreshAdminSession } from "@/features/auth/server/session";
 
 import { ProvisionForm } from "./provision-form";
 
 export default async function NewAdminUserPage() {
-  await requireAdminSession();
+  await requireFreshAdminSession("/admin/users/new");
   return (
     <>
       <PageHeading
