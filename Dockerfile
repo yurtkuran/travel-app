@@ -14,6 +14,8 @@ EXPOSE 3000
 CMD ["pnpm", "dev", "--hostname", "0.0.0.0"]
 
 FROM dependencies AS migration
+ARG APP_REVISION=unknown
+LABEL org.opencontainers.image.revision=$APP_REVISION
 COPY tsconfig.json ./
 COPY drizzle ./drizzle
 COPY src ./src
@@ -24,6 +26,8 @@ COPY . .
 RUN pnpm build
 
 FROM node:24.22.2-alpine3.24 AS production
+ARG APP_REVISION=unknown
+LABEL org.opencontainers.image.revision=$APP_REVISION
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs

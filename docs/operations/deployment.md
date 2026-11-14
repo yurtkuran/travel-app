@@ -49,7 +49,9 @@ database files contain private user data and must not be served directly.
 ## Environment configuration
 
 Copy `.env.production.example` outside the checkout, then replace every
-placeholder with environment-specific values:
+placeholder with environment-specific values. Keep the file compatible with
+POSIX shell assignment syntax because release validation loads these trusted,
+operator-owned values into the deployment shell:
 
 ```bash
 sudo install -d -m 0750 /etc/traveltrove
@@ -62,6 +64,11 @@ cryptographically secure generator. URL-encode the database password when
 placing it in `DATABASE_URL`. The environment file must never enter Git, a
 container image, logs, tickets, or chat. Keep a recoverable encrypted copy in
 the approved secrets system.
+
+Set `TRAVELTROVE_RELEASE` to the full Git commit being deployed. Both application
+and migration images receive that immutable tag and an OCI revision label. The
+checked-out commit must match this value; never deploy a dirty worktree or reuse
+a release tag for different source.
 
 Validate interpolation before building:
 
@@ -78,6 +85,18 @@ Run migrations as a separate, observable step before starting or replacing the
 application:
 
 ```bash
+set -a
+. /etc/traveltrove/production.env
+set +a
+
+test "$(git rev-parse HEAD)" = "$TRAVELTROVE_RELEASE"
+test -z "$(git status --short)"
+
+docker compose \
+  --env-file /etc/traveltrove/production.env \
+  -f compose.production.yaml \
+  build app migrate
+
 docker compose \
   --env-file /etc/traveltrove/production.env \
   -f compose.production.yaml \
@@ -87,7 +106,7 @@ docker compose \
 docker compose \
   --env-file /etc/traveltrove/production.env \
   -f compose.production.yaml \
-  up -d --build db app caddy
+  up -d --no-build db app caddy
 ```
 
 Check container state and both health endpoints:
@@ -108,6 +127,46 @@ structured operational logs to stdout; Docker retains five rotating 10 MB JSON
 log files per service. HTTP access logging is intentionally disabled because
 account-setup requests can carry one-time credentials in their query strings. Do
 not enable proxy access logs until credential-bearing URLs are reliably redacted.
+
+After validation, record the deployed Git revision, image IDs, migration result,
+backup reference, operator, and UTC timestamp in the operations log. Retain the
+previous application image until the new release has completed its observation
+window.
+
+## Updating production
+
+Before every update:
+
+1. Fetch and check out the exact reviewed commit without local modifications.
+2. Create and transfer a coordinated database/media backup using
+   [`backup-and-restore.md`](backup-and-restore.md).
+3. Update `TRAVELTROVE_RELEASE` to the full commit, validate Compose, and build
+   both revision-tagged images.
+4. Run the migration service and stop if it fails.
+5. Replace `app` and `caddy` with `up -d --no-build`, then verify health and a
+   representative authenticated workflow.
+6. Record the release evidence and retain the preceding images and backup.
+
+Do not use `docker compose down --volumes`; production state uses persistent host
+paths, but broad destructive commands remain unacceptable during a release.
+
+## Rollback
+
+Classify the rollback before changing containers:
+
+- **Application-only rollback:** permitted when the preceding application is
+  explicitly compatible with the current database schema. Check out the prior
+  revision, set `TRAVELTROVE_RELEASE` to that full commit, rebuild only `app`, and
+  replace only `app` with `up -d --no-build app`. Recheck both health endpoints
+  and the affected workflow.
+- **Database-incompatible rollback:** stop the application and follow the full
+  clean-target procedure in [`backup-and-restore.md`](backup-and-restore.md).
+  Migrations are forward-only; never edit migration history, manually reverse
+  DDL, or run `pg_restore --clean` against the live database.
+
+Record the reason, compatibility decision, revision transition, backup used,
+operator, timestamps, and validation results. Preserve the failed release for
+forensic review rather than overwriting its image tag.
 
 ## Staging
 

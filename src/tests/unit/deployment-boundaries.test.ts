@@ -50,6 +50,21 @@ describe("deployment network boundaries", () => {
     expect(compose.match(/restart: unless-stopped/g)).toHaveLength(3);
   });
 
+  it("tags application and migration images with one immutable revision", () => {
+    const compose = projectFile("compose.production.yaml");
+    const dockerfile = projectFile("Dockerfile");
+    expect(compose).toContain(
+      "traveltrove-app:${TRAVELTROVE_RELEASE:?set TRAVELTROVE_RELEASE}",
+    );
+    expect(compose).toContain(
+      "traveltrove-migrate:${TRAVELTROVE_RELEASE:?set TRAVELTROVE_RELEASE}",
+    );
+    expect(compose.match(/APP_REVISION:/g)).toHaveLength(2);
+    expect(
+      dockerfile.match(/LABEL org\.opencontainers\.image\.revision/g),
+    ).toHaveLength(2);
+  });
+
   it("does not log credential-bearing proxy request URLs", () => {
     const caddyfile = projectFile("deploy/Caddyfile");
     expect(caddyfile).not.toMatch(/^\s*log\s*{/m);

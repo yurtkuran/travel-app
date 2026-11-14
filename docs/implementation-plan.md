@@ -996,6 +996,14 @@ Create a production Docker Compose deployment.
   health verification, and strict staging/production isolation on separate
   Droplets. Configuration regression tests reject public database exposure,
   floating runtime versions, missing health checks, or unbounded logs.
+- Bound application and migration images to one immutable full-commit release
+  identifier through their tags and OCI revision labels. The update runbook now
+  requires a clean matching checkout, coordinated pre-release backup, separately
+  observed migration, health and workflow validation, evidence recording, and
+  retention of the prior image. Rollback explicitly distinguishes
+  schema-compatible application replacement from clean-target data restoration;
+  migrations remain forward-only. Both revision-tagged image targets build
+  successfully from the production Compose model.
 
 ### Planned production services
 
@@ -1082,6 +1090,12 @@ tested, and the next set of features has been prioritized from actual needs.
   DigitalOcean deployment runbook. Verified production Compose interpolation,
   both production image targets, formatting, ESLint, TypeScript, and all
   thirty-one unit tests.
+- Added immutable Git-revision tags and OCI labels to production application and
+  migration images, CI validation of the production Compose model, and a
+  database-aware update and rollback contract that forbids tag reuse and
+  in-place migration reversal. Verified Compose interpolation, formatting,
+  ESLint, TypeScript, all thirty-two unit tests, and both revision-tagged image
+  builds.
 - Added the coordinated database-and-media backup runbook and an automated
   clean-target restoration test using the pinned PostgreSQL 18 container tools.
   The test verifies artifact checksums, database and media sentinels, disposable
