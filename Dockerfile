@@ -1,4 +1,4 @@
-FROM node:24.22.2-alpine3.24 AS base
+FROM node:26.13.0-alpine3.24 AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
@@ -25,7 +25,7 @@ FROM dependencies AS builder
 COPY . .
 RUN pnpm build
 
-FROM node:24.22.2-alpine3.24 AS production
+FROM node:26.13.0-alpine3.24 AS production
 ARG APP_REVISION=unknown
 LABEL org.opencontainers.image.revision=$APP_REVISION
 ENV NODE_ENV=production
