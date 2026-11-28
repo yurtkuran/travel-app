@@ -22,7 +22,6 @@ function submissionInput(formData: FormData) {
     name: String(formData.get("name") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     postalCode: String(formData.get("postalCode") ?? ""),
-    recommendedOn: String(formData.get("recommendedOn") ?? ""),
     shortSummary: String(formData.get("shortSummary") ?? ""),
     sourceName: String(formData.get("sourceName") ?? ""),
     sourceType: String(formData.get("sourceType") ?? ""),

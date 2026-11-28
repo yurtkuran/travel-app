@@ -10,11 +10,7 @@ export default async function NewSubmissionPage() {
 
   return (
     <>
-      <PageHeading
-        description="Create a private draft, keep recommendation provenance private, and submit the place when it is ready for administrative review."
-        eyebrow="New contribution"
-        title="Add a place"
-      />
+      <PageHeading title="Add a place" />
       <SubmissionForm
         categories={taxonomy.categories}
         cities={taxonomy.cities}

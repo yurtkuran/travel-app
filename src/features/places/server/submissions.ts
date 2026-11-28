@@ -115,16 +115,6 @@ export const placeDraftSchema = z.object({
   name: optionalText(160, "Place name"),
   phone: optionalText(50, "Phone number"),
   postalCode: optionalText(32, "Postal code"),
-  recommendedOn: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === "" || /^\d{4}-\d{2}-\d{2}$/.test(value),
-      "Recommendation date must be a valid date",
-    )
-    .transform((value) => value || undefined)
-    .optional()
-    .default(""),
   shortSummary: optionalText(500, "Short summary", false),
   sourceName: optionalText(160, "Source name"),
   sourceType: z
@@ -218,7 +208,7 @@ export async function createPlaceDraft(
 
   return sql.begin(async (transaction) => {
     await assertAvailableTaxonomy(transaction, input);
-    const [place] = await transaction<{ id: string }[]>`
+    const [place] = await transaction<{ id: string; recommendedOn: string }[]>`
       insert into places (
         name,
         city_id,
@@ -252,7 +242,7 @@ export async function createPlaceDraft(
         ${actor.id},
         ${intent === "submit" ? new Date().toISOString() : null}
       )
-      returning id
+      returning id, created_at::date::text as "recommendedOn"
     `;
     if (!place) throw new Error("Place creation did not return a record");
 
@@ -271,7 +261,7 @@ export async function createPlaceDraft(
         ${input.sourceType || null},
         ${input.sourceName || null},
         ${input.sourceUrl || null},
-        ${input.recommendedOn || null},
+        ${place.recommendedOn},
         ${input.submissionNotes || null}
       )
     `;
@@ -304,9 +294,15 @@ export async function updatePlaceDraft(
 
   return sql.begin(async (transaction) => {
     const [draft] = await transaction<
-      { status: string; submittedByUserId: string | null }[]
+      {
+        recommendedOn: string;
+        status: string;
+        submittedByUserId: string | null;
+      }[]
     >`
-      select status, submitted_by_user_id as "submittedByUserId"
+      select status,
+             submitted_by_user_id as "submittedByUserId",
+             created_at::date::text as "recommendedOn"
         from places
        where id = ${placeId}
        for update
@@ -341,7 +337,7 @@ export async function updatePlaceDraft(
          set source_type = ${input.sourceType || null},
              source_name = ${input.sourceName || null},
              source_url = ${input.sourceUrl || null},
-             recommended_on = ${input.recommendedOn || null},
+             recommended_on = ${draft.recommendedOn},
              submission_notes = ${input.submissionNotes || null},
              updated_at = now()
        where place_id = ${placeId}
