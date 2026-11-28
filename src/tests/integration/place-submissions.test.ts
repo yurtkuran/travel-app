@@ -151,15 +151,27 @@ describe("place submission lifecycle", () => {
     createdPlaceIds.push(submitted.id);
 
     const [stored] = await sql<
-      { action: string; status: string; submitted_at: string | null }[]
+      {
+        action: string;
+        createdOn: string;
+        recommendedOn: string;
+        status: string;
+        submitted_at: string | null;
+      }[]
     >`
-      select p.status, p.submitted_at::text, ae.action
+      select p.status,
+             p.submitted_at::text,
+             p.created_at::date::text as "createdOn",
+             provenance.recommended_on::text as "recommendedOn",
+             ae.action
         from places p
+        join place_submission_provenance provenance on provenance.place_id = p.id
         join audit_events ae on ae.target_id = p.id::text and ae.target_type = 'place'
        where p.id = ${submitted.id}
     `;
     expect(stored?.status).toBe("pending_review");
     expect(stored?.submitted_at).not.toBeNull();
+    expect(stored?.recommendedOn).toBe(stored?.createdOn);
     expect(stored?.action).toBe("place.submitted");
 
     const owned = await listOwnSubmissions(actor);

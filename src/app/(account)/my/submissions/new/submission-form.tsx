@@ -49,15 +49,19 @@ export function SubmissionForm({
         <FeedbackBanner tone="error">{state.message}</FeedbackBanner>
       ) : null}
 
-      <fieldset className="form-section">
-        <legend>
-          <span className="eyebrow">01 · Identity</span>
-          <strong>Place information</strong>
-        </legend>
-        <p className="form-section__description">
-          Name, city, and category are required when you submit, but not when
-          saving a private draft.
-        </p>
+      <fieldset
+        aria-labelledby="place-information-title"
+        className="form-section"
+      >
+        <div className="form-section__heading">
+          <h2 className="form-section__title" id="place-information-title">
+            Place information
+          </h2>
+          <p className="form-section__description">
+            Name, city, and category are required when you submit, but not when
+            saving a private draft.
+          </p>
+        </div>
         <div className="form-grid form-grid--two">
           <div className="form-field form-grid__wide">
             <label htmlFor="submission-name">Place name</label>
@@ -161,22 +165,23 @@ export function SubmissionForm({
               id="submission-description"
               maxLength={5000}
               name="description"
-              rows={5}
+              rows={4}
               defaultValue={submission?.description ?? ""}
             />
           </div>
         </div>
       </fieldset>
 
-      <fieldset className="form-section">
-        <legend>
-          <span className="eyebrow">02 · Location</span>
-          <strong>Address</strong>
-        </legend>
-        <p className="form-section__description">
-          Add as much location detail as is useful. The selected city supplies
-          the region and country context.
-        </p>
+      <fieldset aria-labelledby="place-address-title" className="form-section">
+        <div className="form-section__heading">
+          <h2 className="form-section__title" id="place-address-title">
+            Address
+          </h2>
+          <p className="form-section__description">
+            Add as much location detail as is useful. The selected city supplies
+            the region and country context.
+          </p>
+        </div>
         <div className="form-grid form-grid--two">
           <div className="form-field form-grid__wide">
             <label htmlFor="submission-street">Street address</label>
@@ -210,15 +215,19 @@ export function SubmissionForm({
         </div>
       </fieldset>
 
-      <fieldset className="form-section form-section--private">
-        <legend>
-          <span className="eyebrow">03 · Private provenance</span>
-          <strong>How you found it</strong>
-        </legend>
-        <p className="form-section__description">
-          These details remain visible only to you and administrators. They are
-          never published as place information.
-        </p>
+      <fieldset
+        aria-labelledby="place-provenance-title"
+        className="form-section"
+      >
+        <div className="form-section__heading">
+          <h2 className="form-section__title" id="place-provenance-title">
+            How you found it
+          </h2>
+          <p className="form-section__description form-section__description--single-line">
+            These details remain visible only to you and administrators. They
+            are never published as place information.
+          </p>
+        </div>
         <div className="form-grid form-grid--two">
           <div className="form-field">
             <label htmlFor="submission-source-type">Source type</label>
@@ -269,22 +278,13 @@ export function SubmissionForm({
               message={state.fieldErrors.sourceUrl}
             />
           </div>
-          <div className="form-field">
-            <label htmlFor="submission-recommended-on">Date recommended</label>
-            <input
-              id="submission-recommended-on"
-              name="recommendedOn"
-              type="date"
-              defaultValue={submission?.recommendedOn ?? ""}
-            />
-          </div>
           <div className="form-field form-grid__wide">
             <label htmlFor="submission-notes">Submission notes</label>
             <textarea
               id="submission-notes"
               maxLength={5000}
               name="submissionNotes"
-              rows={4}
+              rows={3}
               defaultValue={submission?.submissionNotes ?? ""}
             />
           </div>
